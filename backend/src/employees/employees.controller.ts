@@ -13,11 +13,6 @@ export class EmployeesController {
     return this.employeesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string): Promise<Employee | null> {
-    return this.employeesService.findOne(+id);
-  }
-
   @Post()
   create(@Body() dto: CreateEmployeeDto): Promise<Employee> {
     return this.employeesService.create(dto);
