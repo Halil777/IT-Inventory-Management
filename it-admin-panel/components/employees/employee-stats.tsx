@@ -1,38 +1,33 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, UserCheck, UserX, Monitor } from "lucide-react"
-
-const stats = [
-  {
-    title: "Total Employees",
-    value: "456",
-    change: "+23 this month",
-    icon: Users,
-    color: "text-blue-600",
-  },
-  {
-    title: "Active Employees",
-    value: "442",
-    change: "+20 this month",
-    icon: UserCheck,
-    color: "text-green-600",
-  },
-  {
-    title: "Inactive Employees",
-    value: "14",
-    change: "+3 this month",
-    icon: UserX,
-    color: "text-red-600",
-  },
-  {
-    title: "Devices Assigned",
-    value: "1,234",
-    change: "+45 this month",
-    icon: Monitor,
-    color: "text-purple-600",
-  },
-]
+import { getEmployees, getDevices } from "@/lib/api"
 
 export function EmployeeStats() {
+  const [total, setTotal] = useState(0)
+  const [withDevices, setWithDevices] = useState(0)
+  const [deviceTotal, setDeviceTotal] = useState(0)
+
+  useEffect(() => {
+    Promise.all([getEmployees(), getDevices()])
+      .then(([emps, devs]) => {
+        setTotal(emps.length)
+        setDeviceTotal(devs.length)
+        const assignedIds = new Set(devs.filter((d: any) => d.user).map((d: any) => d.user.id))
+        setWithDevices(assignedIds.size)
+      })
+      .catch((err) => console.error(err))
+  }, [])
+
+  const stats = [
+    { title: "Total Employees", value: total, icon: Users, color: "text-blue-600" },
+    { title: "With Devices", value: withDevices, icon: UserCheck, color: "text-green-600" },
+    { title: "Without Devices", value: total - withDevices, icon: UserX, color: "text-red-600" },
+    { title: "Total Devices", value: deviceTotal, icon: Monitor, color: "text-purple-600" },
+  ]
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => (
@@ -43,7 +38,6 @@ export function EmployeeStats() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stat.value}</div>
-            <p className="text-xs text-muted-foreground">{stat.change}</p>
           </CardContent>
         </Card>
       ))}
