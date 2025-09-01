@@ -1,45 +1,31 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Monitor, Laptop, Printer, HardDrive, AlertTriangle } from "lucide-react"
-
-const stats = [
-  {
-    title: "Total Devices",
-    value: "1,234",
-    change: "+45 this month",
-    icon: Monitor,
-    color: "text-blue-600",
-  },
-  {
-    title: "Computers",
-    value: "567",
-    change: "+23 this month",
-    icon: Laptop,
-    color: "text-green-600",
-  },
-  {
-    title: "Printers",
-    value: "89",
-    change: "+3 this month",
-    icon: Printer,
-    color: "text-purple-600",
-  },
-  {
-    title: "Peripherals",
-    value: "456",
-    change: "+15 this month",
-    icon: HardDrive,
-    color: "text-orange-600",
-  },
-  {
-    title: "Under Repair",
-    value: "23",
-    change: "+5 this month",
-    icon: AlertTriangle,
-    color: "text-red-600",
-  },
-]
+import { getDevices } from "@/lib/api"
 
 export function DeviceStats() {
+  const [devices, setDevices] = useState<any[]>([])
+
+  useEffect(() => {
+    getDevices().then(setDevices).catch((err) => console.error(err))
+  }, [])
+
+  const total = devices.length
+  const computers = devices.filter((d) => d.type?.name === "Computer").length
+  const printers = devices.filter((d) => d.type?.name === "Printer").length
+  const peripherals = devices.filter((d) => d.type?.name === "Peripheral").length
+  const underRepair = devices.filter((d) => d.status === "under-repair").length
+
+  const stats = [
+    { title: "Total Devices", value: total, icon: Monitor, color: "text-blue-600" },
+    { title: "Computers", value: computers, icon: Laptop, color: "text-green-600" },
+    { title: "Printers", value: printers, icon: Printer, color: "text-purple-600" },
+    { title: "Peripherals", value: peripherals, icon: HardDrive, color: "text-orange-600" },
+    { title: "Under Repair", value: underRepair, icon: AlertTriangle, color: "text-red-600" },
+  ]
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
       {stats.map((stat) => (
@@ -50,7 +36,6 @@ export function DeviceStats() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stat.value}</div>
-            <p className="text-xs text-muted-foreground">{stat.change}</p>
           </CardContent>
         </Card>
       ))}

@@ -1,80 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Search, MoreHorizontal, Edit, Eye, Trash2, Download } from "lucide-react"
-
-// Mock data - in real app this would come from API
-const departments = [
-  {
-    id: "1",
-    name: "Information Technology",
-    head: "John Smith",
-    employeeCount: 45,
-    deviceCount: 120,
-    status: "active",
-    budget: "$250,000",
-    location: "Building A, Floor 3",
-  },
-  {
-    id: "2",
-    name: "Human Resources",
-    head: "Sarah Johnson",
-    employeeCount: 12,
-    deviceCount: 25,
-    status: "active",
-    budget: "$80,000",
-    location: "Building A, Floor 2",
-  },
-  {
-    id: "3",
-    name: "Marketing",
-    head: "Mike Wilson",
-    employeeCount: 28,
-    deviceCount: 65,
-    status: "active",
-    budget: "$150,000",
-    location: "Building B, Floor 1",
-  },
-  {
-    id: "4",
-    name: "Finance",
-    head: "Emily Davis",
-    employeeCount: 18,
-    deviceCount: 35,
-    status: "active",
-    budget: "$120,000",
-    location: "Building A, Floor 4",
-  },
-  {
-    id: "5",
-    name: "Operations",
-    head: "David Brown",
-    employeeCount: 32,
-    deviceCount: 78,
-    status: "active",
-    budget: "$180,000",
-    location: "Building C, Floor 1",
-  },
-]
+import { Search, MoreHorizontal, Eye, Edit, Trash2, Download } from "lucide-react"
+import { getDepartments } from "@/lib/api"
 
 export function DepartmentList() {
+  const [departments, setDepartments] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
 
-  const filteredDepartments = departments.filter(
-    (dept) =>
-      dept.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      dept.head.toLowerCase().includes(searchTerm.toLowerCase()),
+  useEffect(() => {
+    getDepartments().then(setDepartments).catch((err) => console.error(err))
+  }, [])
+
+  const filtered = departments.filter((d) =>
+    d.name.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   const handleExport = () => {
-    // In a real app, this would generate and download an Excel file
     console.log("Exporting departments to Excel...")
     alert("Export functionality would be implemented here")
   }
@@ -108,31 +56,16 @@ export function DepartmentList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Department</TableHead>
-              <TableHead>Head of Department</TableHead>
-              <TableHead>Employees</TableHead>
-              <TableHead>Devices</TableHead>
-              <TableHead>Budget</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>ID</TableHead>
+              <TableHead>Name</TableHead>
               <TableHead className="w-[70px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredDepartments.map((dept) => (
+            {filtered.map((dept) => (
               <TableRow key={dept.id}>
-                <TableCell>
-                  <div>
-                    <div className="font-medium">{dept.name}</div>
-                    <div className="text-sm text-muted-foreground">{dept.location}</div>
-                  </div>
-                </TableCell>
-                <TableCell>{dept.head}</TableCell>
-                <TableCell>{dept.employeeCount}</TableCell>
-                <TableCell>{dept.deviceCount}</TableCell>
-                <TableCell>{dept.budget}</TableCell>
-                <TableCell>
-                  <Badge variant={dept.status === "active" ? "default" : "secondary"}>{dept.status}</Badge>
-                </TableCell>
+                <TableCell>{dept.id}</TableCell>
+                <TableCell>{dept.name}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
