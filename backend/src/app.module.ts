@@ -19,7 +19,7 @@ import { ReportsModule } from './reports/reports.module';
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT || '5432', 10),
       username: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
+      password: process.env.DB_PASSWORD || 'QwertyWeb123_321',
       database: process.env.DB_NAME || 'it_inventory',
       autoLoadEntities: true,
       synchronize: true,

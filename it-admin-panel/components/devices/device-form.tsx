@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { createDevice, updateDevice, getDeviceTypes, getEmployees, getDepartments, getDevice, createDeviceType } from "@/lib/api"
+import { toast } from "sonner"
+import { useI18n } from "@/lib/i18n"
 
 interface DeviceFormProps {
   deviceId?: string
@@ -17,8 +20,16 @@ interface DeviceFormProps {
 
 export function DeviceForm({ deviceId }: DeviceFormProps) {
   const router = useRouter()
+  const { t } = useI18n()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [deviceTypes, setDeviceTypes] = useState<any[]>([])
+  const [typeId, setTypeId] = useState<string>("")
+  const [status, setStatus] = useState<string>("new")
+  const [employees, setEmployees] = useState<any[]>([])
+  const [departments, setDepartments] = useState<any[]>([])
+  const [userId, setUserId] = useState<string>("")
+  const [departmentId, setDepartmentId] = useState<string>("")
 
   const isEditing = !!deviceId
 
@@ -28,17 +39,66 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
     setError("")
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const tid = typeId ? Number(typeId) : NaN
+      if (Number.isNaN(tid) || !status) throw new Error("Missing required fields")
 
-      // In a real app, you would make an API call here
-      console.log(isEditing ? "Updating device..." : "Creating device...")
+      const data: any = { typeId: tid, status }
+      if (userId) data.userId = Number(userId)
+      if (departmentId) data.departmentId = Number(departmentId)
+      if (isEditing) {
+        await updateDevice(deviceId!, data)
+        toast.success("Device updated")
+      } else {
+        await createDevice(data)
+        toast.success("Device created")
+      }
 
       router.push("/dashboard/devices")
     } catch (err) {
-      setError("Failed to save device. Please try again.")
+      setError(err instanceof Error ? err.message : "Failed to save device. Please try again.")
+      toast.error("Failed to save device")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    getDeviceTypes()
+      .then((list) => {
+        setDeviceTypes(list)
+        if (!deviceId && list.length > 0) {
+          setTypeId(String(list[0].id))
+        }
+      })
+      .catch(console.error)
+    getEmployees().then(setEmployees).catch(console.error)
+    getDepartments().then(setDepartments).catch(console.error)
+
+    if (deviceId) {
+      getDevice(deviceId)
+        .then((dev) => {
+          setTypeId(dev.type?.id ? String(dev.type.id) : "")
+          setStatus(dev.status || "new")
+          setUserId(dev.user?.id ? String(dev.user.id) : "")
+          setDepartmentId(dev.department?.id ? String(dev.department.id) : "")
+        })
+        .catch(console.error)
+    }
+  }, [deviceId])
+
+  const seedDefaults = async () => {
+    const defaults = ["Computer", "Monitor", "Printer", "Peripheral", "Plotter"]
+    try {
+      for (const name of defaults) {
+        await createDeviceType({ name })
+      }
+      const list = await getDeviceTypes()
+      setDeviceTypes(list)
+      if (list.length > 0) setTypeId(String(list[0].id))
+      toast.success("Default device types created")
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to create default device types")
     }
   }
 
@@ -50,26 +110,39 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
         </Alert>
       )}
 
+      {deviceTypes.length === 0 && (
+        <Alert>
+          <AlertDescription>
+            No device types found. Create default types to proceed.
+            <Button size="sm" className="ml-2" type="button" onClick={seedDefaults}>
+              Create defaults
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="category">Category *</Label>
-          <Select name="category" defaultValue={isEditing ? "Computer" : "Select device category"} required>
+          <Label htmlFor="typeId">Device Type *</Label>
+          <input type="hidden" name="typeId" value={typeId} />
+          <Select value={typeId} onValueChange={setTypeId} required>
             <SelectTrigger>
-              <SelectValue placeholder="Select device category" />
+              <SelectValue placeholder="Select device type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Computer">Computer</SelectItem>
-              <SelectItem value="Monitor">Monitor</SelectItem>
-              <SelectItem value="Printer">Printer</SelectItem>
-              <SelectItem value="Plotter">Plotter</SelectItem>
-              <SelectItem value="Peripheral">Peripheral</SelectItem>
+              {deviceTypes.map((t) => (
+                <SelectItem key={t.id} value={String(t.id)}>
+                  {t.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="status">Status *</Label>
-          <Select name="status" defaultValue={isEditing ? "in-use" : "new"} required>
+          <input type="hidden" name="status" value={status} />
+          <Select value={status} onValueChange={setStatus} required>
             <SelectTrigger>
               <SelectValue placeholder="Select device status" />
             </SelectTrigger>
@@ -145,30 +218,39 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="assignedTo">Assigned To</Label>
-          <Select name="assignedTo" defaultValue={isEditing ? "john-smith" : "Select employee or department"}>
+          <Label htmlFor="userId">Assigned User</Label>
+          <input type="hidden" name="userId" value={userId} />
+          <Select value={userId || undefined} onValueChange={(v) => setUserId(v === "none" ? "" : v)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select employee or department" />
+              <SelectValue placeholder="Select user (optional)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Unassigned</SelectItem>
-              <SelectItem value="john-smith">John Smith</SelectItem>
-              <SelectItem value="sarah-johnson">Sarah Johnson</SelectItem>
-              <SelectItem value="mike-wilson">Mike Wilson</SelectItem>
-              <SelectItem value="it-department">IT Department</SelectItem>
-              <SelectItem value="marketing-department">Marketing Department</SelectItem>
+              <SelectItem value="none">Unassigned</SelectItem>
+              {employees.map((u) => (
+                <SelectItem key={u.id} value={String(u.id)}>
+                  {u.name} {u.surname}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="location">Location</Label>
-          <Input
-            id="location"
-            name="location"
-            placeholder="e.g., Building A, Floor 3"
-            defaultValue={isEditing ? "Building A, Floor 3" : "Enter location"}
-          />
+          <Label htmlFor="departmentId">Assigned Department</Label>
+          <input type="hidden" name="departmentId" value={departmentId} />
+          <Select value={departmentId || undefined} onValueChange={(v) => setDepartmentId(v === "none" ? "" : v)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select department (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Unassigned</SelectItem>
+              {departments.map((d) => (
+                <SelectItem key={d.id} value={String(d.id)}>
+                  {d.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -221,11 +303,11 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Saving..." : isEditing ? "Update Device" : "Create Device"}
+        <Button type="submit" disabled={isLoading || !typeId || deviceTypes.length === 0}>
+          {isEditing ? t("common.edit") : t("common.add")}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </form>

@@ -10,12 +10,16 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { createDepartment, updateDepartment } from "@/lib/api"
+import { useI18n } from "@/lib/i18n"
+import { toast } from "sonner"
 
 interface DepartmentFormProps {
   departmentId?: string
 }
 
 export function DepartmentForm({ departmentId }: DepartmentFormProps) {
+  const { t } = useI18n()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -28,15 +32,22 @@ export function DepartmentForm({ departmentId }: DepartmentFormProps) {
     setError("")
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const form = new FormData(e.currentTarget)
+      const name = String(form.get("name") || "").trim()
+      if (!name) throw new Error("Name is required")
 
-      // In a real app, you would make an API call here
-      console.log(isEditing ? "Updating department..." : "Creating department...")
+      if (isEditing) {
+        await updateDepartment(departmentId!, { name })
+        toast.success("Department updated")
+      } else {
+        await createDepartment({ name })
+        toast.success("Department created")
+      }
 
       router.push("/dashboard/departments")
     } catch (err) {
-      setError("Failed to save department. Please try again.")
+      setError(err instanceof Error ? err.message : "Failed to save department. Please try again.")
+      toast.error("Failed to save department")
     } finally {
       setIsLoading(false)
     }
@@ -134,10 +145,10 @@ export function DepartmentForm({ departmentId }: DepartmentFormProps) {
 
       <div className="flex items-center gap-4">
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Saving..." : isEditing ? "Update Department" : "Create Department"}
+          {isEditing ? t("common.edit") : t("common.add")}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </form>

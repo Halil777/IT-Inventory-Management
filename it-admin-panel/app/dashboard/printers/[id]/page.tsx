@@ -1,29 +1,29 @@
 "use client"
-import { DepartmentDetails } from "@/components/departments/department-details"
+import { PrinterDetails } from "@/components/printers/printer-details"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Edit, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { deleteDepartment } from "@/lib/api"
-import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { deletePrinter } from "@/lib/api"
+import { toast } from "sonner"
 
-interface DepartmentPageProps {
+interface PrinterPageProps {
   params: {
     id: string
   }
 }
 
-export default function DepartmentPage({ params }: DepartmentPageProps) {
+export default function PrinterPage({ params }: PrinterPageProps) {
   const router = useRouter()
   const onDelete = async () => {
-    if (!confirm("Delete this department?")) return
+    if (!confirm("Delete this printer?")) return
     try {
-      await deleteDepartment(params.id)
-      router.push("/dashboard/departments")
-      toast.success("Department deleted")
+      await deletePrinter(params.id)
+      toast.success("Printer deleted")
+      router.push("/dashboard/printers")
     } catch (e) {
-      toast.error("Failed to delete department")
       console.error(e)
+      toast.error("Failed to delete printer")
     }
   }
   return (
@@ -31,19 +31,19 @@ export default function DepartmentPage({ params }: DepartmentPageProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/departments">
+            <Link href="/dashboard/printers">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Departments
+              Back to Printers
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Department Details</h1>
-            <p className="text-muted-foreground">View and manage department information</p>
+            <h1 className="text-3xl font-bold tracking-tight">Printer Details</h1>
+            <p className="text-muted-foreground">View and manage printer information</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/dashboard/departments/${params.id}/edit`}>
+            <Link href={`/dashboard/printers/${params.id}/edit`}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </Link>
@@ -55,7 +55,8 @@ export default function DepartmentPage({ params }: DepartmentPageProps) {
         </div>
       </div>
 
-      <DepartmentDetails departmentId={params.id} />
+      <PrinterDetails printerId={params.id} />
     </div>
   )
 }
+
