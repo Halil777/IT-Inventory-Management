@@ -48,8 +48,8 @@ export function DashboardSidebar() {
             <Monitor className="h-4 w-4" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">IT Admin Panel</span>
-            <span className="text-xs text-muted-foreground">Management System</span>
+            <span className="text-sm font-semibold">{t("app.name")}</span>
+            <span className="text-xs text-muted-foreground">{t("app.tagline")}</span>
           </div>
         </div>
       </SidebarHeader>

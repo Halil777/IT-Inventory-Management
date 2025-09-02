@@ -7,6 +7,10 @@ type Dict = Record<string, string>
 
 const dictionaries: Record<Lang, Dict> = {
   en: {
+    // App
+    "app.name": "IT Admin Panel",
+    "app.tagline": "Management System",
+
     // Common
     "common.change_language": "Change language",
     "common.add": "Add",
@@ -85,6 +89,10 @@ const dictionaries: Record<Lang, Dict> = {
     "sidebar.logout": "Logout",
   },
   tr: {
+    // App
+    "app.name": "BT Yönetim Paneli",
+    "app.tagline": "Yönetim Sistemi",
+
     "common.change_language": "Dili değiştir",
     "common.add": "Ekle",
     "common.edit": "Düzenle",
@@ -154,6 +162,10 @@ const dictionaries: Record<Lang, Dict> = {
     "sidebar.logout": "Çıkış",
   },
   tk: {
+    // App
+    "app.name": "IT Dolandyryş Paneli",
+    "app.tagline": "Dolandyryş Ulgamy",
+
     "common.change_language": "Dili üýtget",
     "common.add": "Goş",
     "common.edit": "Redaktirle",
@@ -223,6 +235,10 @@ const dictionaries: Record<Lang, Dict> = {
     "sidebar.logout": "Ulgamdan çyk",
   },
   ru: {
+    // App
+    "app.name": "Панель IT администратора",
+    "app.tagline": "Система управления",
+
     "common.change_language": "Сменить язык",
     "common.add": "Добавить",
     "common.edit": "Изменить",
