@@ -11,7 +11,7 @@ type AuditLog = {
   id: number
   action: string
   entity: string
-  user?: { name: string; surname: string }
+  user?: { name: string }
   timestamp: string
 }
 
@@ -25,12 +25,12 @@ export function RecentActivity() {
       .catch((err) => console.error("Failed to load audit logs", err))
   }, [])
 
-  function initials(user?: { name: string; surname: string }) {
-    return `${user?.name?.[0] || ""}${user?.surname?.[0] || ""}`.toUpperCase()
+  function initials(user?: { name: string }) {
+    return user?.name?.[0]?.toUpperCase() || ""
   }
 
-  function userName(user?: { name: string; surname: string }) {
-    return user ? `${user.name} ${user.surname}` : t("dashboard.activity.system")
+  function userName(user?: { name: string }) {
+    return user ? user.name : t("dashboard.activity.system")
   }
 
   return (

@@ -228,7 +228,7 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
               <SelectItem value="none">Unassigned</SelectItem>
               {employees.map((u) => (
                 <SelectItem key={u.id} value={String(u.id)}>
-                  {u.name} {u.surname}
+                  {u.name}
                 </SelectItem>
               ))}
             </SelectContent>

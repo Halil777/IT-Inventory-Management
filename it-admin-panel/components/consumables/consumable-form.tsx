@@ -137,7 +137,7 @@ export function ConsumableForm({ consumableId }: ConsumableFormProps) {
             <SelectItem value="none">Unassigned</SelectItem>
             {employees.map((u) => (
               <SelectItem key={u.id} value={String(u.id)}>
-                {u.name} {u.surname}
+                {u.name}
               </SelectItem>
             ))}
           </SelectContent>
