@@ -12,6 +12,12 @@ export class Department {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  head?: string;
+
+  @Column({ nullable: true })
+  description?: string;
+
   @OneToMany(() => Employee, (employee) => employee.department)
   employees: Employee[];
 

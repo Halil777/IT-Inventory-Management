@@ -32,10 +32,13 @@ export async function getDepartments() {
 export async function getDepartment(id: number | string) {
   return request(`/departments/${id}`);
 }
-export async function createDepartment(data: { name: string }) {
+export async function createDepartment(data: { name: string; head?: string; description?: string }) {
   return request(`/departments`, { method: 'POST', body: JSON.stringify(data) });
 }
-export async function updateDepartment(id: number | string, data: { name?: string }) {
+export async function updateDepartment(
+  id: number | string,
+  data: { name?: string; head?: string; description?: string },
+) {
   return request(`/departments/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 }
 export async function deleteDepartment(id: number | string) {

@@ -2,15 +2,14 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { createDepartment, updateDepartment } from "@/lib/api"
+import { createDepartment, getDepartment, updateDepartment } from "@/lib/api"
 import { useI18n } from "@/lib/i18n"
 import { toast } from "sonner"
 
@@ -23,8 +22,20 @@ export function DepartmentForm({ departmentId }: DepartmentFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [department, setDepartment] = useState<any | null>(null)
 
   const isEditing = !!departmentId
+
+  useEffect(() => {
+    if (departmentId) {
+      getDepartment(departmentId)
+        .then(setDepartment)
+        .catch((e) => {
+          console.error(e)
+          setError(t("departments.form.save_failed"))
+        })
+    }
+  }, [departmentId, t])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -34,20 +45,24 @@ export function DepartmentForm({ departmentId }: DepartmentFormProps) {
     try {
       const form = new FormData(e.currentTarget)
       const name = String(form.get("name") || "").trim()
-      if (!name) throw new Error("Name is required")
+      const head = String(form.get("head") || "").trim()
+      const description = String(form.get("description") || "").trim()
+      if (!name) throw new Error(t("departments.form.name_label"))
 
       if (isEditing) {
-        await updateDepartment(departmentId!, { name })
-        toast.success("Department updated")
+        await updateDepartment(departmentId!, { name, head, description })
+        toast.success(t("departments.form.updated"))
       } else {
-        await createDepartment({ name })
-        toast.success("Department created")
+        await createDepartment({ name, head, description })
+        toast.success(t("departments.form.created"))
       }
 
       router.push("/dashboard/departments")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save department. Please try again.")
-      toast.error("Failed to save department")
+      setError(
+        err instanceof Error ? err.message : t("departments.form.save_failed"),
+      )
+      toast.error(t("departments.form.save_failed"))
     } finally {
       setIsLoading(false)
     }
@@ -63,82 +78,34 @@ export function DepartmentForm({ departmentId }: DepartmentFormProps) {
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="name">Department Name *</Label>
+          <Label htmlFor="name">{t("departments.form.name_label")}</Label>
           <Input
             id="name"
             name="name"
-            placeholder="e.g., Information Technology"
-            defaultValue={isEditing ? "Information Technology" : ""}
+            placeholder={t("departments.form.name_placeholder")}
+            defaultValue={isEditing ? department?.name || "" : ""}
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="code">Department Code</Label>
-          <Input id="code" name="code" placeholder="e.g., IT" defaultValue={isEditing ? "IT" : ""} />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="head">Head of Department</Label>
-          <Select name="head" defaultValue={isEditing ? "john-smith" : ""}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select department head" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="john-smith">John Smith</SelectItem>
-              <SelectItem value="sarah-johnson">Sarah Johnson</SelectItem>
-              <SelectItem value="mike-wilson">Mike Wilson</SelectItem>
-              <SelectItem value="emily-davis">Emily Davis</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="budget">Annual Budget</Label>
+          <Label htmlFor="head">{t("departments.form.head_label")}</Label>
           <Input
-            id="budget"
-            name="budget"
-            type="number"
-            placeholder="250000"
-            defaultValue={isEditing ? "250000" : ""}
+            id="head"
+            name="head"
+            placeholder={t("departments.form.head_placeholder")}
+            defaultValue={isEditing ? department?.head || "" : ""}
           />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="location">Location</Label>
-          <Input
-            id="location"
-            name="location"
-            placeholder="e.g., Building A, Floor 3"
-            defaultValue={isEditing ? "Building A, Floor 3" : ""}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
-          <Select name="status" defaultValue={isEditing ? "active" : "active"}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t("departments.form.description_label")}</Label>
         <Textarea
           id="description"
           name="description"
-          placeholder="Brief description of the department's role and responsibilities"
-          defaultValue={isEditing ? "Responsible for managing IT infrastructure and support" : ""}
+          placeholder={t("departments.form.description_placeholder")}
+          defaultValue={isEditing ? department?.description || "" : ""}
           rows={3}
         />
       </div>
