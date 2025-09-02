@@ -1,61 +1,67 @@
 "use client"
 
+import { useEffect, useState } from "react"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from "recharts"
-
-const deviceUsageData = [
-  { month: "Jan", computers: 120, printers: 15, monitors: 95 },
-  { month: "Feb", computers: 125, printers: 18, monitors: 98 },
-  { month: "Mar", computers: 130, printers: 16, monitors: 102 },
-  { month: "Apr", computers: 135, printers: 20, monitors: 105 },
-  { month: "May", computers: 140, printers: 22, monitors: 108 },
-  { month: "Jun", computers: 145, printers: 19, monitors: 112 },
-]
-
-const cartridgeUsageData = [
-  { month: "Jan", used: 45, refilled: 12, new: 8 },
-  { month: "Feb", used: 52, refilled: 15, new: 10 },
-  { month: "Mar", used: 48, refilled: 18, new: 6 },
-  { month: "Apr", used: 61, refilled: 14, new: 12 },
-  { month: "May", used: 55, refilled: 20, new: 9 },
-  { month: "Jun", used: 67, refilled: 16, new: 14 },
-]
-
-const chartConfig = {
-  computers: {
-    label: "Computers",
-    color: "hsl(var(--chart-1))",
-  },
-  printers: {
-    label: "Printers",
-    color: "hsl(var(--chart-2))",
-  },
-  monitors: {
-    label: "Monitors",
-    color: "hsl(var(--chart-3))",
-  },
-  used: {
-    label: "Used",
-    color: "hsl(var(--chart-1))",
-  },
-  refilled: {
-    label: "Refilled",
-    color: "hsl(var(--chart-2))",
-  },
-  new: {
-    label: "New",
-    color: "hsl(var(--chart-3))",
-  },
-}
+import { useI18n } from "@/lib/i18n"
+import { getDeviceReports, getCartridgeUsage } from "@/lib/api"
 
 export function DashboardCharts() {
+  const { t } = useI18n()
+  const [deviceUsageData, setDeviceUsageData] = useState<any[]>([])
+  const [cartridgeUsageData, setCartridgeUsageData] = useState<any[]>([])
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [devices, cartridges] = await Promise.all([
+          getDeviceReports(),
+          getCartridgeUsage(),
+        ])
+        setDeviceUsageData(devices || [])
+        setCartridgeUsageData(cartridges || [])
+      } catch (err) {
+        console.error("Failed to load charts", err)
+      }
+    }
+    load()
+  }, [])
+
+  const chartConfig = {
+    computers: {
+      label: t("dashboard.charts.computers"),
+      color: "hsl(var(--chart-1))",
+    },
+    printers: {
+      label: t("dashboard.charts.printers"),
+      color: "hsl(var(--chart-2))",
+    },
+    monitors: {
+      label: t("dashboard.charts.monitors"),
+      color: "hsl(var(--chart-3))",
+    },
+    used: {
+      label: t("dashboard.charts.used"),
+      color: "hsl(var(--chart-1))",
+    },
+    refilled: {
+      label: t("dashboard.charts.refilled"),
+      color: "hsl(var(--chart-2))",
+    },
+    new: {
+      label: t("dashboard.charts.new"),
+      color: "hsl(var(--chart-3))",
+    },
+  }
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Device Usage Trends</CardTitle>
-          <CardDescription>Monthly device allocation across departments</CardDescription>
+          <CardTitle>{t("dashboard.charts.device_usage_title")}</CardTitle>
+          <CardDescription>{t("dashboard.charts.device_usage_desc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig}>
@@ -76,8 +82,8 @@ export function DashboardCharts() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Cartridge Usage Statistics</CardTitle>
-          <CardDescription>Monthly cartridge consumption and refill rates</CardDescription>
+          <CardTitle>{t("dashboard.charts.cartridge_usage_title")}</CardTitle>
+          <CardDescription>{t("dashboard.charts.cartridge_usage_desc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig}>
