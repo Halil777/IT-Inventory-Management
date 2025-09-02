@@ -20,18 +20,12 @@ export class Employee {
   @Column()
   name: string;
 
-  @Column()
-  surname: string;
-
-  @Column()
-  role: string;
-
   @ManyToOne(() => Department, (department) => department.employees, {
     eager: true,
     nullable: true,
     onDelete: 'SET NULL',
   })
-  department: Department;
+  department?: Department;
 
   @OneToMany(() => Device, (device) => device.user)
   devices: Device[];
@@ -53,4 +47,10 @@ export class Employee {
 
   @Column({ unique: true })
   email: string;
+
+  @Column({ nullable: true })
+  civilNumber?: string;
+
+  @Column({ default: 'active' })
+  status: string;
 }

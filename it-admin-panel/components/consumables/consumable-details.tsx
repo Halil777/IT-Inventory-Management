@@ -45,7 +45,7 @@ export function ConsumableDetails({ id }: { id: string }) {
         </div>
         <div className="flex items-center justify-between">
           <div className="text-sm">User</div>
-          <div className="text-sm font-medium">{item?.user ? `${item.user.name} ${item.user.surname}` : '-'}</div>
+          <div className="text-sm font-medium">{item?.user ? item.user.name : '-'}</div>
         </div>
       </CardContent>
     </Card>

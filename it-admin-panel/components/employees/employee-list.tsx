@@ -23,12 +23,12 @@ export function EmployeeList() {
   }, [])
 
   const filtered = employees.filter((e) =>
-    `${e.name} ${e.surname}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (e.email || "").toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Delete this employee?")) return
+    if (!confirm(t("employees.delete_confirm"))) return
     try {
       await deleteEmployee(id)
       setEmployees((prev) => prev.filter((e) => e.id !== id))
@@ -40,12 +40,42 @@ export function EmployeeList() {
   }
 
   const handleExport = () => {
-    console.log("Exporting employee device list to Excel...")
-    alert("Export functionality would be implemented here")
+    try {
+      const rows = employees.map((e) => ({
+        id: e.id,
+        name: e.name,
+        email: e.email || "",
+        phone: e.phone || "",
+        civilNumber: e.civilNumber || "",
+        status: e.status || "",
+      }))
+      const header = "id,name,email,phone,civilNumber,status\n"
+      const csv =
+        header +
+        rows
+          .map((r) =>
+            `${r.id},"${r.name.replace(/"/g, '""')}","${r.email.replace(/"/g, '""')}","${r.phone.replace(/"/g, '""')}","${r.civilNumber.replace(/"/g, '""')}","${r.status.replace(/"/g, '""')}"`,
+          )
+          .join("\n")
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = "employees.csv"
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error(e)
+      toast.error(t("employees.export_failed"))
+    }
   }
 
-  const getInitials = (name: string, surname: string) => {
-    return `${name?.charAt(0) || ""}${surname?.charAt(0) || ""}`
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
   }
 
   return (
@@ -77,9 +107,10 @@ export function EmployeeList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t("employees.list_title")}</TableHead>
-              <TableHead>{t("employees.role")}</TableHead>
-              <TableHead>{t("common.department")}</TableHead>
+              <TableHead>{t("employees.full_name")}</TableHead>
+              <TableHead>{t("employees.email")}</TableHead>
+              <TableHead>{t("employees.civil_number")}</TableHead>
+              <TableHead>{t("employees.status")}</TableHead>
               <TableHead className="w-[70px]">{t("common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -90,19 +121,15 @@ export function EmployeeList() {
                   <div className="flex items-center space-x-3">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="text-xs">
-                        {getInitials(employee.name, employee.surname)}
+                        {getInitials(employee.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <div className="font-medium">
-                        {employee.name} {employee.surname}
-                      </div>
-                      <div className="text-sm text-muted-foreground">{employee.email}</div>
-                    </div>
+                    <div className="font-medium">{employee.name}</div>
                   </div>
                 </TableCell>
-                <TableCell>{employee.role}</TableCell>
-                <TableCell>{employee.department?.name}</TableCell>
+                <TableCell>{employee.email}</TableCell>
+                <TableCell>{employee.civilNumber || '-'}</TableCell>
+                <TableCell>{t(`employees.status_${employee.status}`)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

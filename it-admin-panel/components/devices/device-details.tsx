@@ -54,7 +54,7 @@ export function DeviceDetails({ deviceId }: DeviceDetailsProps) {
                 <span className="text-sm font-medium">Assigned User:</span>
                 <span className="text-sm flex items-center gap-2">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  {device?.user ? `${device.user.name} ${device.user.surname}` : "-"}
+                  {device?.user ? device.user.name : "-"}
                 </span>
               </div>
             </div>
