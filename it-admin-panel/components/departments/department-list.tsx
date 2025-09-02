@@ -26,20 +26,34 @@ export function DepartmentList() {
   )
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Delete this department?")) return
+    if (!confirm(t("departments.delete_confirm"))) return
     try {
       await deleteDepartment(id)
       setDepartments((prev) => prev.filter((d) => d.id !== id))
-      toast.success("Department deleted")
+      toast.success(t("departments.deleted"))
     } catch (e) {
       console.error(e)
-      toast.error("Failed to delete department")
+      toast.error(t("departments.delete_failed"))
     }
   }
 
   const handleExport = () => {
-    console.log("Exporting departments to Excel...")
-    alert("Export functionality would be implemented here")
+    try {
+      const rows = departments.map((d) => ({ id: d.id, name: d.name }))
+      const header = "id,name\n"
+      const csv =
+        header + rows.map((r) => `${r.id},"${r.name.replace(/"/g, '""')}"`).join("\n")
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = "departments.csv"
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error(e)
+      toast.error(t("departments.export_failed"))
+    }
   }
 
   return (
