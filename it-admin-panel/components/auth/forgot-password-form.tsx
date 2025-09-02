@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, ArrowLeft } from "lucide-react"
+import { useI18n } from "@/lib/i18n"
 
 export function ForgotPasswordForm() {
+  const { t } = useI18n()
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
@@ -25,7 +27,7 @@ export function ForgotPasswordForm() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setSuccess(true)
     } catch (err) {
-      setError("Failed to send reset email. Please try again.")
+      setError(t("auth.forgot.error"))
     } finally {
       setIsLoading(false)
     }
@@ -35,11 +37,11 @@ export function ForgotPasswordForm() {
     return (
       <div className="text-center space-y-4">
         <Alert>
-          <AlertDescription>Password reset link has been sent to your email address.</AlertDescription>
+          <AlertDescription>{t("auth.forgot.success")}</AlertDescription>
         </Alert>
         <Link href="/auth/login" className="inline-flex items-center text-sm text-primary hover:underline">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to login
+          {t("auth.forgot.back_to_login")}
         </Link>
       </div>
     )
@@ -54,14 +56,14 @@ export function ForgotPasswordForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email Address</Label>
+        <Label htmlFor="email">{t("auth.forgot.email")}</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             id="email"
             name="email"
             type="email"
-            placeholder="Enter your email address"
+            placeholder={t("auth.forgot.email_placeholder")}
             className="pl-10"
             required
           />
@@ -69,13 +71,13 @@ export function ForgotPasswordForm() {
       </div>
 
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Sending..." : "Send Reset Link"}
+        {isLoading ? t("auth.forgot.sending") : t("auth.forgot.send")}
       </Button>
 
       <div className="text-center">
         <Link href="/auth/login" className="inline-flex items-center text-sm text-primary hover:underline">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to login
+          {t("auth.forgot.back_to_login")}
         </Link>
       </div>
     </form>

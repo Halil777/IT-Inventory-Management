@@ -10,8 +10,10 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Eye, EyeOff, Mail, Lock, User, Building } from "lucide-react"
+import { useI18n } from "@/lib/i18n"
 
 export function RegisterForm() {
+  const { t } = useI18n()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -29,7 +31,7 @@ export function RegisterForm() {
     const confirmPassword = formData.get("confirmPassword") as string
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
+      setError(t("auth.register.passwords_no_match"))
       setIsLoading(false)
       return
     }
@@ -37,9 +39,9 @@ export function RegisterForm() {
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      setSuccess("Account created successfully! Please check your email for verification.")
+      setSuccess(t("auth.register.success"))
     } catch (err) {
-      setError("Failed to create account. Please try again.")
+      setError(t("auth.register.error"))
     } finally {
       setIsLoading(false)
     }
@@ -61,61 +63,86 @@ export function RegisterForm() {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="firstName">First Name</Label>
+          <Label htmlFor="firstName">{t("auth.register.first_name")}</Label>
           <div className="relative">
             <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input id="firstName" name="firstName" placeholder="John" className="pl-10" required />
+            <Input
+              id="firstName"
+              name="firstName"
+              placeholder={t("auth.register.first_name_placeholder")}
+              className="pl-10"
+              required
+            />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name</Label>
+          <Label htmlFor="lastName">{t("auth.register.last_name")}</Label>
           <div className="relative">
             <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input id="lastName" name="lastName" placeholder="Doe" className="pl-10" required />
+            <Input
+              id="lastName"
+              name="lastName"
+              placeholder={t("auth.register.last_name_placeholder")}
+              className="pl-10"
+              required
+            />
           </div>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("auth.register.email")}</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input id="email" name="email" type="email" placeholder="john.doe@company.com" className="pl-10" required />
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder={t("auth.register.email_placeholder")}
+            className="pl-10"
+            required
+          />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="role">Role</Label>
+        <Label htmlFor="role">{t("auth.register.role")}</Label>
         <Select name="role" required>
           <SelectTrigger>
-            <SelectValue placeholder="Select your role" />
+            <SelectValue placeholder={t("auth.register.select_role")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="moderator">Moderator</SelectItem>
-            <SelectItem value="viewer">Viewer</SelectItem>
+            <SelectItem value="admin">{t("auth.register.role_admin")}</SelectItem>
+            <SelectItem value="moderator">{t("auth.register.role_moderator")}</SelectItem>
+            <SelectItem value="viewer">{t("auth.register.role_viewer")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="department">Department</Label>
+        <Label htmlFor="department">{t("auth.register.department")}</Label>
         <div className="relative">
           <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input id="department" name="department" placeholder="IT Department" className="pl-10" required />
+          <Input
+            id="department"
+            name="department"
+            placeholder={t("auth.register.department_placeholder")}
+            className="pl-10"
+            required
+          />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t("auth.register.password")}</Label>
         <div className="relative">
           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             id="password"
             name="password"
             type={showPassword ? "text" : "password"}
-            placeholder="Create a strong password"
+            placeholder={t("auth.register.password_placeholder")}
             className="pl-10 pr-10"
             required
           />
@@ -136,14 +163,14 @@ export function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Label htmlFor="confirmPassword">{t("auth.register.confirm_password")}</Label>
         <div className="relative">
           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             id="confirmPassword"
             name="confirmPassword"
             type={showConfirmPassword ? "text" : "password"}
-            placeholder="Confirm your password"
+            placeholder={t("auth.register.confirm_password_placeholder")}
             className="pl-10 pr-10"
             required
           />
@@ -164,13 +191,13 @@ export function RegisterForm() {
       </div>
 
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Creating account..." : "Create Account"}
+        {isLoading ? t("auth.register.creating_account") : t("auth.register.create_account")}
       </Button>
 
       <div className="text-center text-sm">
-        Already have an account?{" "}
+        {t("auth.register.have_account")} {" "}
         <Link href="/auth/login" className="text-primary hover:underline">
-          Sign in
+          {t("auth.register.signin")}
         </Link>
       </div>
     </form>
