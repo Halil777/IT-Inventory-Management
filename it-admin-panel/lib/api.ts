@@ -1,7 +1,15 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+export const DEFAULT_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+function getApiBase() {
+  if (typeof window !== 'undefined') {
+    const override = localStorage.getItem('api_url');
+    if (override) return override;
+  }
+  return DEFAULT_API_URL;
+}
 
 async function request(path: string, init?: RequestInit) {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${getApiBase()}${path}`, {
     headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
     ...init,
     // Ensure fresh data in app router
