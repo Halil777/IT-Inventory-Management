@@ -26,7 +26,11 @@ export class Employee {
   @Column()
   role: string;
 
-  @ManyToOne(() => Department, (department) => department.employees, { eager: true })
+  @ManyToOne(() => Department, (department) => department.employees, {
+    eager: true,
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   department: Department;
 
   @OneToMany(() => Device, (device) => device.user)

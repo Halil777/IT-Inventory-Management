@@ -14,12 +14,14 @@ export class Device {
   @ManyToOne(() => Employee, (employee) => employee.devices, {
     eager: true,
     nullable: true,
+    onDelete: 'SET NULL',
   })
   user: Employee;
 
   @ManyToOne(() => Department, (department) => department.devices, {
     eager: true,
     nullable: true,
+    onDelete: 'SET NULL',
   })
   department: Department;
 

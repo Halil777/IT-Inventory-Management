@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Search, MoreHorizontal, Edit, Eye, Trash2, Download } from "lucide-react"
-import { getConsumables } from "@/lib/api"
+import { getConsumables, deleteConsumable, assignConsumable } from "@/lib/api"
+import { toast } from "sonner"
 
 export function ConsumableList() {
   const [consumables, setConsumables] = useState<any[]>([])
@@ -22,9 +23,52 @@ export function ConsumableList() {
     (c.type || "").toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
+  const handleDelete = async (id: number) => {
+    if (!confirm("Delete this consumable?")) return
+    try {
+      await deleteConsumable(id)
+      setConsumables((prev) => prev.filter((c) => c.id !== id))
+      toast.success("Consumable deleted")
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to delete consumable")
+    }
+  }
+
   const handleExport = () => {
     console.log("Exporting consumables to Excel...")
     alert("Export functionality would be implemented here")
+  }
+
+  const handleAssignUser = async (id: number) => {
+    const input = prompt("Enter User ID to assign (leave blank to unassign):", "")
+    if (input === null) return
+    const userId = input.trim() === "" ? undefined : Number(input)
+    try {
+      await assignConsumable({ consumableId: id, userId })
+      toast.success("Consumable assignment updated")
+      // Refresh list
+      const fresh = await getConsumables()
+      setConsumables(fresh)
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to assign consumable")
+    }
+  }
+
+  const handleAssignDepartment = async (id: number) => {
+    const input = prompt("Enter Department ID to assign (leave blank to unassign):", "")
+    if (input === null) return
+    const departmentId = input.trim() === "" ? undefined : Number(input)
+    try {
+      await assignConsumable({ consumableId: id, departmentId })
+      toast.success("Consumable assignment updated")
+      const fresh = await getConsumables()
+      setConsumables(fresh)
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to assign consumable")
+    }
   }
 
   return (
@@ -88,13 +132,21 @@ export function ConsumableList() {
                           View Details
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleAssignUser(item.id)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Assign to User
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleAssignDepartment(item.id)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Assign to Department
+                      </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href={`/dashboard/consumables/${item.id}/edit`}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(item.id)}>
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </DropdownMenuItem>

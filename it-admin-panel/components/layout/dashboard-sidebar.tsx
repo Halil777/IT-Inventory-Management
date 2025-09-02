@@ -23,52 +23,22 @@ import {
   Settings,
   LogOut,
 } from "lucide-react"
-
-const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Departments",
-    url: "/dashboard/departments",
-    icon: Building2,
-  },
-  {
-    title: "Employees",
-    url: "/dashboard/employees",
-    icon: Users,
-  },
-  {
-    title: "Devices",
-    url: "/dashboard/devices",
-    icon: Monitor,
-  },
-  {
-    title: "Printers & Cartridges",
-    url: "/dashboard/printers",
-    icon: Printer,
-  },
-  {
-    title: "Consumables",
-    url: "/dashboard/consumables",
-    icon: Package,
-  },
-  {
-    title: "Reports",
-    url: "/dashboard/reports",
-    icon: BarChart3,
-  },
-  {
-    title: "Notifications",
-    url: "/dashboard/notifications",
-    icon: Bell,
-  },
-]
+import { useI18n } from "@/lib/i18n"
 
 export function DashboardSidebar() {
   const pathname = usePathname()
+  const { t } = useI18n()
+  const menuItems = [
+    { title: t("sidebar.dashboard") || t("dashboard.title"), url: "/dashboard", icon: LayoutDashboard },
+    { title: t("sidebar.departments") || t("departments.title"), url: "/dashboard/departments", icon: Building2 },
+    { title: t("sidebar.employees") || t("employees.title"), url: "/dashboard/employees", icon: Users },
+    { title: t("sidebar.devices") || t("devices.title"), url: "/dashboard/devices", icon: Monitor },
+    { title: t("sidebar.printers") || t("printers.title"), url: "/dashboard/printers", icon: Printer },
+    { title: t("sidebar.consumables") || t("consumables.title"), url: "/dashboard/consumables", icon: Package },
+    { title: t("sidebar.reports") || t("reports.title"), url: "/dashboard/reports", icon: BarChart3 },
+    { title: t("sidebar.audit_logs") || "Audit Logs", url: "/dashboard/audit-logs", icon: Bell },
+    { title: t("sidebar.notifications") || t("notifications.title"), url: "/dashboard/notifications", icon: Bell },
+  ]
 
   return (
     <Sidebar>
@@ -105,7 +75,7 @@ export function DashboardSidebar() {
             <SidebarMenuButton asChild>
               <Link href="/dashboard/settings">
                 <Settings className="h-4 w-4" />
-                <span>Settings</span>
+                <span>{t("sidebar.settings") || "Settings"}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -113,7 +83,7 @@ export function DashboardSidebar() {
             <SidebarMenuButton asChild>
               <Link href="/auth/login">
                 <LogOut className="h-4 w-4" />
-                <span>Logout</span>
+                <span>{t("sidebar.logout") || "Logout"}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

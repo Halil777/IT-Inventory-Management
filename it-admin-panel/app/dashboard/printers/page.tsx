@@ -15,12 +15,20 @@ export default function PrintersPage() {
           <h1 className="text-3xl font-bold tracking-tight">{t("printers.title")}</h1>
           <p className="text-muted-foreground">{t("printers.subtitle")}</p>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/printers/new">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("printers.add")}
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild>
+            <Link href="/dashboard/printers/new">
+              <Plus className="mr-2 h-4 w-4" />
+              {t("printers.add")}
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/printers/cartridges/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Cartridge
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <PrinterList />

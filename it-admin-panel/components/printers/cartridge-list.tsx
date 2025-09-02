@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Search, MoreHorizontal, Edit, Eye, Trash2, Download } from "lucide-react"
-import { getCartridges } from "@/lib/api"
+import { getCartridges, deleteCartridge } from "@/lib/api"
+import { toast } from "sonner"
 
 export function CartridgeList() {
   const [cartridges, setCartridges] = useState<any[]>([])
@@ -21,6 +22,18 @@ export function CartridgeList() {
   const filtered = cartridges.filter((c) =>
     (c.type || "").toLowerCase().includes(searchTerm.toLowerCase()),
   )
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Delete this cartridge?")) return
+    try {
+      await deleteCartridge(id)
+      setCartridges((prev) => prev.filter((c) => c.id !== id))
+      toast.success("Cartridge deleted")
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to delete cartridge")
+    }
+  }
 
   const handleExport = () => {
     console.log("Exporting cartridges to Excel...")
@@ -88,7 +101,7 @@ export function CartridgeList() {
                           Edit
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(cartridge.id)}>
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </DropdownMenuItem>

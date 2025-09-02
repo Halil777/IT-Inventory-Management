@@ -16,6 +16,15 @@ async function request(path: string, init?: RequestInit) {
   return contentType.includes('application/json') ? res.json() : res.text();
 }
 
+function toQuery(params: Record<string, any> = {}) {
+  const usp = new URLSearchParams();
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') usp.append(k, String(v));
+  });
+  const q = usp.toString();
+  return q ? `?${q}` : '';
+}
+
 // Departments
 export async function getDepartments() {
   return request(`/departments`);
@@ -61,8 +70,8 @@ export async function deleteEmployee(id: number | string) {
 }
 
 // Devices
-export async function getDevices() {
-  return request(`/devices`);
+export async function getDevices(filters?: { typeId?: number; status?: string; departmentId?: number }) {
+  return request(`/devices${toQuery(filters || {})}`);
 }
 export async function getDevice(id: number | string) {
   return request(`/devices/${id}`);
@@ -97,12 +106,44 @@ export async function deletePrinter(id: number | string) {
   return request(`/printers/${id}`, { method: 'DELETE' });
 }
 
+// Cartridges
 export async function getCartridges() {
   return request(`/cartridges`);
 }
+export async function getCartridge(id: number | string) {
+  return request(`/cartridges/${id}`);
+}
+export async function createCartridge(data: { type: string; status?: string }) {
+  return request(`/cartridges`, { method: 'POST', body: JSON.stringify(data) });
+}
+export async function updateCartridge(id: number | string, data: Partial<{ type: string; status: string }>) {
+  return request(`/cartridges/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+}
+export async function deleteCartridge(id: number | string) {
+  return request(`/cartridges/${id}`, { method: 'DELETE' });
+}
 
+// Consumables
 export async function getConsumables() {
   return request(`/consumables`);
+}
+export async function getConsumable(id: number | string) {
+  return request(`/consumables/${id}`);
+}
+export async function createConsumable(data: { type: string; quantity: number; status?: string; departmentId?: number; userId?: number }) {
+  return request(`/consumables`, { method: 'POST', body: JSON.stringify(data) });
+}
+export async function updateConsumable(
+  id: number | string,
+  data: Partial<{ type: string; quantity: number; status: string; departmentId?: number; userId?: number }>,
+) {
+  return request(`/consumables/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+}
+export async function deleteConsumable(id: number | string) {
+  return request(`/consumables/${id}`, { method: 'DELETE' });
+}
+export async function assignConsumable(data: { consumableId: number; userId?: number; departmentId?: number }) {
+  return request(`/consumables/assign`, { method: 'POST', body: JSON.stringify(data) });
 }
 
 export async function getNotifications() {
@@ -113,10 +154,38 @@ export async function getDeviceReports() {
   return request(`/reports/devices`);
 }
 
+export async function getPrinterReports() {
+  return request(`/reports/printers`);
+}
+
+export async function getConsumableReports() {
+  return request(`/reports/consumables`);
+}
+
+export async function getEmployeeDeviceReports() {
+  return request(`/reports/employees`);
+}
+
 // Device Types
 export async function getDeviceTypes() {
   return request(`/device-types`);
 }
 export async function createDeviceType(data: { name: string }) {
   return request(`/device-types`, { method: 'POST', body: JSON.stringify(data) });
+}
+
+// Audit Logs
+export async function getAuditLogs() {
+  return request(`/audit-logs`);
+}
+export async function createAuditLog(data: { action: string; entity: string; entityId?: number; userId?: number; details?: any }) {
+  return request(`/audit-logs`, { method: 'POST', body: JSON.stringify(data) });
+}
+
+// Cartridge Usage
+export async function getCartridgeUsage() {
+  return request(`/cartridge-usage`);
+}
+export async function createCartridgeUsage(data: { printerId: number; cartridgeId: number; pages?: number }) {
+  return request(`/cartridge-usage`, { method: 'POST', body: JSON.stringify(data) });
 }

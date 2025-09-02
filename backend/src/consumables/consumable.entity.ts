@@ -19,12 +19,14 @@ export class Consumable {
   @ManyToOne(() => Department, (department) => department.consumables, {
     eager: true,
     nullable: true,
+    onDelete: 'SET NULL',
   })
   department: Department;
 
   @ManyToOne(() => Employee, (employee) => employee.consumables, {
     eager: true,
     nullable: true,
+    onDelete: 'SET NULL',
   })
   user: Employee;
 }

@@ -10,7 +10,11 @@ export class Printer {
   @Column()
   model: string;
 
-  @ManyToOne(() => Department, (department) => department.printers, { eager: true })
+  @ManyToOne(() => Department, (department) => department.printers, {
+    eager: true,
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   department: Department;
 
   @OneToMany(() => CartridgeUsage, (usage) => usage.printer)
