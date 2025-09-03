@@ -27,20 +27,51 @@ export function DeviceList() {
   )
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Delete this device?")) return
+    if (!confirm(t("devices.delete_confirm"))) return
     try {
       await deleteDevice(id)
       setDevices((prev) => prev.filter((d) => d.id !== id))
-      toast.success("Device deleted")
+      toast.success(t("devices.deleted"))
     } catch (e) {
       console.error(e)
-      toast.error("Failed to delete device")
+      toast.error(t("devices.delete_failed"))
     }
   }
 
   const handleExport = () => {
-    console.log("Exporting device list to Excel...")
-    alert("Export functionality would be implemented here")
+    try {
+      const headers = [
+        t("common.id"),
+        t("devices.type"),
+        t("devices.status"),
+        t("devices.user"),
+        t("common.department"),
+      ]
+      const rows = devices.map((d) => [
+        d.id,
+        d.type?.name || "",
+        d.status ? t(`devices.status_${d.status.replace(/-/g, "_")}`) : "",
+        d.user?.name || "",
+        d.department?.name || "",
+      ])
+      let csv = headers.join(",") + "\n"
+      rows.forEach((r) => {
+        csv += r
+          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+          .join(",") + "\n"
+      })
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.setAttribute("download", "devices.csv")
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (e) {
+      console.error(e)
+      toast.error(t("devices.export_failed"))
+    }
   }
 
   return (
@@ -85,7 +116,9 @@ export function DeviceList() {
               <TableRow key={device.id}>
                 <TableCell>{device.id}</TableCell>
                 <TableCell>{device.type?.name}</TableCell>
-                <TableCell>{device.status}</TableCell>
+                <TableCell>
+                  {device.status ? t(`devices.status_${device.status.replace(/-/g, "_")}`) : ""}
+                </TableCell>
                 <TableCell>{device.user?.name}</TableCell>
                 <TableCell>{device.department?.name}</TableCell>
                 <TableCell>
