@@ -47,16 +47,16 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
       if (departmentId) data.departmentId = Number(departmentId)
       if (isEditing) {
         await updateDevice(deviceId!, data)
-        toast.success("Device updated")
+        toast.success(t("devices.form.updated"))
       } else {
         await createDevice(data)
-        toast.success("Device created")
+        toast.success(t("devices.form.created"))
       }
 
       router.push("/dashboard/devices")
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save device. Please try again.")
-      toast.error("Failed to save device")
+    } catch {
+      setError(t("devices.form.save_failed"))
+      toast.error(t("devices.form.save_failed"))
     } finally {
       setIsLoading(false)
     }
@@ -95,10 +95,10 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
       const list = await getDeviceTypes()
       setDeviceTypes(list)
       if (list.length > 0) setTypeId(String(list[0].id))
-      toast.success("Default device types created")
+      toast.success(t("devices.form.defaults_created"))
     } catch (e) {
       console.error(e)
-      toast.error("Failed to create default device types")
+      toast.error(t("devices.form.defaults_failed"))
     }
   }
 
@@ -113,9 +113,9 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
       {deviceTypes.length === 0 && (
         <Alert>
           <AlertDescription>
-            No device types found. Create default types to proceed.
+            {t("devices.form.no_types")}
             <Button size="sm" className="ml-2" type="button" onClick={seedDefaults}>
-              Create defaults
+              {t("devices.form.create_defaults")}
             </Button>
           </AlertDescription>
         </Alert>
@@ -123,11 +123,11 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="typeId">Device Type *</Label>
+          <Label htmlFor="typeId">{t("devices.form.type_label")}</Label>
           <input type="hidden" name="typeId" value={typeId} />
           <Select value={typeId} onValueChange={setTypeId} required>
             <SelectTrigger>
-              <SelectValue placeholder="Select device type" />
+              <SelectValue placeholder={t("devices.form.type_placeholder")} />
             </SelectTrigger>
             <SelectContent>
               {deviceTypes.map((t) => (
@@ -140,18 +140,18 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="status">Status *</Label>
+          <Label htmlFor="status">{t("devices.form.status_label")}</Label>
           <input type="hidden" name="status" value={status} />
           <Select value={status} onValueChange={setStatus} required>
             <SelectTrigger>
-              <SelectValue placeholder="Select device status" />
+              <SelectValue placeholder={t("devices.form.status_placeholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="new">New</SelectItem>
-              <SelectItem value="in-use">In Use</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="under-repair">Under Repair</SelectItem>
-              <SelectItem value="decommissioned">Decommissioned</SelectItem>
+              <SelectItem value="new">{t("devices.status_new")}</SelectItem>
+              <SelectItem value="in-use">{t("devices.status_in_use")}</SelectItem>
+              <SelectItem value="active">{t("devices.status_active")}</SelectItem>
+              <SelectItem value="under-repair">{t("devices.status_under_repair")}</SelectItem>
+              <SelectItem value="decommissioned">{t("devices.status_decommissioned")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -159,73 +159,41 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="brand">Brand *</Label>
-          <Input
-            id="brand"
-            name="brand"
-            placeholder="e.g., Dell"
-            defaultValue={isEditing ? "Dell" : "Enter brand"}
-            required
-          />
+          <Label htmlFor="brand">{t("devices.form.brand_label")}</Label>
+          <Input id="brand" name="brand" placeholder={t("devices.form.brand_placeholder")} required />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="model">Model *</Label>
-          <Input
-            id="model"
-            name="model"
-            placeholder="e.g., Latitude 7420"
-            defaultValue={isEditing ? "Latitude 7420" : "Enter model"}
-            required
-          />
+          <Label htmlFor="model">{t("devices.form.model_label")}</Label>
+          <Input id="model" name="model" placeholder={t("devices.form.model_placeholder")} />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="serialNumber">{t("devices.form.serial_number_label")}</Label>
+        <Input
+          id="serialNumber"
+          name="serialNumber"
+          placeholder={t("devices.form.serial_number_placeholder")}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="purchaseDate">{t("devices.form.purchase_date_label")}</Label>
+        <Input id="purchaseDate" name="purchaseDate" type="date" />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="serialNumber">Serial Number *</Label>
-          <Input
-            id="serialNumber"
-            name="serialNumber"
-            placeholder="e.g., DL7420001"
-            defaultValue={isEditing ? "DL7420001" : "Enter serial number"}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="qrCode">QR Code / Barcode</Label>
-          <Input
-            id="qrCode"
-            name="qrCode"
-            placeholder="e.g., QR001"
-            defaultValue={isEditing ? "QR001" : "Enter QR code"}
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="purchaseDate">Purchase Date</Label>
-          <Input id="purchaseDate" name="purchaseDate" type="date" defaultValue={isEditing ? "2023-01-15" : ""} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="warrantyExpiry">Warranty Expiry</Label>
-          <Input id="warrantyExpiry" name="warrantyExpiry" type="date" defaultValue={isEditing ? "2026-01-15" : ""} />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="userId">Assigned User</Label>
+          <Label htmlFor="userId">{t("devices.form.user_label")}</Label>
           <input type="hidden" name="userId" value={userId} />
           <Select value={userId || undefined} onValueChange={(v) => setUserId(v === "none" ? "" : v)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select user (optional)" />
+              <SelectValue placeholder={t("devices.form.user_placeholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Unassigned</SelectItem>
+              <SelectItem value="none">{t("common.unassigned")}</SelectItem>
               {employees.map((u) => (
                 <SelectItem key={u.id} value={String(u.id)}>
                   {u.name}
@@ -236,14 +204,14 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="departmentId">Assigned Department</Label>
+          <Label htmlFor="departmentId">{t("devices.form.department_label")}</Label>
           <input type="hidden" name="departmentId" value={departmentId} />
           <Select value={departmentId || undefined} onValueChange={(v) => setDepartmentId(v === "none" ? "" : v)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select department (optional)" />
+              <SelectValue placeholder={t("devices.form.department_placeholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Unassigned</SelectItem>
+              <SelectItem value="none">{t("common.unassigned")}</SelectItem>
               {departments.map((d) => (
                 <SelectItem key={d.id} value={String(d.id)}>
                   {d.name}
@@ -254,50 +222,22 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="purchasePrice">Purchase Price</Label>
-          <Input
-            id="purchasePrice"
-            name="purchasePrice"
-            type="number"
-            step="0.01"
-            placeholder="1299.99"
-            defaultValue={isEditing ? "1299.99" : "Enter purchase price"}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="supplier">Supplier</Label>
-          <Input
-            id="supplier"
-            name="supplier"
-            placeholder="e.g., Dell Technologies"
-            defaultValue={isEditing ? "Dell Technologies" : "Enter supplier"}
-          />
-        </div>
-      </div>
-
       <div className="space-y-2">
-        <Label htmlFor="specifications">Specifications</Label>
+        <Label htmlFor="specifications">{t("devices.form.specs_label")}</Label>
         <Textarea
           id="specifications"
           name="specifications"
-          placeholder="Device specifications and technical details"
-          defaultValue={
-            isEditing ? "Intel i7-1185G7, 16GB RAM, 512GB SSD, 14-inch FHD Display" : "Enter specifications"
-          }
+          placeholder={t("devices.form.specs_placeholder")}
           rows={3}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Notes</Label>
+        <Label htmlFor="notes">{t("devices.form.notes_label")}</Label>
         <Textarea
           id="notes"
           name="notes"
-          placeholder="Additional notes or comments"
-          defaultValue={isEditing ? "Primary work laptop for IT Director" : "Enter notes"}
+          placeholder={t("devices.form.notes_placeholder")}
           rows={2}
         />
       </div>
