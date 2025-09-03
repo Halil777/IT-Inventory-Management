@@ -65,13 +65,23 @@ export async function createEmployee(data: {
   email: string;
   phone?: string;
   civilNumber?: string;
+  departmentId?: number;
+  role?: string;
   status: string;
 }) {
   return request(`/employees`, { method: 'POST', body: JSON.stringify(data) });
 }
 export async function updateEmployee(
   id: number | string,
-  data: Partial<{ name: string; email: string; phone?: string; civilNumber?: string; status?: string }>,
+  data: Partial<{
+    name: string;
+    email: string;
+    phone?: string;
+    civilNumber?: string;
+    departmentId?: number;
+    role?: string;
+    status?: string;
+  }>,
 ) {
   return request(`/employees/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 }

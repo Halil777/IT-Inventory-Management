@@ -20,14 +20,22 @@ export class EmployeesService {
     return this.employeesRepo.findOne({ where: { id } });
   }
 
-
   create(dto: CreateEmployeeDto): Promise<Employee> {
-    const employee = this.employeesRepo.create(dto);
+    const { departmentId, ...rest } = dto;
+    const employee = this.employeesRepo.create({
+      ...rest,
+      department: departmentId ? ({ id: departmentId } as any) : undefined,
+    });
     return this.employeesRepo.save(employee);
   }
 
   update(id: number, dto: UpdateEmployeeDto): Promise<Employee> {
-    const employee = this.employeesRepo.create({ id, ...dto });
+    const { departmentId, ...rest } = dto;
+    const employee = this.employeesRepo.create({
+      id,
+      ...rest,
+      department: departmentId ? ({ id: departmentId } as any) : undefined,
+    });
     return this.employeesRepo.save(employee);
   }
 

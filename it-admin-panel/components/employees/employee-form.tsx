@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { createEmployee, updateEmployee, getEmployee } from "@/lib/api"
+import { createEmployee, updateEmployee, getEmployee, getDepartments } from "@/lib/api"
 import { toast } from "sonner"
 import { useI18n } from "@/lib/i18n"
 
@@ -21,10 +21,13 @@ export function EmployeeForm({ employeeId }: EmployeeFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [departments, setDepartments] = useState<any[]>([])
+  const [departmentId, setDepartmentId] = useState<string>("")
 
   const isEditing = !!employeeId
 
   useEffect(() => {
+    getDepartments().then(setDepartments).catch((e) => console.error(e))
     if (employeeId) {
       getEmployee(employeeId)
         .then((emp) => {
@@ -36,7 +39,9 @@ export function EmployeeForm({ employeeId }: EmployeeFormProps) {
           setVal("email", emp.email || "")
           setVal("phone", emp.phone || "")
           setVal("civilNumber", emp.civilNumber || "")
+          setVal("role", emp.role || "")
           setVal("status", emp.status || "active")
+          setDepartmentId(emp.department?.id ? String(emp.department.id) : "")
         })
         .catch((e) => console.error(e))
     }
@@ -49,13 +54,15 @@ export function EmployeeForm({ employeeId }: EmployeeFormProps) {
 
     try {
       const form = new FormData(e.currentTarget)
-      const data = {
+      const data: any = {
         name: String(form.get("name") || "").trim(),
         email: String(form.get("email") || "").trim(),
         phone: String(form.get("phone") || "").trim() || undefined,
         civilNumber: String(form.get("civilNumber") || "").trim() || undefined,
+        role: String(form.get("role") || "").trim() || undefined,
         status: String(form.get("status") || "").trim(),
       }
+      if (departmentId) data.departmentId = Number(departmentId)
 
       if (!data.name || !data.email || !data.status) {
         throw new Error("Missing required fields")
@@ -107,6 +114,31 @@ export function EmployeeForm({ employeeId }: EmployeeFormProps) {
         <div className="space-y-2">
           <Label htmlFor="civilNumber">{t("employees.form.civil_number_label")}</Label>
           <Input id="civilNumber" name="civilNumber" placeholder="1234567890" />
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="departmentId">{t("employees.form.department_label")}</Label>
+          <input type="hidden" name="departmentId" value={departmentId} />
+          <Select value={departmentId || undefined} onValueChange={(v) => setDepartmentId(v === "none" ? "" : v)}>
+            <SelectTrigger id="departmentId">
+              <SelectValue placeholder={t("employees.form.department_label")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Unassigned</SelectItem>
+              {departments.map((d) => (
+                <SelectItem key={d.id} value={String(d.id)}>
+                  {d.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="role">{t("employees.form.role_label")}</Label>
+          <Input id="role" name="role" placeholder="e.g., Manager" />
         </div>
       </div>
 

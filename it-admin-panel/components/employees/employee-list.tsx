@@ -24,7 +24,9 @@ export function EmployeeList() {
 
   const filtered = employees.filter((e) =>
     e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (e.email || "").toLowerCase().includes(searchTerm.toLowerCase()),
+    (e.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (e.department?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (e.role || "").toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   const handleDelete = async (id: number) => {
@@ -45,16 +47,18 @@ export function EmployeeList() {
         id: e.id,
         name: e.name,
         email: e.email || "",
+        department: e.department?.name || "",
+        role: e.role || "",
         phone: e.phone || "",
         civilNumber: e.civilNumber || "",
         status: e.status || "",
       }))
-      const header = "id,name,email,phone,civilNumber,status\n"
+      const header = "id,name,email,department,role,phone,civilNumber,status\n"
       const csv =
         header +
         rows
           .map((r) =>
-            `${r.id},"${r.name.replace(/"/g, '""')}","${r.email.replace(/"/g, '""')}","${r.phone.replace(/"/g, '""')}","${r.civilNumber.replace(/"/g, '""')}","${r.status.replace(/"/g, '""')}"`,
+            `${r.id},"${r.name.replace(/"/g, '""')}","${r.email.replace(/"/g, '""')}","${r.department.replace(/"/g, '""')}","${r.role.replace(/"/g, '""')}","${r.phone.replace(/"/g, '""')}","${r.civilNumber.replace(/"/g, '""')}","${r.status.replace(/"/g, '""')}"`,
           )
           .join("\n")
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
@@ -109,6 +113,8 @@ export function EmployeeList() {
             <TableRow>
               <TableHead>{t("employees.full_name")}</TableHead>
               <TableHead>{t("employees.email")}</TableHead>
+              <TableHead>{t("common.department")}</TableHead>
+              <TableHead>{t("employees.role")}</TableHead>
               <TableHead>{t("employees.civil_number")}</TableHead>
               <TableHead>{t("employees.status")}</TableHead>
               <TableHead className="w-[70px]">{t("common.actions")}</TableHead>
@@ -128,6 +134,8 @@ export function EmployeeList() {
                   </div>
                 </TableCell>
                 <TableCell>{employee.email}</TableCell>
+                <TableCell>{employee.department?.name || '-'}</TableCell>
+                <TableCell>{employee.role || '-'}</TableCell>
                 <TableCell>{employee.civilNumber || '-'}</TableCell>
                 <TableCell>{t(`employees.status_${employee.status}`)}</TableCell>
                 <TableCell>
