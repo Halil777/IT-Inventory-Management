@@ -8,7 +8,7 @@ function getApiBase() {
   return DEFAULT_API_URL;
 }
 
-async function request(path: string, init?: RequestInit) {
+export async function request(path: string, init?: RequestInit) {
   const res = await fetch(`${getApiBase()}${path}`, {
     headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
     ...init,

@@ -25,7 +25,7 @@ export default function PrintersPage() {
           <Button variant="outline" asChild>
             <Link href="/dashboard/printers/cartridges/new">
               <Plus className="mr-2 h-4 w-4" />
-              Add Cartridge
+              {t("printers.add_cartridge")}
             </Link>
           </Button>
         </div>
@@ -36,4 +36,3 @@ export default function PrintersPage() {
     </div>
   )
 }
-

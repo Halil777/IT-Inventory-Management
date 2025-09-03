@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { createCartridge, updateCartridge, getCartridge } from "@/lib/api"
+import { createCartridge, updateCartridge, getCartridge, createConsumable, getConsumables } from "@/lib/api"
 import { toast } from "sonner"
 
 export function CartridgeForm({ cartridgeId }: { cartridgeId?: string }) {
@@ -16,15 +16,26 @@ export function CartridgeForm({ cartridgeId }: { cartridgeId?: string }) {
   const [error, setError] = useState("")
   const [type, setType] = useState("")
   const [status, setStatus] = useState("available")
+  const [quantity, setQuantity] = useState<number>(0)
 
   const isEditing = !!cartridgeId
 
   useEffect(() => {
     if (cartridgeId) {
       getCartridge(cartridgeId)
-        .then((c) => {
+        .then(async (c) => {
           setType(c.type || "")
           setStatus(c.status || "available")
+          // compute current quantity from consumables of same type
+          try {
+            const list = await getConsumables()
+            const total = (list || [])
+              .filter((i: any) => (i.type || "").toLowerCase() === (c.type || "").toLowerCase())
+              .reduce((sum: number, i: any) => sum + (Number(i.quantity) || 0), 0)
+            setQuantity(total)
+          } catch (e) {
+            console.error(e)
+          }
         })
         .catch(console.error)
     }
@@ -42,6 +53,13 @@ export function CartridgeForm({ cartridgeId }: { cartridgeId?: string }) {
         toast.success("Cartridge updated")
       } else {
         await createCartridge(payload)
+        if (quantity && quantity > 0) {
+          try {
+            await createConsumable({ type, quantity, status: "in-stock" as any })
+          } catch (e) {
+            console.error("Failed to create initial cartridge stock", e)
+          }
+        }
         toast.success("Cartridge created")
       }
       router.push("/dashboard/printers")
@@ -61,7 +79,7 @@ export function CartridgeForm({ cartridgeId }: { cartridgeId?: string }) {
         </Alert>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="type">Type *</Label>
           <Input id="type" value={type} onChange={(e) => setType(e.target.value)} placeholder="e.g., HP 206A" required />
@@ -81,6 +99,13 @@ export function CartridgeForm({ cartridgeId }: { cartridgeId?: string }) {
             </SelectContent>
           </Select>
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="quantity">Quantity{isEditing ? " (current)" : ""}</Label>
+          <Input id="quantity" type="number" min={0} value={quantity}
+            onChange={(e) => !isEditing && setQuantity(parseInt(e.target.value || '0', 10))}
+            placeholder="0" disabled={isEditing} />
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
@@ -94,4 +119,3 @@ export function CartridgeForm({ cartridgeId }: { cartridgeId?: string }) {
     </form>
   )
 }
-

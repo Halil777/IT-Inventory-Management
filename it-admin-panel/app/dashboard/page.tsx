@@ -1,7 +1,11 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { DashboardStats } from "@/components/dashboard/dashboard-stats"
-import { DashboardCharts } from "@/components/dashboard/dashboard-charts"
+const DashboardCharts = dynamic(() => import("@/components/dashboard/dashboard-charts").then(m => m.DashboardCharts), {
+  ssr: false,
+  loading: () => <div className="h-[300px] w-full rounded-md bg-muted animate-pulse" />,
+})
 import { NotificationPanel } from "@/components/dashboard/notification-panel"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
 import { useI18n } from "@/lib/i18n"

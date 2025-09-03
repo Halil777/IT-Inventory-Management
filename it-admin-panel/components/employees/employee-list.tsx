@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useMemo, useRef, useState } from "react"
+import useSWR from "swr"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,32 +9,31 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Search, MoreHorizontal, Edit, Eye, Trash2, Download } from "lucide-react"
-import { deleteEmployee, getEmployees } from "@/lib/api"
+import { Search, MoreHorizontal, Edit, Eye, Trash2, Download, FileText, Printer as PrinterIcon } from "lucide-react"
+import { deleteEmployee } from "@/lib/api"
 import { toast } from "sonner"
 import { useI18n } from "@/lib/i18n"
 
 export function EmployeeList() {
   const { t } = useI18n()
-  const [employees, setEmployees] = useState<any[]>([])
+  const { data: employees, mutate } = useSWR<any[]>("/employees")
   const [searchTerm, setSearchTerm] = useState("")
+  const printRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    getEmployees().then(setEmployees).catch((err) => console.error(err))
-  }, [])
-
-  const filtered = employees.filter((e) =>
-    e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (e.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (e.department?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (e.role || "").toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const filtered = useMemo(() =>
+    (employees || []).filter((e) =>
+      e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (e.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (e.department?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (e.role || "").toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
+  [employees, searchTerm])
 
   const handleDelete = async (id: number) => {
     if (!confirm(t("employees.delete_confirm"))) return
     try {
       await deleteEmployee(id)
-      setEmployees((prev) => prev.filter((e) => e.id !== id))
+      mutate((prev) => (prev || []).filter((e: any) => e.id !== id), false)
       toast.success("Employee deleted")
     } catch (e) {
       console.error(e)
@@ -41,9 +41,9 @@ export function EmployeeList() {
     }
   }
 
-  const handleExport = () => {
+  const handleExportExcel = () => {
     try {
-      const rows = employees.map((e) => ({
+      const rows = filtered.map((e) => ({
         id: e.id,
         name: e.name,
         email: e.email || "",
@@ -74,6 +74,87 @@ export function EmployeeList() {
     }
   }
 
+  const handleExportPDF = async () => {
+    try {
+      const pdfMakeMod: any = await import("pdfmake/build/pdfmake.js")
+      const pdfFonts: any = await import("pdfmake/build/vfs_fonts.js")
+      const pdfMake = pdfMakeMod.default || pdfMakeMod
+      pdfMake.vfs = (pdfFonts.default && pdfFonts.default.vfs) || pdfFonts.vfs
+      const headers = [
+        t("employees.full_name"),
+        t("employees.email"),
+        t("common.department"),
+        t("employees.role"),
+        t("employees.civil_number"),
+        t("employees.status"),
+      ]
+      const body = [
+        headers,
+        ...filtered.map((e) => [
+          e.name ?? "",
+          e.email ?? "",
+          e.department?.name ?? "",
+          e.role ?? "",
+          e.civilNumber ?? "",
+          e.status ? t(`employees.status_${e.status}`) : "",
+        ]),
+      ]
+      const docDefinition = {
+        pageSize: "A4",
+        pageMargins: [20, 20, 20, 20],
+        content: [
+          { text: t("employees.list_title"), style: "header" },
+          { table: { headerRows: 1, widths: [100, 120, 80, 70, 70, 50] as any, body }, layout: "lightHorizontalLines" },
+        ],
+        styles: { header: { fontSize: 14, bold: true, margin: [0, 0, 0, 10] } },
+      }
+      pdfMake.createPdf(docDefinition).download("employees.pdf")
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handlePrint = () => {
+    const node = printRef.current
+    if (!node) return
+    const html = `<!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>${t("employees.list_title")}</title>
+        <style>
+          * { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji"; }
+          body { padding: 12mm; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #ddd; padding: 8px; font-size: 12px; }
+          th { background: #f5f5f5; text-align: left; }
+          @page { size: A4; margin: 0; }
+        </style>
+      </head>
+      <body>
+        <h2>${t("employees.list_title")}</h2>
+        ${node.innerHTML}
+        <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 50); }<\/script>
+      </body>
+    </html>`
+    const iframe = document.createElement("iframe")
+    iframe.style.position = "fixed"
+    iframe.style.right = "0"
+    iframe.style.bottom = "0"
+    iframe.style.width = "0"
+    iframe.style.height = "0"
+    iframe.style.border = "0"
+    document.body.appendChild(iframe)
+    const doc = iframe.contentWindow?.document
+    if (!doc) return
+    doc.open()
+    doc.write(html)
+    doc.close()
+    const cleanup = () => setTimeout(() => document.body.removeChild(iframe), 500)
+    iframe.contentWindow?.addEventListener("afterprint", cleanup)
+    iframe.contentWindow?.addEventListener("blur", cleanup)
+  }
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -90,10 +171,20 @@ export function EmployeeList() {
             <CardTitle>{t("employees.list_title")}</CardTitle>
             <CardDescription>{t("employees.list_desc")}</CardDescription>
           </div>
-          <Button onClick={handleExport} variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            {t("common.export_to_excel")}
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleExportExcel} variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              {t("common.export_to_excel")}
+            </Button>
+            <Button onClick={handleExportPDF} variant="outline">
+              <FileText className="mr-2 h-4 w-4" />
+              {t("common.export_to_pdf")}
+            </Button>
+            <Button onClick={handlePrint} variant="outline">
+              <PrinterIcon className="mr-2 h-4 w-4" />
+              {t("common.print")}
+            </Button>
+          </div>
         </div>
         <div className="flex items-center space-x-2">
           <div className="relative flex-1 max-w-sm">
@@ -107,7 +198,7 @@ export function EmployeeList() {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent ref={printRef}>
         <Table>
           <TableHeader>
             <TableRow>
