@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Mail, Phone, IdCard } from "lucide-react"
+import { Mail, Phone, IdCard, Building2, Briefcase } from "lucide-react"
 import { getEmployee } from "@/lib/api"
 import { useI18n } from "@/lib/i18n"
 
@@ -56,6 +56,14 @@ export function EmployeeDetails({ employeeId }: EmployeeDetailsProps) {
           <div className="flex items-center gap-2">
             <IdCard className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm">{employee.civilNumber || '-'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">{employee.department?.name || '-'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">{employee.role || '-'}</span>
           </div>
         </div>
       </CardContent>

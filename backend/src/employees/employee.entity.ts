@@ -51,6 +51,9 @@ export class Employee {
   @Column({ nullable: true })
   civilNumber?: string;
 
+  @Column({ nullable: true })
+  role?: string;
+
   @Column({ default: 'active' })
   status: string;
 }
