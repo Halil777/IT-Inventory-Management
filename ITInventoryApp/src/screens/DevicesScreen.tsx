@@ -11,58 +11,36 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import {
-  getEmployees,
   getDevices,
-  createEmployee,
-  updateEmployee,
-  deleteEmployee,
+  createDevice,
+  updateDevice,
+  deleteDevice,
 } from '../api';
 
-interface Employee {
+interface Device {
   id: number;
-  name: string;
-  email: string;
-  phone?: string;
-  civilNumber?: string;
-  role?: string;
-  status: string;
+  type: { id: number; name: string };
+  user?: { id: number; name: string } | null;
   department?: { id: number; name: string } | null;
+  status: string;
 }
 
-export default function EmployeesScreen(): JSX.Element {
-  const [employees, setEmployees] = useState<Employee[]>([]);
+export default function DevicesScreen(): JSX.Element {
+  const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [civilNumber, setCivilNumber] = useState('');
-  const [role, setRole] = useState('');
-  const [status, setStatus] = useState('active');
+  const [typeId, setTypeId] = useState('');
+  const [userId, setUserId] = useState('');
   const [departmentId, setDepartmentId] = useState('');
-  const [editing, setEditing] = useState<Employee | null>(null);
-  const [withDevices, setWithDevices] = useState(0);
-  const [deviceCount, setDeviceCount] = useState(0);
-
-  const loadStats = (): void => {
-    getDevices()
-      .then((devs) => {
-        setDeviceCount(devs.length);
-        const assignedIds = new Set(
-          devs.filter((d: any) => d.user).map((d: any) => d.user.id),
-        );
-        setWithDevices(assignedIds.size);
-      })
-      .catch((err) => console.error('Failed to load stats', err));
-  };
+  const [status, setStatus] = useState('');
+  const [editing, setEditing] = useState<Device | null>(null);
 
   const load = (): void => {
     setLoading(true);
-    getEmployees()
-      .then((data) => setEmployees(data || []))
-      .catch((err) => console.error('Failed to load employees', err))
+    getDevices()
+      .then((data) => setDevices(data || []))
+      .catch((err) => console.error('Failed to load devices', err))
       .finally(() => setLoading(false));
-    loadStats();
   };
 
   useEffect(() => {
@@ -71,66 +49,57 @@ export default function EmployeesScreen(): JSX.Element {
 
   const openNew = (): void => {
     setEditing(null);
-    setName('');
-    setEmail('');
-    setPhone('');
-    setCivilNumber('');
-    setRole('');
-    setStatus('active');
+    setTypeId('');
+    setUserId('');
     setDepartmentId('');
+    setStatus('');
     setModalVisible(true);
   };
 
-  const openEdit = (emp: Employee): void => {
-    setEditing(emp);
-    setName(emp.name);
-    setEmail(emp.email);
-    setPhone(emp.phone || '');
-    setCivilNumber(emp.civilNumber || '');
-    setRole(emp.role || '');
-    setStatus(emp.status);
-    setDepartmentId(emp.department?.id ? String(emp.department.id) : '');
+  const openEdit = (dev: Device): void => {
+    setEditing(dev);
+    setTypeId(dev.type.id ? String(dev.type.id) : '');
+    setUserId(dev.user?.id ? String(dev.user.id) : '');
+    setDepartmentId(dev.department?.id ? String(dev.department.id) : '');
+    setStatus(dev.status);
     setModalVisible(true);
   };
 
   const save = async (): Promise<void> => {
     try {
-      if (!name || !email) {
+      if (!typeId || !status) {
         throw new Error('Missing fields');
       }
       const data = {
-        name,
-        email,
-        phone: phone || undefined,
-        civilNumber: civilNumber || undefined,
-        role: role || undefined,
-        status,
+        typeId: +typeId,
+        userId: userId ? +userId : undefined,
         departmentId: departmentId ? +departmentId : undefined,
+        status,
       };
       if (editing) {
-        await updateEmployee(editing.id, data);
+        await updateDevice(editing.id, data);
       } else {
-        await createEmployee(data);
+        await createDevice(data);
       }
       setModalVisible(false);
       load();
     } catch (err) {
-      console.error('Failed to save employee', err);
+      console.error('Failed to save device', err);
     }
   };
 
-  const remove = (emp: Employee): void => {
-    Alert.alert('Delete Employee', `Delete ${emp.name}?`, [
+  const remove = (dev: Device): void => {
+    Alert.alert('Delete Device', `Delete device ${dev.id}?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
           try {
-            await deleteEmployee(emp.id);
+            await deleteDevice(dev.id);
             load();
           } catch (err) {
-            console.error('Failed to delete employee', err);
+            console.error('Failed to delete device', err);
           }
         },
       },
@@ -140,101 +109,55 @@ export default function EmployeesScreen(): JSX.Element {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Employees</Text>
+        <Text style={styles.title}>Devices</Text>
         <TouchableOpacity style={styles.addButton} onPress={openNew}>
           <Feather name="plus" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
       <ScrollView>
-        <View style={styles.statsContainer}>
-          {[
-            {
-              label: 'Total Employees',
-              value: employees.length,
-              icon: 'users',
-              color: '#2563eb',
-            },
-            {
-              label: 'With Devices',
-              value: withDevices,
-              icon: 'user-check',
-              color: '#16a34a',
-            },
-            {
-              label: 'Without Devices',
-              value: employees.length - withDevices,
-              icon: 'user-x',
-              color: '#dc2626',
-            },
-            {
-              label: 'Total Devices',
-              value: deviceCount,
-              icon: 'monitor',
-              color: '#9333ea',
-            },
-          ].map((stat) => (
-            <View key={stat.label} style={styles.statCard}>
-              <Feather name={stat.icon as any} size={20} color={stat.color} />
-              <Text style={styles.statValue}>{stat.value}</Text>
-              <Text style={styles.statLabel}>{stat.label}</Text>
-            </View>
-          ))}
-        </View>
-        {loading ? (
-          <Text style={styles.loading}>Loading...</Text>
-        ) : (
-          employees.map((emp) => (
-            <View key={emp.id} style={styles.row}>
+        {loading && <Text style={styles.loading}>Loading...</Text>}
+        {!loading &&
+          devices.map((dev) => (
+            <View key={dev.id} style={styles.row}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.empName}>{emp.name}</Text>
-                <Text style={styles.empEmail}>{emp.email}</Text>
+                <Text style={styles.deviceType}>{dev.type.name}</Text>
+                <Text style={styles.deviceStatus}>{dev.status}</Text>
               </View>
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={styles.actionBtn}
-                  onPress={() => openEdit(emp)}
+                  onPress={() => openEdit(dev)}
                 >
                   <Feather name="edit-2" size={16} color="#2563eb" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionBtn}
-                  onPress={() => remove(emp)}
+                  onPress={() => remove(dev)}
                 >
-                  <Feather name="trash" size={16} color="#dc2626" />
+                  <Feather name="trash-2" size={16} color="#dc2626" />
                 </TouchableOpacity>
               </View>
             </View>
-          ))
-        )}
+          ))}
       </ScrollView>
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>
-              {editing ? 'Edit Employee' : 'New Employee'}
+              {editing ? 'Edit Device' : 'New Device'}
             </Text>
             <TextInput
-              placeholder="Name"
-              value={name}
-              onChangeText={setName}
+              placeholder="Type ID"
+              value={typeId}
+              onChangeText={setTypeId}
+              keyboardType="numeric"
               style={styles.input}
             />
             <TextInput
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Phone"
-              value={phone}
-              onChangeText={setPhone}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Civil Number"
-              value={civilNumber}
-              onChangeText={setCivilNumber}
+              placeholder="User ID"
+              value={userId}
+              onChangeText={setUserId}
+              keyboardType="numeric"
               style={styles.input}
             />
             <TextInput
@@ -242,12 +165,6 @@ export default function EmployeesScreen(): JSX.Element {
               value={departmentId}
               onChangeText={setDepartmentId}
               keyboardType="numeric"
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Role"
-              value={role}
-              onChangeText={setRole}
               style={styles.input}
             />
             <TextInput
@@ -267,7 +184,9 @@ export default function EmployeesScreen(): JSX.Element {
                 style={[styles.modalButton, styles.modalButtonPrimary]}
                 onPress={save}
               >
-                <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>
+                <Text
+                  style={[styles.modalButtonText, styles.modalButtonTextPrimary]}
+                >
                   Save
                 </Text>
               </TouchableOpacity>
@@ -305,29 +224,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#6b7280',
   },
-  statsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  statCard: {
-    width: '48%',
-    backgroundColor: '#f3f4f6',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-    alignItems: 'flex-start',
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#232323',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -337,12 +233,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 4,
   },
-  empName: {
+  deviceType: {
     fontSize: 16,
     fontWeight: '600',
     color: '#232323',
   },
-  empEmail: {
+  deviceStatus: {
     fontSize: 12,
     color: '#6b7280',
   },

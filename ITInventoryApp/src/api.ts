@@ -17,6 +17,41 @@ export function getDevices(): Promise<any> {
   return request('/devices');
 }
 
+export function createDevice(data: {
+  typeId: number;
+  userId?: number;
+  departmentId?: number;
+  status: string;
+}): Promise<any> {
+  return request('/devices', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function updateDevice(
+  id: number,
+  data: {
+    typeId?: number;
+    userId?: number;
+    departmentId?: number;
+    status?: string;
+  },
+): Promise<any> {
+  return request(`/devices/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteDevice(id: number): Promise<any> {
+  return request(`/devices/${id}`, { method: 'DELETE' });
+}
+
+export function getDeviceTypes(): Promise<any> {
+  return request('/device-types');
+}
+
 export function getPrinters(): Promise<any> {
   return request('/printers');
 }
@@ -25,7 +60,15 @@ export function getEmployees(): Promise<any> {
   return request('/employees');
 }
 
-export function createEmployee(data: { name: string; email: string }): Promise<any> {
+export function createEmployee(data: {
+  name: string;
+  email: string;
+  phone?: string;
+  civilNumber?: string;
+  departmentId?: number;
+  role?: string;
+  status: string;
+}): Promise<any> {
   return request('/employees', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -34,7 +77,15 @@ export function createEmployee(data: { name: string; email: string }): Promise<a
 
 export function updateEmployee(
   id: number,
-  data: { name: string; email: string },
+  data: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    civilNumber?: string;
+    departmentId?: number;
+    role?: string;
+    status?: string;
+  },
 ): Promise<any> {
   return request(`/employees/${id}`, {
     method: 'PUT',
