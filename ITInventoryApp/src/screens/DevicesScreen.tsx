@@ -6,15 +6,18 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
-  TextInput,
   Alert,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { Feather } from '@expo/vector-icons';
 import {
   getDevices,
   createDevice,
   updateDevice,
   deleteDevice,
+  getDeviceTypes,
+  getEmployees,
+  getDepartments,
 } from '../api';
 
 interface Device {
@@ -34,6 +37,10 @@ export default function DevicesScreen(): JSX.Element {
   const [departmentId, setDepartmentId] = useState('');
   const [status, setStatus] = useState('');
   const [editing, setEditing] = useState<Device | null>(null);
+  const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [allEmployees, setAllEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
 
   const load = (): void => {
     setLoading(true);
@@ -45,14 +52,39 @@ export default function DevicesScreen(): JSX.Element {
 
   useEffect(() => {
     load();
+    getDeviceTypes()
+      .then((list) => {
+        setDeviceTypes(list || []);
+        if (list && list.length > 0) {
+          setTypeId((prev) => prev || String(list[0].id));
+        }
+      })
+      .catch((err) => console.error('Failed to load device types', err));
+    getDepartments().then(setDepartments).catch((err) => console.error('Failed to load departments', err));
+    getEmployees()
+      .then((list) => setAllEmployees(list || []))
+      .catch((err) => console.error('Failed to load employees', err));
   }, []);
+
+  useEffect(() => {
+    if (departmentId) {
+      const filtered = allEmployees.filter((u) => u.department?.id === Number(departmentId));
+      setEmployees(filtered);
+      if (!filtered.some((u) => String(u.id) === userId)) {
+        setUserId('');
+      }
+    } else {
+      setEmployees([]);
+      setUserId('');
+    }
+  }, [departmentId, allEmployees]);
 
   const openNew = (): void => {
     setEditing(null);
-    setTypeId('');
+    setTypeId(deviceTypes.length > 0 ? String(deviceTypes[0].id) : '');
     setUserId('');
     setDepartmentId('');
-    setStatus('');
+    setStatus('new');
     setModalVisible(true);
   };
 
@@ -146,33 +178,35 @@ export default function DevicesScreen(): JSX.Element {
             <Text style={styles.modalTitle}>
               {editing ? 'Edit Device' : 'New Device'}
             </Text>
-            <TextInput
-              placeholder="Type ID"
-              value={typeId}
-              onChangeText={setTypeId}
-              keyboardType="numeric"
+            <Picker selectedValue={typeId} onValueChange={setTypeId} style={styles.input}>
+              {deviceTypes.map((t) => (
+                <Picker.Item key={t.id} label={t.name} value={String(t.id)} />
+              ))}
+            </Picker>
+            <Picker selectedValue={departmentId} onValueChange={(v) => setDepartmentId(String(v))} style={styles.input}>
+              <Picker.Item label="Unassigned" value="" />
+              {departments.map((d) => (
+                <Picker.Item key={d.id} label={d.name} value={String(d.id)} />
+              ))}
+            </Picker>
+            <Picker
+              enabled={!!departmentId}
+              selectedValue={userId}
+              onValueChange={(v) => setUserId(String(v))}
               style={styles.input}
-            />
-            <TextInput
-              placeholder="User ID"
-              value={userId}
-              onChangeText={setUserId}
-              keyboardType="numeric"
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Department ID"
-              value={departmentId}
-              onChangeText={setDepartmentId}
-              keyboardType="numeric"
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Status"
-              value={status}
-              onChangeText={setStatus}
-              style={styles.input}
-            />
+            >
+              <Picker.Item label="Unassigned" value="" />
+              {employees.map((u) => (
+                <Picker.Item key={u.id} label={u.name} value={String(u.id)} />
+              ))}
+            </Picker>
+            <Picker selectedValue={status} onValueChange={setStatus} style={styles.input}>
+              <Picker.Item label="New" value="new" />
+              <Picker.Item label="In Use" value="in-use" />
+              <Picker.Item label="Active" value="active" />
+              <Picker.Item label="Under Repair" value="under-repair" />
+              <Picker.Item label="Decommissioned" value="decommissioned" />
+            </Picker>
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={styles.modalButton}
