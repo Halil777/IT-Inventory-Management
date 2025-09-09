@@ -11,42 +11,46 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import {
-  getDepartments,
   getEmployees,
   getDevices,
-  createDepartment,
-  updateDepartment,
-  deleteDepartment,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
 } from '../api';
 
-interface Department {
+interface Employee {
   id: number;
   name: string;
+  email: string;
 }
 
-export default function DepartmentsScreen(): JSX.Element {
-  const [departments, setDepartments] = useState<Department[]>([]);
+export default function EmployeesScreen(): JSX.Element {
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [name, setName] = useState('');
-  const [editing, setEditing] = useState<Department | null>(null);
-  const [empCount, setEmpCount] = useState(0);
+  const [email, setEmail] = useState('');
+  const [editing, setEditing] = useState<Employee | null>(null);
+  const [withDevices, setWithDevices] = useState(0);
   const [deviceCount, setDeviceCount] = useState(0);
 
   const loadStats = (): void => {
-    Promise.all([getEmployees(), getDevices()])
-      .then(([emps, devs]) => {
-        setEmpCount(emps.length);
+    getDevices()
+      .then((devs) => {
         setDeviceCount(devs.length);
+        const assignedIds = new Set(
+          devs.filter((d: any) => d.user).map((d: any) => d.user.id),
+        );
+        setWithDevices(assignedIds.size);
       })
       .catch((err) => console.error('Failed to load stats', err));
   };
 
   const load = (): void => {
     setLoading(true);
-    getDepartments()
-      .then((data) => setDepartments(data || []))
-      .catch((err) => console.error('Failed to load departments', err))
+    getEmployees()
+      .then((data) => setEmployees(data || []))
+      .catch((err) => console.error('Failed to load employees', err))
       .finally(() => setLoading(false));
     loadStats();
   };
@@ -58,41 +62,46 @@ export default function DepartmentsScreen(): JSX.Element {
   const openNew = (): void => {
     setEditing(null);
     setName('');
+    setEmail('');
     setModalVisible(true);
   };
 
-  const openEdit = (dept: Department): void => {
-    setEditing(dept);
-    setName(dept.name);
+  const openEdit = (emp: Employee): void => {
+    setEditing(emp);
+    setName(emp.name);
+    setEmail(emp.email);
     setModalVisible(true);
   };
 
   const save = async (): Promise<void> => {
     try {
+      if (!name || !email) {
+        throw new Error('Missing fields');
+      }
       if (editing) {
-        await updateDepartment(editing.id, { name });
+        await updateEmployee(editing.id, { name, email });
       } else {
-        await createDepartment({ name });
+        await createEmployee({ name, email });
       }
       setModalVisible(false);
       load();
     } catch (err) {
-      console.error('Failed to save department', err);
+      console.error('Failed to save employee', err);
     }
   };
 
-  const remove = (dept: Department): void => {
-    Alert.alert('Delete Department', `Delete ${dept.name}?`, [
+  const remove = (emp: Employee): void => {
+    Alert.alert('Delete Employee', `Delete ${emp.name}?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
           try {
-            await deleteDepartment(dept.id);
+            await deleteEmployee(emp.id);
             load();
           } catch (err) {
-            console.error('Failed to delete department', err);
+            console.error('Failed to delete employee', err);
           }
         },
       },
@@ -102,7 +111,7 @@ export default function DepartmentsScreen(): JSX.Element {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Departments</Text>
+        <Text style={styles.title}>Employees</Text>
         <TouchableOpacity style={styles.addButton} onPress={openNew}>
           <Feather name="plus" size={20} color="#fff" />
         </TouchableOpacity>
@@ -111,30 +120,28 @@ export default function DepartmentsScreen(): JSX.Element {
         <View style={styles.statsContainer}>
           {[
             {
-              label: 'Departments',
-              value: departments.length,
-              icon: 'grid',
+              label: 'Total Employees',
+              value: employees.length,
+              icon: 'users',
               color: '#2563eb',
             },
             {
-              label: 'Employees',
-              value: empCount,
-              icon: 'users',
+              label: 'With Devices',
+              value: withDevices,
+              icon: 'user-check',
               color: '#16a34a',
             },
             {
-              label: 'Devices',
+              label: 'Without Devices',
+              value: employees.length - withDevices,
+              icon: 'user-x',
+              color: '#dc2626',
+            },
+            {
+              label: 'Total Devices',
               value: deviceCount,
               icon: 'monitor',
               color: '#9333ea',
-            },
-            {
-              label: 'Avg Emp/Dept',
-              value: departments.length
-                ? Math.round(empCount / departments.length)
-                : 0,
-              icon: 'trending-up',
-              color: '#f97316',
             },
           ].map((stat) => (
             <View key={stat.label} style={styles.statCard}>
@@ -147,20 +154,22 @@ export default function DepartmentsScreen(): JSX.Element {
         {loading ? (
           <Text style={styles.loading}>Loading...</Text>
         ) : (
-          departments.map((dept) => (
-            <View key={dept.id} style={styles.row}>
-              <Text style={styles.cell}>{dept.id}</Text>
-              <Text style={[styles.cell, styles.name]}>{dept.name}</Text>
+          employees.map((emp) => (
+            <View key={emp.id} style={styles.row}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.empName}>{emp.name}</Text>
+                <Text style={styles.empEmail}>{emp.email}</Text>
+              </View>
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={styles.actionBtn}
-                  onPress={() => openEdit(dept)}
+                  onPress={() => openEdit(emp)}
                 >
                   <Feather name="edit-2" size={16} color="#2563eb" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionBtn}
-                  onPress={() => remove(dept)}
+                  onPress={() => remove(emp)}
                 >
                   <Feather name="trash" size={16} color="#dc2626" />
                 </TouchableOpacity>
@@ -173,12 +182,18 @@ export default function DepartmentsScreen(): JSX.Element {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>
-              {editing ? 'Edit Department' : 'New Department'}
+              {editing ? 'Edit Employee' : 'New Employee'}
             </Text>
             <TextInput
               placeholder="Name"
               value={name}
               onChangeText={setName}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
               style={styles.input}
             />
             <View style={styles.modalActions}>
@@ -262,13 +277,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 4,
   },
-  cell: {
-    fontSize: 14,
+  empName: {
+    fontSize: 16,
+    fontWeight: '600',
     color: '#232323',
   },
-  name: {
-    flex: 1,
-    marginLeft: 8,
+  empEmail: {
+    fontSize: 12,
+    color: '#6b7280',
   },
   actions: {
     flexDirection: 'row',
