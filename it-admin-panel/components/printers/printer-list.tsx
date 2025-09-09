@@ -12,6 +12,7 @@ import { Search, MoreHorizontal, Edit, Eye, Trash2, Download, FileText, Printer 
 import { deletePrinter } from "@/lib/api"
 import { toast } from "sonner"
 import { useI18n } from "@/lib/i18n"
+import { exportToXlsx } from "@/lib/export"
 
 export function PrinterList() {
   const { t } = useI18n()
@@ -35,33 +36,11 @@ export function PrinterList() {
     }
   }
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     try {
-      // Prepare CSV content
       const headers = [t("common.id"), t("printers.model"), t("common.department")]
       const rows = filtered.map((p) => [p.id, p.model ?? "", p.department?.name ?? ""]) as (string | number)[][]
-      const csv = [headers, ...rows]
-        .map((row) =>
-          row
-            .map((cell) => {
-              const str = String(cell ?? "")
-              // Escape quotes and wrap if needed
-              const needsWrap = /[",\n;]/.test(str)
-              const escaped = str.replace(/"/g, '""')
-              return needsWrap ? `"${escaped}"` : escaped
-            })
-            .join(","),
-        )
-        .join("\n")
-      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = "printers.csv"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      await exportToXlsx(headers, rows, "printers")
     } catch (e) {
       console.error(e)
     }

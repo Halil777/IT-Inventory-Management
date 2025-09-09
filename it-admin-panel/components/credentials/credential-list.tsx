@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Search, MoreHorizontal, Trash2, Download } from "lucide-react"
 import { deleteCredential } from "@/lib/api"
 import { toast } from "sonner"
+import { exportToXlsx } from "@/lib/export"
 
 export function CredentialList() {
   const { data: credentials, mutate } = useSWR<any[]>("/credentials")
@@ -38,22 +39,16 @@ export function CredentialList() {
     }
   }
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     try {
-      const rows = filtered.map((c) => ({ id: c.id, fullName: c.fullName || "", login: c.login || "", password: c.password || "" }))
-      const header = "id,fullName,login,password\n"
-      const csv =
-        header +
-        rows
-          .map((r) => `${r.id},"${r.fullName.replace(/"/g, '""')}","${r.login.replace(/"/g, '""')}","${r.password.replace(/"/g, '""')}"`)
-          .join("\n")
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = "credentials.csv"
-      link.click()
-      URL.revokeObjectURL(url)
+      const headers = ["ID", "Full Name", "Login", "Password"]
+      const rows = filtered.map((c) => [
+        c.id,
+        c.fullName || "",
+        c.login || "",
+        c.password || "",
+      ]) as (string | number)[][]
+      await exportToXlsx(headers, rows, "credentials")
     } catch (e) {
       console.error(e)
       toast.error("Failed to export")

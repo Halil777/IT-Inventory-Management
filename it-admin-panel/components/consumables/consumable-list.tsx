@@ -12,6 +12,7 @@ import { Search, MoreHorizontal, Edit, Eye, Trash2, Download, FileText, Printer 
 import { deleteConsumable, assignConsumable } from "@/lib/api"
 import { toast } from "sonner"
 import { useI18n } from "@/lib/i18n"
+import { exportToXlsx } from "@/lib/export"
 
 export function ConsumableList() {
   const { t } = useI18n()
@@ -35,7 +36,7 @@ export function ConsumableList() {
     }
   }
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     try {
       const headers = ["ID", "Type", "Quantity", "Status", "Department", "User"]
       const rows = filtered.map((i) => [
@@ -46,27 +47,7 @@ export function ConsumableList() {
         i.department?.name ?? "",
         i.user?.name ?? "",
       ]) as (string | number)[][]
-      const csv = [headers, ...rows]
-        .map((row) =>
-          row
-            .map((cell) => {
-              const str = String(cell ?? "")
-              const needsWrap = /[",\n;]/.test(str)
-              const escaped = str.replace(/"/g, '""')
-              return needsWrap ? `"${escaped}"` : escaped
-            })
-            .join(","),
-        )
-        .join("\n")
-      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = "consumables.csv"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      await exportToXlsx(headers, rows, "consumables")
     } catch (e) {
       console.error(e)
     }

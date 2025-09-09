@@ -12,6 +12,7 @@ import { Search, MoreHorizontal, Edit, Eye, Trash2, Download, FileText, Printer 
 import { deleteDevice } from "@/lib/api"
 import { toast } from "sonner"
 import { useI18n } from "@/lib/i18n"
+import { exportToXlsx } from "@/lib/export"
 
 export function DeviceList() {
   const { t } = useI18n()
@@ -38,7 +39,7 @@ export function DeviceList() {
     }
   }
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     try {
       const headers = [
         t("common.id"),
@@ -53,21 +54,8 @@ export function DeviceList() {
         d.status ? t(`devices.status_${d.status.replace(/-/g, "_")}`) : "",
         d.user?.name || "",
         d.department?.name || "",
-      ])
-      let csv = headers.join(",") + "\n"
-      rows.forEach((r) => {
-        csv += r
-          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
-          .join(",") + "\n"
-      })
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.setAttribute("download", "devices.csv")
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      ]) as (string | number)[][]
+      await exportToXlsx(headers, rows, "devices")
     } catch (e) {
       console.error(e)
       toast.error(t("devices.export_failed"))
