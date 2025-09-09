@@ -1,7 +1,7 @@
+import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StyleSheet } from 'react-native';
 import LoginScreen from './screens/LoginScreen.js';
 import HomeScreen from './screens/HomeScreen.js';
 import DeviceListScreen from './screens/DeviceListScreen.js';
@@ -24,4 +24,3 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({});
