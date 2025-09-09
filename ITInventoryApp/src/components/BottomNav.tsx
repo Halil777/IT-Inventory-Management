@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-type Tab = 'dashboard' | 'devices' | 'notifications' | 'profile';
+type Tab = 'dashboard' | 'devices' | 'departments' | 'notifications' | 'profile';
 
 interface BottomNavProps {
   currentTab: Tab;
@@ -13,6 +13,7 @@ export default function BottomNav({ currentTab, onChange }: BottomNavProps): JSX
   const items: { key: Tab; label: string; icon: any }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: 'home' },
     { key: 'devices', label: 'Devices', icon: 'monitor' },
+    { key: 'departments', label: 'Departments', icon: 'grid' },
     { key: 'notifications', label: 'Alerts', icon: 'bell' },
     { key: 'profile', label: 'Profile', icon: 'user' },
   ];

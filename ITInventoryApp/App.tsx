@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import DashboardScreen from './src/screens/DashboardScreen';
 import LoginScreen from './src/screens/LoginScreen';
+import DepartmentsScreen from './src/screens/DepartmentsScreen';
 import BottomNav from './src/components/BottomNav';
 
-type Tab = 'dashboard' | 'devices' | 'notifications' | 'profile';
+type Tab =
+  | 'dashboard'
+  | 'devices'
+  | 'departments'
+  | 'notifications'
+  | 'profile';
 
 export default function App(): JSX.Element {
   const [currentTab, setCurrentTab] = useState<Tab>('dashboard');
@@ -19,6 +25,8 @@ export default function App(): JSX.Element {
             <Text>Devices screen</Text>
           </View>
         );
+      case 'departments':
+        return <DepartmentsScreen />;
       case 'notifications':
         return (
           <View style={styles.placeholder}>
