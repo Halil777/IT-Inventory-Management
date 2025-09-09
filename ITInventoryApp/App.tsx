@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import DashboardScreen from './src/screens/DashboardScreen';
-import LoginScreen from './src/screens/LoginScreen';
 import DepartmentsScreen from './src/screens/DepartmentsScreen';
 import EmployeesScreen from './src/screens/EmployeesScreen';
+import DevicesScreen from './src/screens/DevicesScreen';
 import BottomNav from './src/components/BottomNav';
 
 type Tab =
   | 'dashboard'
   | 'devices'
   | 'departments'
-  | 'employees'
-  | 'notifications'
-  | 'profile';
+  | 'employees';
 
 export default function App(): JSX.Element {
   const [currentTab, setCurrentTab] = useState<Tab>('dashboard');
@@ -22,23 +20,11 @@ export default function App(): JSX.Element {
       case 'dashboard':
         return <DashboardScreen />;
       case 'devices':
-        return (
-          <View style={styles.placeholder}>
-            <Text>Devices screen</Text>
-          </View>
-        );
+        return <DevicesScreen />;
       case 'departments':
         return <DepartmentsScreen />;
       case 'employees':
         return <EmployeesScreen />;
-      case 'notifications':
-        return (
-          <View style={styles.placeholder}>
-            <Text>Notifications screen</Text>
-          </View>
-        );
-      case 'profile':
-        return <LoginScreen />;
       default:
         return <View />;
     }
@@ -59,10 +45,5 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  placeholder: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
