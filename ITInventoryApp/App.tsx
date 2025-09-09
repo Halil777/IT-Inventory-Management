@@ -3,12 +3,14 @@ import { View, Text, StyleSheet } from 'react-native';
 import DashboardScreen from './src/screens/DashboardScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import DepartmentsScreen from './src/screens/DepartmentsScreen';
+import EmployeesScreen from './src/screens/EmployeesScreen';
 import BottomNav from './src/components/BottomNav';
 
 type Tab =
   | 'dashboard'
   | 'devices'
   | 'departments'
+  | 'employees'
   | 'notifications'
   | 'profile';
 
@@ -27,6 +29,8 @@ export default function App(): JSX.Element {
         );
       case 'departments':
         return <DepartmentsScreen />;
+      case 'employees':
+        return <EmployeesScreen />;
       case 'notifications':
         return (
           <View style={styles.placeholder}>

@@ -25,6 +25,27 @@ export function getEmployees(): Promise<any> {
   return request('/employees');
 }
 
+export function createEmployee(data: { name: string; email: string }): Promise<any> {
+  return request('/employees', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function updateEmployee(
+  id: number,
+  data: { name: string; email: string },
+): Promise<any> {
+  return request(`/employees/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteEmployee(id: number): Promise<any> {
+  return request(`/employees/${id}`, { method: 'DELETE' });
+}
+
 export function getDepartments(): Promise<any> {
   return request('/departments');
 }
