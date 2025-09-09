@@ -1,7 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import DashboardScreen from './src/screens/DashboardScreen';
 import LoginScreen from './src/screens/LoginScreen';
+import BottomNav from './src/components/BottomNav';
 
-export default function App() {
-  return <LoginScreen />;
+type Tab = 'dashboard' | 'devices' | 'notifications' | 'profile';
+
+export default function App(): JSX.Element {
+  const [currentTab, setCurrentTab] = useState<Tab>('dashboard');
+
+  const renderScreen = (): JSX.Element => {
+    switch (currentTab) {
+      case 'dashboard':
+        return <DashboardScreen />;
+      case 'devices':
+        return (
+          <View style={styles.placeholder}>
+            <Text>Devices screen</Text>
+          </View>
+        );
+      case 'notifications':
+        return (
+          <View style={styles.placeholder}>
+            <Text>Notifications screen</Text>
+          </View>
+        );
+      case 'profile':
+        return <LoginScreen />;
+      default:
+        return <View />;
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.content}>{renderScreen()}</View>
+      <BottomNav currentTab={currentTab} onChange={setCurrentTab} />
+    </View>
+  );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  content: {
+    flex: 1,
+  },
+  placeholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
