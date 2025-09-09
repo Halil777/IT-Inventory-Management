@@ -12,6 +12,7 @@ import { Search, MoreHorizontal, Eye, Edit, Trash2, Download, FileText, Printer 
 import { deleteDepartment } from "@/lib/api"
 import { toast } from "sonner"
 import { useI18n } from "@/lib/i18n"
+import { exportToXlsx } from "@/lib/export"
 
 export function DepartmentList() {
   const { t } = useI18n()
@@ -35,19 +36,11 @@ export function DepartmentList() {
     }
   }
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     try {
-      const rows = filtered.map((d) => ({ id: d.id, name: d.name }))
-      const header = "id,name\n"
-      const csv =
-        header + rows.map((r) => `${r.id},"${r.name.replace(/"/g, '""')}"`).join("\n")
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = "departments.csv"
-      link.click()
-      URL.revokeObjectURL(url)
+      const headers = [t("common.id"), t("common.name")]
+      const rows = filtered.map((d) => [d.id, d.name]) as (string | number)[][]
+      await exportToXlsx(headers, rows, "departments")
     } catch (e) {
       console.error(e)
       toast.error(t("departments.export_failed"))

@@ -39,6 +39,7 @@ import {
 import { deleteCartridge } from "@/lib/api";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
+import { exportToXlsx } from "@/lib/export";
 
 
 export function CartridgeList() {
@@ -102,7 +103,7 @@ export function CartridgeList() {
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     try {
       const headers = ["ID", "Type", "Status"];
       const rows = filtered.map((c) => [
@@ -110,29 +111,7 @@ export function CartridgeList() {
         c.type ?? "",
         c.status ?? "",
       ]) as (string | number)[][];
-      const csv = [headers, ...rows]
-        .map((row) =>
-          row
-            .map((cell) => {
-              const str = String(cell ?? "");
-              const needsWrap = /[",\n;]/.test(str);
-              const escaped = str.replace(/"/g, '""');
-              return needsWrap ? `"${escaped}"` : escaped;
-            })
-            .join(",")
-        )
-        .join("\n");
-      const blob = new Blob(["\ufeff" + csv], {
-        type: "text/csv;charset=utf-8;",
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "cartridges.csv";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await exportToXlsx(headers, rows, "cartridges");
     } catch (e) {
       console.error(e);
     }

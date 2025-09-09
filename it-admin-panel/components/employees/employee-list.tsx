@@ -13,6 +13,7 @@ import { Search, MoreHorizontal, Edit, Eye, Trash2, Download, FileText, Printer 
 import { deleteEmployee } from "@/lib/api"
 import { toast } from "sonner"
 import { useI18n } from "@/lib/i18n"
+import { exportToXlsx } from "@/lib/export"
 
 export function EmployeeList() {
   const { t } = useI18n()
@@ -41,33 +42,29 @@ export function EmployeeList() {
     }
   }
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     try {
-      const rows = filtered.map((e) => ({
-        id: e.id,
-        name: e.name,
-        email: e.email || "",
-        department: e.department?.name || "",
-        role: e.role || "",
-        phone: e.phone || "",
-        civilNumber: e.civilNumber || "",
-        status: e.status || "",
-      }))
-      const header = "id,name,email,department,role,phone,civilNumber,status\n"
-      const csv =
-        header +
-        rows
-          .map((r) =>
-            `${r.id},"${r.name.replace(/"/g, '""')}","${r.email.replace(/"/g, '""')}","${r.department.replace(/"/g, '""')}","${r.role.replace(/"/g, '""')}","${r.phone.replace(/"/g, '""')}","${r.civilNumber.replace(/"/g, '""')}","${r.status.replace(/"/g, '""')}"`,
-          )
-          .join("\n")
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = "employees.csv"
-      link.click()
-      URL.revokeObjectURL(url)
+      const headers = [
+        t("common.id"),
+        t("employees.full_name"),
+        t("employees.email"),
+        t("common.department"),
+        t("employees.role"),
+        t("employees.form.phone_label"),
+        t("employees.civil_number"),
+        t("employees.status"),
+      ]
+      const rows = filtered.map((e) => [
+        e.id,
+        e.name,
+        e.email || "",
+        e.department?.name || "",
+        e.role || "",
+        e.phone || "",
+        e.civilNumber || "",
+        e.status || "",
+      ]) as (string | number)[][]
+      await exportToXlsx(headers, rows, "employees")
     } catch (e) {
       console.error(e)
       toast.error(t("employees.export_failed"))
