@@ -26,6 +26,7 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
   const [deviceTypes, setDeviceTypes] = useState<any[]>([])
   const [typeId, setTypeId] = useState<string>("")
   const [status, setStatus] = useState<string>("new")
+  const [allEmployees, setAllEmployees] = useState<any[]>([])
   const [employees, setEmployees] = useState<any[]>([])
   const [departments, setDepartments] = useState<any[]>([])
   const [userId, setUserId] = useState<string>("")
@@ -71,7 +72,7 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
         }
       })
       .catch(console.error)
-    getEmployees().then(setEmployees).catch(console.error)
+    getEmployees().then(setAllEmployees).catch(console.error)
     getDepartments().then(setDepartments).catch(console.error)
 
     if (deviceId) {
@@ -85,6 +86,19 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
         .catch(console.error)
     }
   }, [deviceId])
+
+  useEffect(() => {
+    if (departmentId) {
+      const filtered = allEmployees.filter((u) => u.department?.id === Number(departmentId))
+      setEmployees(filtered)
+      if (!filtered.some((u) => String(u.id) === userId)) {
+        setUserId("")
+      }
+    } else {
+      setEmployees([])
+      setUserId("")
+    }
+  }, [departmentId, allEmployees])
 
   const seedDefaults = async () => {
     const defaults = ["Computer", "Monitor", "Printer", "Peripheral", "Plotter"]
@@ -186,24 +200,6 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="userId">{t("devices.form.user_label")}</Label>
-          <input type="hidden" name="userId" value={userId} />
-          <Select value={userId || undefined} onValueChange={(v) => setUserId(v === "none" ? "" : v)}>
-            <SelectTrigger>
-              <SelectValue placeholder={t("devices.form.user_placeholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">{t("common.unassigned")}</SelectItem>
-              {employees.map((u) => (
-                <SelectItem key={u.id} value={String(u.id)}>
-                  {u.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
           <Label htmlFor="departmentId">{t("devices.form.department_label")}</Label>
           <input type="hidden" name="departmentId" value={departmentId} />
           <Select value={departmentId || undefined} onValueChange={(v) => setDepartmentId(v === "none" ? "" : v)}>
@@ -215,6 +211,28 @@ export function DeviceForm({ deviceId }: DeviceFormProps) {
               {departments.map((d) => (
                 <SelectItem key={d.id} value={String(d.id)}>
                   {d.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="userId">{t("devices.form.user_label")}</Label>
+          <input type="hidden" name="userId" value={userId} />
+          <Select
+            disabled={!departmentId}
+            value={userId || undefined}
+            onValueChange={(v) => setUserId(v === "none" ? "" : v)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t("devices.form.user_placeholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{t("common.unassigned")}</SelectItem>
+              {employees.map((u) => (
+                <SelectItem key={u.id} value={String(u.id)}>
+                  {u.name}
                 </SelectItem>
               ))}
             </SelectContent>
