@@ -1,4 +1,15 @@
-import { PrinterForm } from "@/components/printers/printer-form"
+"use client"
+
+import dynamic from "next/dynamic"
+const PrinterForm = dynamic(() => import("@/components/printers/printer-form").then(m => m.PrinterForm), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4">
+      <div className="h-6 w-40 bg-muted animate-pulse rounded" />
+      <div className="h-10 w-full bg-muted animate-pulse rounded" />
+    </div>
+  ),
+})
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
@@ -32,4 +43,3 @@ export default function NewPrinterPage() {
     </div>
   )
 }
-

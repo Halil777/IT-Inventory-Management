@@ -1,4 +1,4 @@
-"use client";
+ ba"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import useSWR from "swr";
@@ -39,6 +39,7 @@ import {
 import { deleteCartridge } from "@/lib/api";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
+
 
 export function CartridgeList() {
   const { t } = useI18n();

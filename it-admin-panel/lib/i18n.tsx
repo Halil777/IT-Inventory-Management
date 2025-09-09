@@ -1,9 +1,15 @@
-"use client"
+"use client";
 
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react"
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-type Lang = "en" | "tr" | "tk" | "ru"
-type Dict = Record<string, string>
+type Lang = "en" | "tr" | "tk" | "ru";
+type Dict = Record<string, string>;
 
 const dictionaries: Record<Lang, Dict> = {
   en: {
@@ -40,9 +46,11 @@ const dictionaries: Record<Lang, Dict> = {
     "dashboard.stats.alerts": "Alerts",
     "dashboard.stats.from_last_month": "from last month",
     "dashboard.charts.device_usage_title": "Device Usage Trends",
-    "dashboard.charts.device_usage_desc": "Monthly device allocation across departments",
+    "dashboard.charts.device_usage_desc":
+      "Monthly device allocation across departments",
     "dashboard.charts.cartridge_usage_title": "Cartridge Usage Statistics",
-    "dashboard.charts.cartridge_usage_desc": "Monthly cartridge consumption and refill rates",
+    "dashboard.charts.cartridge_usage_desc":
+      "Monthly cartridge consumption and refill rates",
     "dashboard.charts.computers": "Computers",
     "dashboard.charts.printers": "Printers",
     "dashboard.charts.monitors": "Monitors",
@@ -57,7 +65,8 @@ const dictionaries: Record<Lang, Dict> = {
 
     // Devices
     "devices.title": "Device Management",
-    "devices.subtitle": "Manage computers, monitors, printers, and other IT equipment",
+    "devices.subtitle":
+      "Manage computers, monitors, printers, and other IT equipment",
     "devices.add": "Add Device",
     "devices.list_title": "Devices",
     "devices.list_desc": "Manage your organization's IT equipment",
@@ -87,9 +96,11 @@ const dictionaries: Record<Lang, Dict> = {
     "devices.form.brand_placeholder": "Enter brand",
     "devices.form.model_placeholder": "Enter model",
     "devices.form.serial_number_placeholder": "Enter serial number",
-    "devices.form.specs_placeholder": "Device specifications and technical details",
+    "devices.form.specs_placeholder":
+      "Device specifications and technical details",
     "devices.form.notes_placeholder": "Additional notes or comments",
-    "devices.form.no_types": "No device types found. Create default types to proceed.",
+    "devices.form.no_types":
+      "No device types found. Create default types to proceed.",
     "devices.form.create_defaults": "Create defaults",
     "devices.form.defaults_created": "Default device types created",
     "devices.form.defaults_failed": "Failed to create default device types",
@@ -108,11 +119,13 @@ const dictionaries: Record<Lang, Dict> = {
     "devices.details.info_title": "Device Information",
     "devices.details.device": "Device",
     "devices.details.additional_info": "Additional Info",
-    "devices.details.no_additional": "No additional fields for this entity yet.",
+    "devices.details.no_additional":
+      "No additional fields for this entity yet.",
 
     // Departments
     "departments.title": "Department Management",
-    "departments.subtitle": "Manage organizational departments and their resources",
+    "departments.subtitle":
+      "Manage organizational departments and their resources",
     "departments.add": "Add Department",
     "departments.list_title": "Departments",
     "departments.list_desc": "Manage your organization's departments",
@@ -122,14 +135,18 @@ const dictionaries: Record<Lang, Dict> = {
     "departments.form.head_label": "Head of Department",
     "departments.form.head_placeholder": "e.g., John Smith",
     "departments.form.description_label": "Description",
-    "departments.form.description_placeholder": "Brief description of the department's role and responsibilities",
+    "departments.form.description_placeholder":
+      "Brief description of the department's role and responsibilities",
     "departments.form.created": "Department created",
     "departments.form.updated": "Department updated",
-    "departments.form.save_failed": "Failed to save department. Please try again.",
+    "departments.form.save_failed":
+      "Failed to save department. Please try again.",
     "departments.back_to_list": "Back to Departments",
     "departments.new.title": "Add New Department",
-    "departments.new.description": "Create a new department in your organization",
-    "departments.new.info_description": "Enter the details for the new department",
+    "departments.new.description":
+      "Create a new department in your organization",
+    "departments.new.info_description":
+      "Enter the details for the new department",
     "departments.edit.title": "Edit Department",
     "departments.edit.description": "Update department information",
     "departments.edit.back": "Back to Department",
@@ -222,7 +239,8 @@ const dictionaries: Record<Lang, Dict> = {
     "cartridges.deleted": "Cartridge deleted",
     "cartridges.delete_failed": "Failed to delete cartridge",
     "cartridges.low_stock_title": "Low Stock",
-    "cartridges.low_stock_desc": "Some cartridges are low. Consider reordering.",
+    "cartridges.low_stock_desc":
+      "Some cartridges are low. Consider reordering.",
     "cartridges.low_stock_items": "cartridges low on stock",
 
     // Consumables
@@ -238,8 +256,10 @@ const dictionaries: Record<Lang, Dict> = {
     "consumables.user": "User",
     "consumables.assign_user": "Assign to User",
     "consumables.assign_department": "Assign to Department",
-    "consumables.prompt_assign_user": "Enter User ID to assign (leave blank to unassign):",
-    "consumables.prompt_assign_department": "Enter Department ID to assign (leave blank to unassign):",
+    "consumables.prompt_assign_user":
+      "Enter User ID to assign (leave blank to unassign):",
+    "consumables.prompt_assign_department":
+      "Enter Department ID to assign (leave blank to unassign):",
     "consumables.assign_updated": "Consumable assignment updated",
     "consumables.assign_failed": "Failed to assign consumable",
     "consumables.delete_confirm": "Delete this consumable?",
@@ -312,7 +332,7 @@ const dictionaries: Record<Lang, Dict> = {
   },
   tr: {
     // App
-    "app.name": "BT Yönetim Paneli",
+    "app.name": "HUSNIDDIN",
     "app.tagline": "Yönetim Sistemi",
 
     "common.change_language": "Dili değiştir",
@@ -342,9 +362,11 @@ const dictionaries: Record<Lang, Dict> = {
     "dashboard.stats.alerts": "Uyarılar",
     "dashboard.stats.from_last_month": "geçen aydan",
     "dashboard.charts.device_usage_title": "Cihaz Kullanım Trendleri",
-    "dashboard.charts.device_usage_desc": "Departmanlar arası aylık cihaz dağılımı",
+    "dashboard.charts.device_usage_desc":
+      "Departmanlar arası aylık cihaz dağılımı",
     "dashboard.charts.cartridge_usage_title": "Kartuş Kullanım İstatistikleri",
-    "dashboard.charts.cartridge_usage_desc": "Aylık kartuş tüketimi ve dolum oranları",
+    "dashboard.charts.cartridge_usage_desc":
+      "Aylık kartuş tüketimi ve dolum oranları",
     "dashboard.charts.computers": "Bilgisayarlar",
     "dashboard.charts.printers": "Yazıcılar",
     "dashboard.charts.monitors": "Monitörler",
@@ -352,13 +374,15 @@ const dictionaries: Record<Lang, Dict> = {
     "dashboard.charts.refilled": "Doldurulan",
     "dashboard.charts.new": "Yeni",
     "dashboard.notifications.title": "Son Bildirimler",
-    "dashboard.notifications.subtitle": "En son sistem uyarıları ve güncellemeleri",
+    "dashboard.notifications.subtitle":
+      "En son sistem uyarıları ve güncellemeleri",
     "dashboard.activity.title": "Son Aktivite",
     "dashboard.activity.subtitle": "Sistemde gerçekleştirilen son işlemler",
     "dashboard.activity.system": "Sistem",
 
     "devices.title": "Cihaz Yönetimi",
-    "devices.subtitle": "Bilgisayar, monitör, yazıcı ve diğer ekipmanları yönetin",
+    "devices.subtitle":
+      "Bilgisayar, monitör, yazıcı ve diğer ekipmanları yönetin",
     "devices.add": "Cihaz Ekle",
     "devices.list_title": "Cihazlar",
     "devices.list_desc": "Kuruluşunuzun IT ekipmanlarını yönetin",
@@ -390,7 +414,8 @@ const dictionaries: Record<Lang, Dict> = {
     "devices.form.serial_number_placeholder": "Seri numarası girin",
     "devices.form.specs_placeholder": "Cihaz özellikleri ve teknik detaylar",
     "devices.form.notes_placeholder": "Ek notlar veya yorumlar",
-    "devices.form.no_types": "Cihaz türü bulunamadı. Devam etmek için varsayılan türler oluşturun.",
+    "devices.form.no_types":
+      "Cihaz türü bulunamadı. Devam etmek için varsayılan türler oluşturun.",
     "devices.form.create_defaults": "Varsayılanları oluştur",
     "devices.form.defaults_created": "Varsayılan cihaz türleri oluşturuldu",
     "devices.form.defaults_failed": "Varsayılan cihaz türleri oluşturulamadı",
@@ -422,10 +447,12 @@ const dictionaries: Record<Lang, Dict> = {
     "departments.form.head_label": "Departman Başkanı",
     "departments.form.head_placeholder": "ör. John Smith",
     "departments.form.description_label": "Açıklama",
-    "departments.form.description_placeholder": "Departmanın rolü ve sorumluluklarının kısa açıklaması",
+    "departments.form.description_placeholder":
+      "Departmanın rolü ve sorumluluklarının kısa açıklaması",
     "departments.form.created": "Departman oluşturuldu",
     "departments.form.updated": "Departman güncellendi",
-    "departments.form.save_failed": "Departman kaydedilemedi. Lütfen tekrar deneyin.",
+    "departments.form.save_failed":
+      "Departman kaydedilemedi. Lütfen tekrar deneyin.",
     "departments.back_to_list": "Departmanlara Dön",
     "departments.new.title": "Yeni Departman Ekle",
     "departments.new.description": "Kuruluşunuza yeni bir departman ekleyin",
@@ -435,7 +462,8 @@ const dictionaries: Record<Lang, Dict> = {
     "departments.edit.back": "Departmana Dön",
     "departments.edit.info_description": "Departman ayrıntılarını güncelle",
     "departments.details.title": "Departman Detayları",
-    "departments.details.description": "Departman bilgilerini görüntüle ve yönet",
+    "departments.details.description":
+      "Departman bilgilerini görüntüle ve yönet",
     "departments.details.back": "Departmanlara Dön",
     "departments.details.load_failed": "Departman yüklenemedi",
     "departments.details.stats_title": "İstatistikler",
@@ -476,7 +504,8 @@ const dictionaries: Record<Lang, Dict> = {
     "employees.form.status_label": "Durum",
     "employees.form.created": "Çalışan oluşturuldu",
     "employees.form.updated": "Çalışan güncellendi",
-    "employees.form.save_failed": "Çalışan kaydedilemedi. Lütfen tekrar deneyin.",
+    "employees.form.save_failed":
+      "Çalışan kaydedilemedi. Lütfen tekrar deneyin.",
     "employees.details_title": "Çalışan Detayları",
     "employees.details_description": "Çalışan bilgilerini görüntüle",
     "employees.details.back": "Çalışanlara Dön",
@@ -502,7 +531,8 @@ const dictionaries: Record<Lang, Dict> = {
     "consumables.subtitle": "Sarf malzemelerini ve atamaları yönetin",
     "consumables.add": "Sarf Ekle",
     "consumables.list_title": "Sarf Malzemeleri",
-    "consumables.list_desc": "Kablolar, klavyeler ve diğer sarf malzemelerini yönetin",
+    "consumables.list_desc":
+      "Kablolar, klavyeler ve diğer sarf malzemelerini yönetin",
     "consumables.search_placeholder": "Sarf malzemesi ara...",
     "consumables.type": "Tür",
     "consumables.quantity": "Miktar",
@@ -510,8 +540,10 @@ const dictionaries: Record<Lang, Dict> = {
     "consumables.user": "Kullanıcı",
     "consumables.assign_user": "Kullanıcıya Ata",
     "consumables.assign_department": "Departmana Ata",
-    "consumables.prompt_assign_user": "Atanacak Kullanıcı ID’sini girin (kaldırmak için boş bırakın):",
-    "consumables.prompt_assign_department": "Atanacak Departman ID’sini girin (kaldırmak için boş bırakın):",
+    "consumables.prompt_assign_user":
+      "Atanacak Kullanıcı ID’sini girin (kaldırmak için boş bırakın):",
+    "consumables.prompt_assign_department":
+      "Atanacak Departman ID’sini girin (kaldırmak için boş bırakın):",
     "consumables.assign_updated": "Sarf malzemesi ataması güncellendi",
     "consumables.assign_failed": "Sarf malzemesi atanamadı",
     "consumables.delete_confirm": "Bu sarf malzemesi silinsin mi?",
@@ -537,13 +569,15 @@ const dictionaries: Record<Lang, Dict> = {
     "sidebar.logout": "Çıkış",
     // Settings
     "settings.title": "Ayarlar",
-    "settings.subtitle": "Arayüz tercihlerini ve geliştirme araçlarını yönetin.",
+    "settings.subtitle":
+      "Arayüz tercihlerini ve geliştirme araçlarını yönetin.",
     "settings.general.title": "Genel",
     "settings.general.desc": "Dil ve tema tercihleri",
     "settings.general.language": "Dil",
     "settings.general.theme": "Tema",
     "settings.api.title": "API",
-    "settings.api.desc": "Backend API adresini yapılandırın ve bağlantıyı test edin",
+    "settings.api.desc":
+      "Backend API adresini yapılandırın ve bağlantıyı test edin",
     "settings.api.label": "API Temel URL (geçersiz kıl)",
     "settings.api.placeholder": "http://localhost:3001",
     "settings.api.hint": "Boş bırakılırsa NEXT_PUBLIC_API_URL kullanılır.",
@@ -612,9 +646,11 @@ const dictionaries: Record<Lang, Dict> = {
     "dashboard.stats.alerts": "Duýduryşlar",
     "dashboard.stats.from_last_month": "geçen aydan",
     "dashboard.charts.device_usage_title": "Enjam ulanyş tendensiýalary",
-    "dashboard.charts.device_usage_desc": "Bölümler boýunça aýlyk enjam paýlanyşy",
+    "dashboard.charts.device_usage_desc":
+      "Bölümler boýunça aýlyk enjam paýlanyşy",
     "dashboard.charts.cartridge_usage_title": "Kartrij ulanyş statistikalary",
-    "dashboard.charts.cartridge_usage_desc": "Aýlyk kartrij sarp we dolduryş derejesi",
+    "dashboard.charts.cartridge_usage_desc":
+      "Aýlyk kartrij sarp we dolduryş derejesi",
     "dashboard.charts.computers": "Kompýuterler",
     "dashboard.charts.printers": "Printerler",
     "dashboard.charts.monitors": "Monitorlar",
@@ -622,7 +658,8 @@ const dictionaries: Record<Lang, Dict> = {
     "dashboard.charts.refilled": "Dolduryldy",
     "dashboard.charts.new": "Täze",
     "dashboard.notifications.title": "Soňky bildirişler",
-    "dashboard.notifications.subtitle": "Iň soňky ulgam duýduryşlary we täzelikler",
+    "dashboard.notifications.subtitle":
+      "Iň soňky ulgam duýduryşlary we täzelikler",
     "dashboard.activity.title": "Soňky hereketler",
     "dashboard.activity.subtitle": "Ulgamda amala aşyrylan soňky hereketler",
     "dashboard.activity.system": "Ulgam",
@@ -658,12 +695,15 @@ const dictionaries: Record<Lang, Dict> = {
     "devices.form.brand_placeholder": "Marka giriziň",
     "devices.form.model_placeholder": "Model giriziň",
     "devices.form.serial_number_placeholder": "Seriýa belgisi giriziň",
-    "devices.form.specs_placeholder": "Enjamyň aýratynlyklary we tehniki maglumatlary",
+    "devices.form.specs_placeholder":
+      "Enjamyň aýratynlyklary we tehniki maglumatlary",
     "devices.form.notes_placeholder": "Goşmaça bellikler ýa-da teswirler",
-    "devices.form.no_types": "Enjam görnüşi tapylmady. Dowam etmek üçin deslapky görnüşleri dörediň.",
+    "devices.form.no_types":
+      "Enjam görnüşi tapylmady. Dowam etmek üçin deslapky görnüşleri dörediň.",
     "devices.form.create_defaults": "Bellenenleri döret",
     "devices.form.defaults_created": "Bellenen enjam görnüşleri döredildi",
-    "devices.form.defaults_failed": "Bellenen enjam görnüşlerini döretmek başartmady",
+    "devices.form.defaults_failed":
+      "Bellenen enjam görnüşlerini döretmek başartmady",
     "devices.form.created": "Enjam döredildi",
     "devices.form.updated": "Enjam täzelendi",
     "devices.form.save_failed": "Enjamy saklap bolmady. Gaýtadan synanyşyň.",
@@ -692,10 +732,12 @@ const dictionaries: Record<Lang, Dict> = {
     "departments.form.head_label": "Bölüm başlygy",
     "departments.form.head_placeholder": "meselem, John Smith",
     "departments.form.description_label": "Düşündiriş",
-    "departments.form.description_placeholder": "Bölümiň roly we jogapkärçiligi barada gysgaça maglumat",
+    "departments.form.description_placeholder":
+      "Bölümiň roly we jogapkärçiligi barada gysgaça maglumat",
     "departments.form.created": "Bölüm döredildi",
     "departments.form.updated": "Bölüm täzelendi",
-    "departments.form.save_failed": "Bölümi ýazmak şowsuz boldy. Gaýtadan synanyşyň.",
+    "departments.form.save_failed":
+      "Bölümi ýazmak şowsuz boldy. Gaýtadan synanyşyň.",
     "departments.back_to_list": "Bölümlere dolan",
     "departments.new.title": "Täze bölüm goş",
     "departments.new.description": "Guramaňa täze bölüm goşuň",
@@ -746,7 +788,8 @@ const dictionaries: Record<Lang, Dict> = {
     "employees.form.status_label": "Status",
     "employees.form.created": "Işgär döredildi",
     "employees.form.updated": "Işgär täzelendi",
-    "employees.form.save_failed": "Işgäri ýatda saklap bolmady. Gaýtadan synanyşyň.",
+    "employees.form.save_failed":
+      "Işgäri ýatda saklap bolmady. Gaýtadan synanyşyň.",
     "employees.details_title": "Işgär barada maglumat",
     "employees.details_description": "Işgär maglumatyny görkez",
     "employees.details.back": "Işgärlere dolan",
@@ -781,7 +824,8 @@ const dictionaries: Record<Lang, Dict> = {
     "consumables.subtitle": "Sarf materiallaryny dolandyryň",
     "consumables.add": "Sarf goş",
     "consumables.list_title": "Sarf materiallary",
-    "consumables.list_desc": "Kablolar, klawiaturalar we beýleki sarf materiallary dolandyryň",
+    "consumables.list_desc":
+      "Kablolar, klawiaturalar we beýleki sarf materiallary dolandyryň",
     "consumables.search_placeholder": "Sarf materialy gözle...",
     "consumables.type": "Görnüşi",
     "consumables.quantity": "Möçberi",
@@ -789,8 +833,10 @@ const dictionaries: Record<Lang, Dict> = {
     "consumables.user": "Ulanyjy",
     "consumables.assign_user": "Ulanyja bellä",
     "consumables.assign_department": "Bölüme bellä",
-    "consumables.prompt_assign_user": "Ulanyjy ID-sini giriziň ( aýyrmak üçin boş goýuň ):",
-    "consumables.prompt_assign_department": "Bölüm ID-sini giriziň ( aýyrmak üçin boş goýuň ):",
+    "consumables.prompt_assign_user":
+      "Ulanyjy ID-sini giriziň ( aýyrmak üçin boş goýuň ):",
+    "consumables.prompt_assign_department":
+      "Bölüm ID-sini giriziň ( aýyrmak üçin boş goýuň ):",
     "consumables.assign_updated": "Sarf materialynyň bellenişi täzelendi",
     "consumables.assign_failed": "Sarf materialyny belläp bolmady",
     "consumables.delete_confirm": "Bu sarf materialy pozulsynmy?",
@@ -891,9 +937,12 @@ const dictionaries: Record<Lang, Dict> = {
     "dashboard.stats.alerts": "Оповещения",
     "dashboard.stats.from_last_month": "с прошлого месяца",
     "dashboard.charts.device_usage_title": "Тренды использования устройств",
-    "dashboard.charts.device_usage_desc": "Ежемесячное распределение устройств по отделам",
-    "dashboard.charts.cartridge_usage_title": "Статистика использования картриджей",
-    "dashboard.charts.cartridge_usage_desc": "Ежемесячное потребление и заправка картриджей",
+    "dashboard.charts.device_usage_desc":
+      "Ежемесячное распределение устройств по отделам",
+    "dashboard.charts.cartridge_usage_title":
+      "Статистика использования картриджей",
+    "dashboard.charts.cartridge_usage_desc":
+      "Ежемесячное потребление и заправка картриджей",
     "dashboard.charts.computers": "Компьютеры",
     "dashboard.charts.printers": "Принтеры",
     "dashboard.charts.monitors": "Мониторы",
@@ -901,7 +950,8 @@ const dictionaries: Record<Lang, Dict> = {
     "dashboard.charts.refilled": "Заправлено",
     "dashboard.charts.new": "Новые",
     "dashboard.notifications.title": "Последние уведомления",
-    "dashboard.notifications.subtitle": "Последние системные предупреждения и обновления",
+    "dashboard.notifications.subtitle":
+      "Последние системные предупреждения и обновления",
     "dashboard.activity.title": "Последние действия",
     "dashboard.activity.subtitle": "Недавние действия в системе",
     "dashboard.activity.system": "Система",
@@ -937,15 +987,20 @@ const dictionaries: Record<Lang, Dict> = {
     "devices.form.brand_placeholder": "Введите бренд",
     "devices.form.model_placeholder": "Введите модель",
     "devices.form.serial_number_placeholder": "Введите серийный номер",
-    "devices.form.specs_placeholder": "Характеристики устройства и технические детали",
-    "devices.form.notes_placeholder": "Дополнительные примечания или комментарии",
-    "devices.form.no_types": "Типы устройств не найдены. Создайте типы по умолчанию для продолжения.",
+    "devices.form.specs_placeholder":
+      "Характеристики устройства и технические детали",
+    "devices.form.notes_placeholder":
+      "Дополнительные примечания или комментарии",
+    "devices.form.no_types":
+      "Типы устройств не найдены. Создайте типы по умолчанию для продолжения.",
     "devices.form.create_defaults": "Создать по умолчанию",
     "devices.form.defaults_created": "Типы устройств по умолчанию созданы",
-    "devices.form.defaults_failed": "Не удалось создать типы устройств по умолчанию",
+    "devices.form.defaults_failed":
+      "Не удалось создать типы устройств по умолчанию",
     "devices.form.created": "Устройство создано",
     "devices.form.updated": "Устройство обновлено",
-    "devices.form.save_failed": "Не удалось сохранить устройство. Попробуйте еще раз.",
+    "devices.form.save_failed":
+      "Не удалось сохранить устройство. Попробуйте еще раз.",
     "devices.edit.title": "Редактировать устройство",
     "devices.edit.description": "Обновить информацию об устройстве",
     "devices.edit.back": "Назад к устройству",
@@ -958,7 +1013,8 @@ const dictionaries: Record<Lang, Dict> = {
     "devices.details.info_title": "Информация об устройстве",
     "devices.details.device": "Устройство",
     "devices.details.additional_info": "Дополнительная информация",
-    "devices.details.no_additional": "Для этого объекта пока нет дополнительных полей.",
+    "devices.details.no_additional":
+      "Для этого объекта пока нет дополнительных полей.",
 
     "departments.title": "Управление отделами",
     "departments.subtitle": "Управляйте отделами и ресурсами",
@@ -971,10 +1027,12 @@ const dictionaries: Record<Lang, Dict> = {
     "departments.form.head_label": "Руководитель отдела",
     "departments.form.head_placeholder": "например, John Smith",
     "departments.form.description_label": "Описание",
-    "departments.form.description_placeholder": "Краткое описание роли и обязанностей отдела",
+    "departments.form.description_placeholder":
+      "Краткое описание роли и обязанностей отдела",
     "departments.form.created": "Отдел создан",
     "departments.form.updated": "Отдел обновлен",
-    "departments.form.save_failed": "Не удалось сохранить отдел. Попробуйте снова.",
+    "departments.form.save_failed":
+      "Не удалось сохранить отдел. Попробуйте снова.",
     "departments.back_to_list": "Назад к отделам",
     "departments.new.title": "Добавить новый отдел",
     "departments.new.description": "Создайте новый отдел в вашей организации",
@@ -984,7 +1042,8 @@ const dictionaries: Record<Lang, Dict> = {
     "departments.edit.back": "Назад к отделу",
     "departments.edit.info_description": "Обновите данные отдела",
     "departments.details.title": "Информация об отделе",
-    "departments.details.description": "Просмотр и управление информацией об отделе",
+    "departments.details.description":
+      "Просмотр и управление информацией об отделе",
     "departments.details.back": "Назад к отделам",
     "departments.details.load_failed": "Не удалось загрузить отдел",
     "departments.details.stats_title": "Статистика",
@@ -1025,7 +1084,8 @@ const dictionaries: Record<Lang, Dict> = {
     "employees.form.status_label": "Статус",
     "employees.form.created": "Сотрудник создан",
     "employees.form.updated": "Сотрудник обновлен",
-    "employees.form.save_failed": "Не удалось сохранить сотрудника. Попробуйте еще раз.",
+    "employees.form.save_failed":
+      "Не удалось сохранить сотрудника. Попробуйте еще раз.",
     "employees.details_title": "Информация о сотруднике",
     "employees.details_description": "Просмотр данных сотрудника",
     "employees.details.back": "Назад к сотрудникам",
@@ -1068,8 +1128,10 @@ const dictionaries: Record<Lang, Dict> = {
     "consumables.user": "Пользователь",
     "consumables.assign_user": "Назначить пользователю",
     "consumables.assign_department": "Назначить отделу",
-    "consumables.prompt_assign_user": "Введите ID пользователя (оставьте пустым, чтобы снять назначение):",
-    "consumables.prompt_assign_department": "Введите ID отдела (оставьте пустым, чтобы снять назначение):",
+    "consumables.prompt_assign_user":
+      "Введите ID пользователя (оставьте пустым, чтобы снять назначение):",
+    "consumables.prompt_assign_department":
+      "Введите ID отдела (оставьте пустым, чтобы снять назначение):",
     "consumables.assign_updated": "Назначение обновлено",
     "consumables.assign_failed": "Не удалось выполнить назначение",
     "consumables.delete_confirm": "Удалить этот расходный материал?",
@@ -1095,7 +1157,8 @@ const dictionaries: Record<Lang, Dict> = {
     "sidebar.logout": "Выход",
     // Settings
     "settings.title": "Настройки",
-    "settings.subtitle": "Управляйте параметрами интерфейса и утилитами для разработки.",
+    "settings.subtitle":
+      "Управляйте параметрами интерфейса и утилитами для разработки.",
     "settings.general.title": "Общие",
     "settings.general.desc": "Язык и тема",
     "settings.general.language": "Язык",
@@ -1104,7 +1167,8 @@ const dictionaries: Record<Lang, Dict> = {
     "settings.api.desc": "Настройте адрес API и проверьте подключение",
     "settings.api.label": "Базовый URL API (переопределение)",
     "settings.api.placeholder": "http://localhost:3001",
-    "settings.api.hint": "Оставьте пустым, чтобы использовать NEXT_PUBLIC_API_URL.",
+    "settings.api.hint":
+      "Оставьте пустым, чтобы использовать NEXT_PUBLIC_API_URL.",
     "settings.api.save": "Сохранить",
     "settings.api.test": "Проверить подключение",
     "settings.api.testing": "Проверка...",
@@ -1138,41 +1202,41 @@ const dictionaries: Record<Lang, Dict> = {
     "auth.login.signup": "Зарегистрироваться",
     "printers.add_cartridge": "Добавить картридж",
   },
-}
+};
 
 type I18nContextType = {
-  lang: Lang
-  setLang: (l: Lang) => void
-  t: (key: string) => string
-}
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  t: (key: string) => string;
+};
 
-const I18nContext = createContext<I18nContextType | undefined>(undefined)
+const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Lang>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("lang") as Lang) || "en"
+      return (localStorage.getItem("lang") as Lang) || "en";
     }
-    return "en"
-  })
+    return "en";
+  });
 
   useEffect(() => {
     try {
-      localStorage.setItem("lang", lang)
+      localStorage.setItem("lang", lang);
     } catch {}
-  }, [lang])
+  }, [lang]);
 
   const t = useMemo(() => {
-    const dict = dictionaries[lang] || dictionaries.en
-    return (key: string) => dict[key] || dictionaries.en[key] || key
-  }, [lang])
+    const dict = dictionaries[lang] || dictionaries.en;
+    return (key: string) => dict[key] || dictionaries.en[key] || key;
+  }, [lang]);
 
-  const value = useMemo(() => ({ lang, setLang, t }), [lang, t])
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
+  const value = useMemo(() => ({ lang, setLang, t }), [lang, t]);
+  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n() {
-  const ctx = useContext(I18nContext)
-  if (!ctx) throw new Error("useI18n must be used within I18nProvider")
-  return ctx
+  const ctx = useContext(I18nContext);
+  if (!ctx) throw new Error("useI18n must be used within I18nProvider");
+  return ctx;
 }

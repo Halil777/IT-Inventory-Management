@@ -1,6 +1,15 @@
 "use client"
 
-import { DepartmentForm } from "@/components/departments/department-form"
+import dynamic from "next/dynamic"
+const DepartmentForm = dynamic(() => import("@/components/departments/department-form").then(m => m.DepartmentForm), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4">
+      <div className="h-6 w-40 bg-muted animate-pulse rounded" />
+      <div className="h-10 w-full bg-muted animate-pulse rounded" />
+    </div>
+  ),
+})
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"

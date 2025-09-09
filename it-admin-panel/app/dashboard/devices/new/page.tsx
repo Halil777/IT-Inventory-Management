@@ -1,4 +1,19 @@
-import { DeviceForm } from "@/components/devices/device-form"
+"use client"
+
+import dynamic from "next/dynamic"
+const DeviceForm = dynamic(() => import("@/components/devices/device-form").then(m => m.DeviceForm), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4">
+      <div className="h-6 w-40 bg-muted animate-pulse rounded" />
+      <div className="h-10 w-full bg-muted animate-pulse rounded" />
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="h-16 bg-muted animate-pulse rounded" />
+        <div className="h-16 bg-muted animate-pulse rounded" />
+      </div>
+    </div>
+  ),
+})
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"

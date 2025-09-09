@@ -209,3 +209,20 @@ export async function getCartridgeUsage() {
 export async function createCartridgeUsage(data: { printerId: number; cartridgeId: number; pages?: number }) {
   return request(`/cartridge-usage`, { method: 'POST', body: JSON.stringify(data) });
 }
+
+// Credentials
+export async function getCredentials() {
+  return request(`/credentials`);
+}
+export async function getCredential(id: number | string) {
+  return request(`/credentials/${id}`);
+}
+export async function createCredential(data: { fullName: string; login: string; password: string }) {
+  return request(`/credentials`, { method: 'POST', body: JSON.stringify(data) });
+}
+export async function updateCredential(id: number | string, data: Partial<{ fullName: string; login: string; password: string }>) {
+  return request(`/credentials/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+}
+export async function deleteCredential(id: number | string) {
+  return request(`/credentials/${id}`, { method: 'DELETE' });
+}

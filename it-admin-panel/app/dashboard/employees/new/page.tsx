@@ -1,6 +1,20 @@
 "use client"
 
-import { EmployeeForm } from "@/components/employees/employee-form"
+"use client"
+
+import dynamic from "next/dynamic"
+const EmployeeForm = dynamic(() => import("@/components/employees/employee-form").then(m => m.EmployeeForm), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4">
+      <div className="h-6 w-40 bg-muted animate-pulse rounded" />
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="h-10 bg-muted animate-pulse rounded" />
+        <div className="h-10 bg-muted animate-pulse rounded" />
+      </div>
+    </div>
+  ),
+})
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"

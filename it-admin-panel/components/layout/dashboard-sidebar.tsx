@@ -22,6 +22,7 @@ import {
   Bell,
   Settings,
   LogOut,
+  Key,
 } from "lucide-react"
 import { useI18n } from "@/lib/i18n"
 
@@ -36,6 +37,7 @@ export function DashboardSidebar() {
     { title: t("sidebar.printers") || t("printers.title"), url: "/dashboard/printers", icon: Printer },
     { title: t("sidebar.consumables") || t("consumables.title"), url: "/dashboard/consumables", icon: Package },
     { title: t("sidebar.reports") || t("reports.title"), url: "/dashboard/reports", icon: BarChart3 },
+    { title: "Credentials", url: "/dashboard/credentials", icon: Key },
     { title: t("sidebar.audit_logs") || "Audit Logs", url: "/dashboard/audit-logs", icon: Bell },
     { title: t("sidebar.notifications") || t("notifications.title"), url: "/dashboard/notifications", icon: Bell },
   ]

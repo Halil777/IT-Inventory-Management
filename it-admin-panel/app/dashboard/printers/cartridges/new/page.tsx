@@ -1,4 +1,15 @@
-import { CartridgeForm } from "@/components/printers/cartridge-form"
+"use client"
+
+import dynamic from "next/dynamic"
+const CartridgeForm = dynamic(() => import("@/components/printers/cartridge-form").then(m => m.CartridgeForm), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4">
+      <div className="h-6 w-40 bg-muted animate-pulse rounded" />
+      <div className="h-10 w-full bg-muted animate-pulse rounded" />
+    </div>
+  ),
+})
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
@@ -32,4 +43,3 @@ export default function NewCartridgePage() {
     </div>
   )
 }
-
