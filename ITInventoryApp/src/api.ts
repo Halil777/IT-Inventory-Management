@@ -29,6 +29,27 @@ export function getDepartments(): Promise<any> {
   return request('/departments');
 }
 
+export function createDepartment(data: { name: string }): Promise<any> {
+  return request('/departments', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function updateDepartment(
+  id: number,
+  data: { name: string },
+): Promise<any> {
+  return request(`/departments/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteDepartment(id: number): Promise<any> {
+  return request(`/departments/${id}`, { method: 'DELETE' });
+}
+
 export function getConsumables(): Promise<any> {
   return request('/consumables');
 }
