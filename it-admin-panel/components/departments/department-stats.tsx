@@ -1,26 +1,19 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import useSWR from "swr"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building2, Users, Monitor, TrendingUp } from "lucide-react"
-import { getDepartments, getEmployees, getDevices } from "@/lib/api"
 import { useI18n } from "@/lib/i18n"
 
 export function DepartmentStats() {
-  const [deptCount, setDeptCount] = useState(0)
-  const [empCount, setEmpCount] = useState(0)
-  const [deviceCount, setDeviceCount] = useState(0)
   const { t } = useI18n()
+  const { data: departments } = useSWR<any[]>("/departments")
+  const { data: employees } = useSWR<any[]>("/employees")
+  const { data: devices } = useSWR<any[]>("/devices")
 
-  useEffect(() => {
-    Promise.all([getDepartments(), getEmployees(), getDevices()])
-      .then(([depts, emps, devs]) => {
-        setDeptCount(depts.length)
-        setEmpCount(emps.length)
-        setDeviceCount(devs.length)
-      })
-      .catch((err) => console.error(err))
-  }, [])
+  const deptCount = departments?.length ?? 0
+  const empCount = employees?.length ?? 0
+  const deviceCount = devices?.length ?? 0
 
   const stats = [
     {

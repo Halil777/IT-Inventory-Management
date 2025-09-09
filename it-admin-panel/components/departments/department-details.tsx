@@ -1,9 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import useSWR from "swr"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building2 } from "lucide-react"
-import { getDepartment } from "@/lib/api"
 import { useI18n } from "@/lib/i18n"
 
 interface DepartmentDetailsProps {
@@ -11,18 +10,10 @@ interface DepartmentDetailsProps {
 }
 
 export function DepartmentDetails({ departmentId }: DepartmentDetailsProps) {
-  const [dept, setDept] = useState<any | null>(null)
-  const [error, setError] = useState<string>("")
   const { t } = useI18n()
-
-  useEffect(() => {
-    getDepartment(departmentId)
-      .then(setDept)
-      .catch((e) => {
-        console.error(e)
-        setError(t("departments.details.load_failed"))
-      })
-  }, [departmentId, t])
+  const { data: dept, error } = useSWR<any>(
+    departmentId ? `/departments/${departmentId}` : null,
+  )
 
   return (
     <div className="space-y-6">
@@ -35,7 +26,11 @@ export function DepartmentDetails({ departmentId }: DepartmentDetailsProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {error && <div className="text-sm text-destructive">{error}</div>}
+            {error && (
+              <div className="text-sm text-destructive">
+                {t("departments.details.load_failed")}
+              </div>
+            )}
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">{t("common.id")}:</span>
