@@ -4,13 +4,15 @@ import DashboardScreen from './src/screens/DashboardScreen';
 import DepartmentsScreen from './src/screens/DepartmentsScreen';
 import EmployeesScreen from './src/screens/EmployeesScreen';
 import DevicesScreen from './src/screens/DevicesScreen';
+import CredentialsScreen from './src/screens/CredentialsScreen';
 import BottomNav from './src/components/BottomNav';
 
 type Tab =
   | 'dashboard'
   | 'devices'
   | 'departments'
-  | 'employees';
+  | 'employees'
+  | 'credentials';
 
 export default function App(): JSX.Element {
   const [currentTab, setCurrentTab] = useState<Tab>('dashboard');
@@ -25,6 +27,8 @@ export default function App(): JSX.Element {
         return <DepartmentsScreen />;
       case 'employees':
         return <EmployeesScreen />;
+      case 'credentials':
+        return <CredentialsScreen />;
       default:
         return <View />;
     }

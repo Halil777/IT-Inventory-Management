@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
+  TextInput,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Feather } from '@expo/vector-icons';
@@ -26,6 +27,8 @@ interface Device {
   user?: { id: number; name: string } | null;
   department?: { id: number; name: string } | null;
   status: string;
+  serialNumber?: string;
+  model?: string;
 }
 
 export default function DevicesScreen(): JSX.Element {
@@ -36,6 +39,8 @@ export default function DevicesScreen(): JSX.Element {
   const [userId, setUserId] = useState('');
   const [departmentId, setDepartmentId] = useState('');
   const [status, setStatus] = useState('');
+  const [serialNumber, setSerialNumber] = useState('');
+  const [model, setModel] = useState('');
   const [editing, setEditing] = useState<Device | null>(null);
   const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
@@ -85,6 +90,8 @@ export default function DevicesScreen(): JSX.Element {
     setUserId('');
     setDepartmentId('');
     setStatus('new');
+    setSerialNumber('');
+    setModel('');
     setModalVisible(true);
   };
 
@@ -94,6 +101,8 @@ export default function DevicesScreen(): JSX.Element {
     setUserId(dev.user?.id ? String(dev.user.id) : '');
     setDepartmentId(dev.department?.id ? String(dev.department.id) : '');
     setStatus(dev.status);
+    setSerialNumber(dev.serialNumber || '');
+    setModel(dev.model || '');
     setModalVisible(true);
   };
 
@@ -107,6 +116,8 @@ export default function DevicesScreen(): JSX.Element {
         userId: userId ? +userId : undefined,
         departmentId: departmentId ? +departmentId : undefined,
         status,
+        serialNumber: serialNumber || undefined,
+        model: model || undefined,
       };
       if (editing) {
         await updateDevice(editing.id, data);
@@ -153,6 +164,16 @@ export default function DevicesScreen(): JSX.Element {
             <View key={dev.id} style={styles.row}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.deviceType}>{dev.type.name}</Text>
+                {dev.model && <Text style={styles.deviceModel}>{dev.model}</Text>}
+                {dev.serialNumber && (
+                  <Text style={styles.deviceSerial}>{dev.serialNumber}</Text>
+                )}
+                {dev.department && (
+                  <Text style={styles.deviceMeta}>Dept: {dev.department.name}</Text>
+                )}
+                {dev.user && (
+                  <Text style={styles.deviceMeta}>User: {dev.user.name}</Text>
+                )}
                 <Text style={styles.deviceStatus}>{dev.status}</Text>
               </View>
               <View style={styles.actions}>
@@ -200,6 +221,18 @@ export default function DevicesScreen(): JSX.Element {
                 <Picker.Item key={u.id} label={u.name} value={String(u.id)} />
               ))}
             </Picker>
+            <TextInput
+              style={styles.input}
+              placeholder="Serial Number"
+              value={serialNumber}
+              onChangeText={setSerialNumber}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Model"
+              value={model}
+              onChangeText={setModel}
+            />
             <Picker selectedValue={status} onValueChange={setStatus} style={styles.input}>
               <Picker.Item label="New" value="new" />
               <Picker.Item label="In Use" value="in-use" />
@@ -271,6 +304,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#232323',
+  },
+  deviceModel: {
+    fontSize: 14,
+    color: '#232323',
+  },
+  deviceSerial: {
+    fontSize: 12,
+    color: '#232323',
+  },
+  deviceMeta: {
+    fontSize: 12,
+    color: '#6b7280',
   },
   deviceStatus: {
     fontSize: 12,

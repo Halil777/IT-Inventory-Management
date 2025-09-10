@@ -42,6 +42,8 @@ export class DevicesService {
       department: dto.departmentId
         ? ({ id: dto.departmentId } as any)
         : undefined,
+      serialNumber: dto.serialNumber,
+      model: dto.model,
     });
     return this.devicesRepo.save(device);
   }
@@ -55,6 +57,8 @@ export class DevicesService {
       department: dto.departmentId
         ? ({ id: dto.departmentId } as any)
         : undefined,
+      serialNumber: dto.serialNumber,
+      model: dto.model,
     });
     return this.devicesRepo.save(device);
   }

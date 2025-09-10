@@ -6,7 +6,8 @@ type Tab =
   | 'dashboard'
   | 'devices'
   | 'departments'
-  | 'employees';
+  | 'employees'
+  | 'credentials';
 
 interface BottomNavProps {
   currentTab: Tab;
@@ -19,6 +20,7 @@ export default function BottomNav({ currentTab, onChange }: BottomNavProps): JSX
     { key: 'devices', label: 'Devices', icon: 'monitor' },
     { key: 'departments', label: 'Departments', icon: 'grid' },
     { key: 'employees', label: 'Employees', icon: 'users' },
+    { key: 'credentials', label: 'Credentials', icon: 'key' },
   ];
 
   return (
