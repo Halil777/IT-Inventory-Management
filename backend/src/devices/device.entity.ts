@@ -25,6 +25,12 @@ export class Device {
   })
   department: Department;
 
+  @Column({ nullable: true })
+  serialNumber?: string;
+
+  @Column({ nullable: true })
+  model?: string;
+
   @Column()
   status: string;
 }

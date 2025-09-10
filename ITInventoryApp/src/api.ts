@@ -22,6 +22,8 @@ export function createDevice(data: {
   userId?: number;
   departmentId?: number;
   status: string;
+  serialNumber?: string;
+  model?: string;
 }): Promise<any> {
   return request('/devices', {
     method: 'POST',
@@ -36,6 +38,8 @@ export function updateDevice(
     userId?: number;
     departmentId?: number;
     status?: string;
+    serialNumber?: string;
+    model?: string;
   },
 ): Promise<any> {
   return request(`/devices/${id}`, {
@@ -46,6 +50,35 @@ export function updateDevice(
 
 export function deleteDevice(id: number): Promise<any> {
   return request(`/devices/${id}`, { method: 'DELETE' });
+}
+
+export function getCredentials(): Promise<any> {
+  return request('/credentials');
+}
+
+export function createCredential(data: {
+  fullName: string;
+  login: string;
+  password: string;
+}): Promise<any> {
+  return request('/credentials', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function updateCredential(
+  id: number,
+  data: { fullName?: string; login?: string; password?: string },
+): Promise<any> {
+  return request(`/credentials/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteCredential(id: number): Promise<any> {
+  return request(`/credentials/${id}`, { method: 'DELETE' });
 }
 
 export function getDeviceTypes(): Promise<any> {

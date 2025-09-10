@@ -3,4 +3,6 @@ export class CreateDeviceDto {
   userId?: number;
   departmentId?: number;
   status: string;
+  serialNumber?: string;
+  model?: string;
 }
