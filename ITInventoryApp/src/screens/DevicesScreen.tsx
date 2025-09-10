@@ -46,6 +46,7 @@ export default function DevicesScreen(): JSX.Element {
   const [departments, setDepartments] = useState<any[]>([]);
   const [allEmployees, setAllEmployees] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
 
   const load = (): void => {
     setLoading(true);
@@ -149,21 +150,37 @@ export default function DevicesScreen(): JSX.Element {
     ]);
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Devices</Text>
-        <TouchableOpacity style={styles.addButton} onPress={openNew}>
-          <Feather name="plus" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
-      <ScrollView>
-        {loading && <Text style={styles.loading}>Loading...</Text>}
-        {!loading &&
-          devices.map((dev) => (
-            <View key={dev.id} style={styles.row}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.deviceType}>{dev.type.name}</Text>
+    const filteredDevices = devices.filter((dev) => {
+      const q = search.toLowerCase();
+      return (
+        dev.model?.toLowerCase().includes(q) ||
+        dev.type.name.toLowerCase().includes(q) ||
+        (dev.user?.name || '').toLowerCase().includes(q) ||
+        (dev.department?.name || '').toLowerCase().includes(q)
+      );
+    });
+
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Devices</Text>
+          <TouchableOpacity style={styles.addButton} onPress={openNew}>
+            <Feather name="plus" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by device, type, user, department"
+          value={search}
+          onChangeText={setSearch}
+        />
+        <ScrollView>
+          {loading && <Text style={styles.loading}>Loading...</Text>}
+          {!loading &&
+            filteredDevices.map((dev) => (
+              <View key={dev.id} style={styles.row}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.deviceType}>{dev.type.name}</Text>
                 {dev.model && <Text style={styles.deviceModel}>{dev.model}</Text>}
                 {dev.serialNumber && (
                   <Text style={styles.deviceSerial}>{dev.serialNumber}</Text>
@@ -371,5 +388,12 @@ const styles = StyleSheet.create({
   modalButtonTextPrimary: {
     color: '#fff',
     fontWeight: '600',
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    padding: 8,
+    borderRadius: 4,
+    marginBottom: 16,
   },
 });
