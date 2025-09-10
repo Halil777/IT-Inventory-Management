@@ -16,6 +16,7 @@ import {
   createEmployee,
   updateEmployee,
   deleteEmployee,
+  getDepartments,
 } from '../api';
 
 interface Employee {
@@ -40,9 +41,18 @@ export default function EmployeesScreen(): JSX.Element {
   const [role, setRole] = useState('');
   const [status, setStatus] = useState('active');
   const [departmentId, setDepartmentId] = useState('');
+  const [departmentName, setDepartmentName] = useState('');
+  const [departments, setDepartments] = useState<any[]>([]);
   const [editing, setEditing] = useState<Employee | null>(null);
   const [withDevices, setWithDevices] = useState(0);
   const [deviceCount, setDeviceCount] = useState(0);
+
+  const departmentSuggestions =
+    departmentName && !departmentId
+      ? departments.filter((d) =>
+          d.name.toLowerCase().includes(departmentName.toLowerCase()),
+        )
+      : [];
 
   const loadStats = (): void => {
     getDevices()
@@ -62,6 +72,9 @@ export default function EmployeesScreen(): JSX.Element {
       .then((data) => setEmployees(data || []))
       .catch((err) => console.error('Failed to load employees', err))
       .finally(() => setLoading(false));
+    getDepartments()
+      .then((list) => setDepartments(list || []))
+      .catch((err) => console.error('Failed to load departments', err));
     loadStats();
   };
 
@@ -78,6 +91,7 @@ export default function EmployeesScreen(): JSX.Element {
     setRole('');
     setStatus('active');
     setDepartmentId('');
+    setDepartmentName('');
     setModalVisible(true);
   };
 
@@ -90,6 +104,7 @@ export default function EmployeesScreen(): JSX.Element {
     setRole(emp.role || '');
     setStatus(emp.status);
     setDepartmentId(emp.department?.id ? String(emp.department.id) : '');
+    setDepartmentName(emp.department?.name || '');
     setModalVisible(true);
   };
 
@@ -238,12 +253,29 @@ export default function EmployeesScreen(): JSX.Element {
               style={styles.input}
             />
             <TextInput
-              placeholder="Department ID"
-              value={departmentId}
-              onChangeText={setDepartmentId}
-              keyboardType="numeric"
+              placeholder="Department"
+              value={departmentName}
+              onChangeText={(text) => {
+                setDepartmentName(text);
+                setDepartmentId('');
+              }}
               style={styles.input}
             />
+            {departmentSuggestions.length > 0 && (
+              <View style={styles.suggestions}>
+                {departmentSuggestions.map((d) => (
+                  <TouchableOpacity
+                    key={d.id}
+                    onPress={() => {
+                      setDepartmentId(String(d.id));
+                      setDepartmentName(d.name);
+                    }}
+                  >
+                    <Text style={styles.suggestionItem}>{d.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
             <TextInput
               placeholder="Role"
               value={role}
@@ -376,6 +408,19 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 4,
     marginBottom: 16,
+  },
+  suggestions: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 4,
+    maxHeight: 120,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+  },
+  suggestionItem: {
+    padding: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   modalActions: {
     flexDirection: 'row',
