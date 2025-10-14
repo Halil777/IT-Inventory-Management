@@ -1,0 +1,341 @@
+### Audit Logs
+# @name getAuditLogs
+GET http://localhost:3000/audit-logs
+
+###
+# @name createAuditLog
+POST http://localhost:3000/audit-logs
+Content-Type: application/json
+
+{
+  "entity": "Device",
+  "entityId": 1,
+  "action": "Create",
+  "details": "New device created"
+}
+
+### Cartridge Usage
+# @name getCartridgeUsage
+GET http://localhost:3000/cartridge-usage
+
+###
+# @name createCartridgeUsage
+POST http://localhost:3000/cartridge-usage
+Content-Type: application/json
+
+{
+  "cartridgeId": 1,
+  "printerId": 1,
+  "usageDate": "2025-10-13T10:00:00.000Z"
+}
+
+### Cartridges
+# @name getCartridges
+GET http://localhost:3000/cartridges
+
+###
+# @name getCartridgeById
+GET http://localhost:3000/cartridges/1
+
+###
+# @name createCartridge
+POST http://localhost:3000/cartridges
+Content-Type: application/json
+
+{
+  "model": "HP 58A",
+  "sku": "CF258A",
+  "stock": 10
+}
+
+###
+# @name updateCartridge
+PUT http://localhost:3000/cartridges/1
+Content-Type: application/json
+
+{
+  "stock": 9
+}
+
+###
+# @name deleteCartridge
+DELETE http://localhost:3000/cartridges/1
+
+### Consumables
+# @name getConsumables
+GET http://localhost:3000/consumables
+
+###
+# @name getConsumableById
+GET http://localhost:3000/consumables/1
+
+###
+# @name createConsumable
+POST http://localhost:3000/consumables
+Content-Type: application/json
+
+{
+  "name": "Mouse",
+  "type": "Peripheral",
+  "stock": 20
+}
+
+###
+# @name updateConsumable
+PUT http://localhost:3000/consumables/1
+Content-Type: application/json
+
+{
+  "stock": 19
+}
+
+###
+# @name deleteConsumable
+DELETE http://localhost:3000/consumables/1
+
+###
+# @name assignConsumable
+POST http://localhost:3000/consumables/assign
+Content-Type: application/json
+
+{
+  "consumableId": 1,
+  "employeeId": 1
+}
+
+### Credentials
+# @name getCredentials
+GET http://localhost:3000/credentials
+
+###
+# @name getCredentialById
+GET http://localhost:3000/credentials/1
+
+###
+# @name createCredential
+POST http://localhost:3000/credentials
+Content-Type: application/json
+
+{
+  "service": "Google Workspace",
+  "username": "user@example.com",
+  "password": "password123"
+}
+
+###
+# @name updateCredential
+PUT http://localhost:3000/credentials/1
+Content-Type: application/json
+
+{
+  "password": "newpassword123"
+}
+
+###
+# @name deleteCredential
+DELETE http://localhost:3000/credentials/1
+
+### Departments
+# @name getDepartments
+GET http://localhost:3000/departments
+
+###
+# @name getDepartmentById
+GET http://localhost:3000/departments/1
+
+###
+# @name createDepartment
+POST http://localhost:3000/departments
+Content-Type: application/json
+
+{
+  "name": "IT"
+}
+
+###
+# @name updateDepartment
+PUT http://localhost:3000/departments/1
+Content-Type: application/json
+
+{
+  "name": "Information Technology"
+}
+
+###
+# @name deleteDepartment
+DELETE http://localhost:3000/departments/1
+
+### Device Types
+# @name getDeviceTypes
+GET http://localhost:3000/device-types
+
+###
+# @name getDeviceTypeById
+GET http://localhost:3000/device-types/1
+
+###
+# @name createDeviceType
+POST http://localhost:3000/device-types
+Content-Type: application/json
+
+{
+  "name": "Laptop"
+}
+
+###
+# @name updateDeviceType
+PUT http://localhost:3000/device-types/1
+Content-Type: application/json
+
+{
+  "name": "Notebook"
+}
+
+###
+# @name deleteDeviceType
+DELETE http://localhost:3000/device-types/1
+
+### Devices
+# @name getDevices
+GET http://localhost:3000/devices
+
+###
+# @name getDevicesWithFilters
+GET http://localhost:3000/devices?typeId=1&status=active&departmentId=1
+
+###
+# @name getDeviceById
+GET http://localhost:3000/devices/1
+
+###
+# @name createDevice
+POST http://localhost:3000/devices
+Content-Type: application/json
+
+{
+  "name": "MacBook Pro",
+  "typeId": 1,
+  "serialNumber": "C02XN0JLG8WP",
+  "status": "active",
+  "departmentId": 1
+}
+
+###
+# @name updateDevice
+PUT http://localhost:3000/devices/1
+Content-Type: application/json
+
+{
+  "status": "in_repair"
+}
+
+###
+# @name deleteDevice
+DELETE http://localhost:3000/devices/1
+
+### Employees
+# @name getEmployees
+GET http://localhost:3000/employees
+
+###
+# @name getEmployeeById
+GET http://localhost:3000/employees/1
+
+###
+# @name createEmployee
+POST http://localhost:3000/employees
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "departmentId": 1
+}
+
+###
+# @name updateEmployee
+PUT http://localhost:3000/employees/1
+Content-Type: application/json
+
+{
+  "email": "j.doe@example.com"
+}
+
+###
+# @name deleteEmployee
+DELETE http://localhost:3000/employees/1
+
+### Notifications
+# @name getNotifications
+GET http://localhost:3000/notifications
+
+###
+# @name createNotification
+POST http://localhost:3000/notifications
+Content-Type: application/json
+
+{
+  "message": "Low stock for HP 58A cartridge",
+  "type": "low_stock"
+}
+
+###
+# @name updateNotification
+PUT http://localhost:3000/notifications/1
+Content-Type: application/json
+
+{
+  "read": true
+}
+
+###
+# @name deleteNotification
+DELETE http://localhost:3000/notifications/1
+
+### Printers
+# @name getPrinters
+GET http://localhost:3000/printers
+
+###
+# @name getPrinterById
+GET http://localhost:3000/printers/1
+
+###
+# @name createPrinter
+POST http://localhost:3000/printers
+Content-Type: application/json
+
+{
+  "name": "HP LaserJet Pro M404dn",
+  "ipAddress": "192.168.1.100",
+  "departmentId": 1
+}
+
+###
+# @name updatePrinter
+PUT http://localhost:3000/printers/1
+Content-Type: application/json
+
+{
+  "ipAddress": "192.168.1.101"
+}
+
+###
+# @name deletePrinter
+DELETE http://localhost:3000/printers/1
+
+### Reports
+# @name getDevicesByDepartmentReport
+GET http://localhost:3000/reports/devices
+
+###
+# @name getPrintersStatsReport
+GET http://localhost:3000/reports/printers
+
+###
+# @name getConsumablesStatsReport
+GET http://localhost:3000/reports/consumables
+
+###
+# @name getDevicesByEmployeeReport
+GET http://localhost:3000/reports/employees
