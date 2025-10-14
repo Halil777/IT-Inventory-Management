@@ -1,22 +1,21 @@
-
 import React from 'react';
 import { FlatList, Text, View } from 'react-native';
 import ListItem from '../components/ListItem';
+import { Printer } from '../interfaces/Printer';
 import { useFetchList } from '../hooks/useFetchList';
-import { Employee } from '../interfaces/Employee';
-import { getEmployees } from '../services/employees';
+import { getPrinters } from '../services/printers';
 
-const EmployeesScreen = () => {
+const PrintersScreen = () => {
   const {
-    data: employees,
+    data: printers,
     loading,
     error,
-  } = useFetchList<Employee>(getEmployees);
+  } = useFetchList<Printer>(getPrinters);
 
   if (loading) {
     return (
       <View>
-        <Text>Loading employees...</Text>
+        <Text>Loading printers...</Text>
       </View>
     );
   }
@@ -24,23 +23,24 @@ const EmployeesScreen = () => {
   if (error) {
     return (
       <View>
-        <Text>Error loading employees: {error.message}</Text>
+        <Text>Error loading printers: {error.message}</Text>
       </View>
     );
   }
 
   return (
     <FlatList
-      data={employees}
+      data={printers}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
         <ListItem
-          title={item.name}
-          subtitle={`Email: ${item.email} • Department: ${item.department?.name ?? 'Unassigned'}`}
+          title={item.model}
+          subtitle={`Department: ${item.department?.name ?? 'Unassigned'}`}
         />
       )}
     />
   );
 };
 
-export default EmployeesScreen;
+export default PrintersScreen;
+
