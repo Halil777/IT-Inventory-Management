@@ -9,7 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+
 import ListItem from '../components/ListItem';
 import { Printer } from '../interfaces/Printer';
 import { Department } from '../interfaces/Department';
@@ -185,29 +185,13 @@ const PrintersScreen: React.FC = () => {
     });
   }, []);
 
-  const departmentOptions = useMemo(
-    () =>
-      departments.map((department) => ({
-        label: department.name,
-        value: String(department.id),
-      })),
-    [departments],
-  );
 
-  const employeeOptions = useMemo(
-    () =>
-      employees.map((employee) => ({
-        label: employee.name,
-        value: String(employee.id),
-      })),
-    [employees],
-  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.heading}>{selectedId ? 'Edit Printer' : 'Add Printer'}</Text>
-        <Text style={styles.helper}>Tap a printer to edit or remove it.</Text>
+
 
         {error && <Text style={styles.error}>{error}</Text>}
 
@@ -230,37 +214,8 @@ const PrintersScreen: React.FC = () => {
           onChangeText={(text) => handleChange('description', text)}
           multiline
         />
-        <View style={styles.selectGroup}>
-          <Text style={styles.label}>Department</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              style={styles.picker}
-              selectedValue={form.departmentId}
-              onValueChange={(value) => handleChange('departmentId', value as string)}
-            >
-              <Picker.Item label="Unassigned" value="" />
-              {departmentOptions.map((option) => (
-                <Picker.Item key={option.value} label={option.label} value={option.value} />
-              ))}
-            </Picker>
-          </View>
-        </View>
 
-        <View style={styles.selectGroup}>
-          <Text style={styles.label}>Assigned Employee</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              style={styles.picker}
-              selectedValue={form.userId}
-              onValueChange={(value) => handleChange('userId', value as string)}
-            >
-              <Picker.Item label="Unassigned" value="" />
-              {employeeOptions.map((option) => (
-                <Picker.Item key={option.value} label={option.label} value={option.value} />
-              ))}
-            </Picker>
-          </View>
-        </View>
+ 
 
         <View style={styles.buttonRow}>
           <View style={styles.buttonWrapper}>
@@ -291,12 +246,6 @@ const PrintersScreen: React.FC = () => {
               `Assigned To: ${printer.user?.name ?? 'Unassigned'}`,
             ];
 
-            if (printer.updatedAt) {
-              const updatedDate = new Date(printer.updatedAt);
-              if (!Number.isNaN(updatedDate.getTime())) {
-                details.push(`Last Updated: ${updatedDate.toLocaleString()}`);
-              }
-            }
 
             if (printer.description) {
               details.push(`Description: ${printer.description}`);
@@ -339,6 +288,7 @@ const styles = StyleSheet.create({
     color: '#555',
     marginBottom: 12,
   },
+
   error: {
     backgroundColor: '#fdecea',
     color: '#b71c1c',
@@ -358,24 +308,7 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
   },
-  selectGroup: {
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  pickerContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#d0d7de',
-  },
-  picker: {
-    height: 44,
-  },
+
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
