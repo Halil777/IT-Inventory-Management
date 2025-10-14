@@ -9,6 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+
 import ListItem from '../components/ListItem';
 import { Printer } from '../interfaces/Printer';
 import { Department } from '../interfaces/Department';
@@ -184,35 +185,13 @@ const PrintersScreen: React.FC = () => {
     });
   }, []);
 
-  const departmentHint = useMemo(() => {
-    if (!departments.length) {
-      return null;
-    }
 
-    return `Departments: ${departments
-      .map((department) => `${department.id} - ${department.name}`)
-      .join(', ')}`;
-  }, [departments]);
-
-  const employeeHint = useMemo(() => {
-    if (!employees.length) {
-      return null;
-    }
-
-    return `Employees: ${employees.map((employee) => `${employee.id} - ${employee.name}`).join(', ')}`;
-  }, [employees]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.heading}>{selectedId ? 'Edit Printer' : 'Add Printer'}</Text>
-        <Text style={styles.helper}>
-          Tap a printer to edit it. Provide department and employee IDs to assign associations. Leave
-          the fields blank to keep a printer unassigned.
-        </Text>
 
-        {departmentHint && <Text style={styles.hint}>{departmentHint}</Text>}
-        {employeeHint && <Text style={styles.hint}>{employeeHint}</Text>}
 
         {error && <Text style={styles.error}>{error}</Text>}
 
@@ -235,20 +214,8 @@ const PrintersScreen: React.FC = () => {
           onChangeText={(text) => handleChange('description', text)}
           multiline
         />
-        <TextInput
-          placeholder="Department ID (optional)"
-          style={styles.input}
-          value={form.departmentId}
-          onChangeText={(text) => handleChange('departmentId', text)}
-          keyboardType="numeric"
-        />
-        <TextInput
-          placeholder="Employee ID (optional)"
-          style={styles.input}
-          value={form.userId}
-          onChangeText={(text) => handleChange('userId', text)}
-          keyboardType="numeric"
-        />
+
+ 
 
         <View style={styles.buttonRow}>
           <View style={styles.buttonWrapper}>
@@ -278,6 +245,7 @@ const PrintersScreen: React.FC = () => {
               `Department: ${printer.department?.name ?? 'Unassigned'}`,
               `Assigned To: ${printer.user?.name ?? 'Unassigned'}`,
             ];
+
 
             if (printer.description) {
               details.push(`Description: ${printer.description}`);
@@ -320,11 +288,7 @@ const styles = StyleSheet.create({
     color: '#555',
     marginBottom: 12,
   },
-  hint: {
-    fontSize: 13,
-    color: '#333',
-    marginBottom: 8,
-  },
+
   error: {
     backgroundColor: '#fdecea',
     color: '#b71c1c',
@@ -344,6 +308,7 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
   },
+
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

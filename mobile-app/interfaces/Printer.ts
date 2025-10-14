@@ -8,5 +8,6 @@ export interface Printer {
   description?: string | null;
   department?: Department;
   user?: Employee;
+  updatedAt?: string;
 }
 
