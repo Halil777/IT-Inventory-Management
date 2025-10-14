@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import MainLayout from '../layouts/MainLayout';
 import Loader from '../components/Loader';
 import AnimatedPage from '../components/AnimatedPage';

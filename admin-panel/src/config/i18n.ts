@@ -11,6 +11,7 @@ const resources = {
       "Employees": "Employees",
       "Printers": "Printers",
       "Reports": "Reports",
+      "Export to Excel": "Export to Excel",
     }
   },
   es: {
@@ -21,6 +22,7 @@ const resources = {
       "Employees": "Empleados",
       "Printers": "Impresoras",
       "Reports": "Informes",
+      "Export to Excel": "Exportar a Excel",
     }
   }
 };

@@ -5,6 +5,7 @@ import { Table, Button, Space, Modal, Form } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { PlusOutlined } from '@ant-design/icons';
 import PrinterForm from './PrinterForm';
+import ExcelExportButton from '../../components/ExcelExportButton';
 
 const Printers = () => {
   const { t } = useTranslation();
@@ -89,9 +90,12 @@ const Printers = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>{t('Printers')}</h1>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          {t('Add Printer')}
-        </Button>
+        <Space>
+          <ExcelExportButton data={data} columns={columns} fileName="printers" isLoading={isLoading} />
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+            {t('Add Printer')}
+          </Button>
+        </Space>
       </div>
       <Table columns={columns} dataSource={data} loading={isLoading} rowKey="id" />
       <Modal

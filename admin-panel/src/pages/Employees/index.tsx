@@ -5,6 +5,7 @@ import { Table, Button, Space, Modal, Form } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { PlusOutlined } from '@ant-design/icons';
 import EmployeeForm from './EmployeeForm';
+import ExcelExportButton from '../../components/ExcelExportButton';
 
 const Employees = () => {
   const { t } = useTranslation();
@@ -89,9 +90,12 @@ const Employees = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>{t('Employees')}</h1>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          {t('Add Employee')}
-        </Button>
+        <Space>
+          <ExcelExportButton data={data} columns={columns} fileName="employees" isLoading={isLoading} />
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+            {t('Add Employee')}
+          </Button>
+        </Space>
       </div>
       <Table columns={columns} dataSource={data} loading={isLoading} rowKey="id" />
       <Modal
