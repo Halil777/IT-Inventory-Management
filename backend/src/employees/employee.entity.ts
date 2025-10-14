@@ -11,6 +11,7 @@ import { Consumable } from '../consumables/consumable.entity';
 import { Notification } from '../notifications/notification.entity';
 import { AuditLog } from '../audit-logs/audit-log.entity';
 import { CartridgeUsage } from '../cartridge-usage/cartridge-usage.entity';
+import { Printer } from '../printers/printer.entity';
 
 @Entity()
 export class Employee {
@@ -32,6 +33,9 @@ export class Employee {
 
   @OneToMany(() => Consumable, (consumable) => consumable.user)
   consumables: Consumable[];
+
+  @OneToMany(() => Printer, (printer) => printer.user)
+  printers: Printer[];
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];

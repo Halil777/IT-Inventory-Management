@@ -13,8 +13,13 @@ const PrintersScreen = () => (
     emptyMessage="No printers available."
     renderItem={({ item }) => (
       <ListItem
-        title={item.model}
-        subtitle={`Department: ${item.department?.name ?? 'Unassigned'}`}
+        title={item.name}
+        subtitle={`Model: ${item.model}`}
+        details={[
+          `Department: ${item.department?.name ?? 'Unassigned'}`,
+          `Used By: ${item.user?.name ?? 'Unassigned'}`,
+          item.description ? `Description: ${item.description}` : null,
+        ].filter(Boolean) as string[]}
       />
     )}
   />

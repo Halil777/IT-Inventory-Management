@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPrinters, createPrinter, updatePrinter, deletePrinter } from '../../services/printers';
 import { Table, Button, Space, Modal, Form } from 'antd';
@@ -15,6 +15,16 @@ const Printers = () => {
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({ queryKey: ['printers'], queryFn: getPrinters });
+
+  const tableData = useMemo(
+    () =>
+      data?.map((printer) => ({
+        ...printer,
+        departmentName: printer.department?.name ?? t('Unassigned'),
+        userName: printer.user?.name ?? t('Unassigned'),
+      })) ?? [],
+    [data, t],
+  );
 
   const createMutation = useMutation({ mutationFn: createPrinter, onSuccess: () => { 
     queryClient.invalidateQueries(['printers']);
@@ -41,7 +51,13 @@ const Printers = () => {
 
   const handleEdit = (record) => {
     setEditingPrinter(record);
-    form.setFieldsValue(record);
+    form.setFieldsValue({
+      name: record.name,
+      model: record.model,
+      description: record.description ?? undefined,
+      departmentId: record.department?.id ?? undefined,
+      userId: record.user?.id ?? undefined,
+    });
     setIsModalVisible(true);
   };
 
@@ -51,10 +67,14 @@ const Printers = () => {
 
   const handleOk = () => {
     form.validateFields().then(values => {
+      const payload = {
+        ...values,
+        userId: values.userId ?? null,
+      };
       if (editingPrinter) {
-        updateMutation.mutate({ id: editingPrinter.id, data: values });
+        updateMutation.mutate({ id: editingPrinter.id, data: payload });
       } else {
-        createMutation.mutate(values);
+        createMutation.mutate(payload);
       }
     });
   };
@@ -65,14 +85,30 @@ const Printers = () => {
 
   const columns = [
     {
-      title: t('Name'),
+      title: t('Printer Name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: t('IP Address'),
-      dataIndex: 'ipAddress',
-      key: 'ipAddress',
+      title: t('Model'),
+      dataIndex: 'model',
+      key: 'model',
+    },
+    {
+      title: t('Description'),
+      dataIndex: 'description',
+      key: 'description',
+      render: (value) => value || '—',
+    },
+    {
+      title: t('Department'),
+      dataIndex: 'departmentName',
+      key: 'departmentName',
+    },
+    {
+      title: t('Used By'),
+      dataIndex: 'userName',
+      key: 'userName',
     },
     {
       title: t('Actions'),
@@ -91,13 +127,13 @@ const Printers = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>{t('Printers')}</h1>
         <Space>
-          <ExcelExportButton data={data} columns={columns} fileName="printers" isLoading={isLoading} />
+          <ExcelExportButton data={tableData} columns={columns} fileName="printers" isLoading={isLoading} />
           <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
             {t('Add Printer')}
           </Button>
         </Space>
       </div>
-      <Table columns={columns} dataSource={data} loading={isLoading} rowKey="id" />
+      <Table columns={columns} dataSource={tableData} loading={isLoading} rowKey="id" />
       <Modal
         title={editingPrinter ? t('Edit Printer') : t('Add Printer')}
         visible={isModalVisible}

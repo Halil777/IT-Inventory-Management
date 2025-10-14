@@ -5,6 +5,7 @@ import { Printer } from './printer.entity';
 import { CreatePrinterDto } from './dto/create-printer.dto';
 import { UpdatePrinterDto } from './dto/update-printer.dto';
 import { Department } from '../departments/department.entity';
+import { Employee } from '../employees/employee.entity';
 
 @Injectable()
 export class PrintersService {
@@ -13,6 +14,8 @@ export class PrintersService {
     private readonly printersRepo: Repository<Printer>,
     @InjectRepository(Department)
     private readonly departmentsRepo: Repository<Department>,
+    @InjectRepository(Employee)
+    private readonly employeesRepo: Repository<Employee>,
   ) {}
 
   findAll(): Promise<Printer[]> {
@@ -24,17 +27,42 @@ export class PrintersService {
   }
 
   async create(dto: CreatePrinterDto): Promise<Printer> {
-    const department = await this.departmentsRepo.findOne({ where: { id: dto.departmentId } });
-    const printer = this.printersRepo.create({ model: dto.model, department });
+    const department =
+      dto.departmentId !== undefined && dto.departmentId !== null
+        ? await this.departmentsRepo.findOne({ where: { id: dto.departmentId } })
+        : null;
+    const user =
+      dto.userId !== undefined && dto.userId !== null
+        ? await this.employeesRepo.findOne({ where: { id: dto.userId } })
+        : null;
+
+    const printer = this.printersRepo.create({
+      name: dto.name,
+      model: dto.model,
+      description: dto.description ?? null,
+      department,
+      user,
+    });
     return this.printersRepo.save(printer);
   }
 
   async update(id: number, dto: UpdatePrinterDto): Promise<Printer> {
     const printer = await this.printersRepo.findOne({ where: { id } });
     if (!printer) throw new Error('Printer not found');
+    if (dto.name !== undefined) printer.name = dto.name;
     if (dto.model !== undefined) printer.model = dto.model;
+    if (dto.description !== undefined) printer.description = dto.description;
     if (dto.departmentId !== undefined) {
-      printer.department = await this.departmentsRepo.findOne({ where: { id: dto.departmentId } });
+      printer.department =
+        dto.departmentId === null
+          ? null
+          : await this.departmentsRepo.findOne({ where: { id: dto.departmentId } });
+    }
+    if (dto.userId !== undefined) {
+      printer.user =
+        dto.userId === null
+          ? null
+          : await this.employeesRepo.findOne({ where: { id: dto.userId } });
     }
     return this.printersRepo.save(printer);
   }

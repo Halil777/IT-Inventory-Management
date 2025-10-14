@@ -1,4 +1,7 @@
 export class UpdatePrinterDto {
+  name?: string;
   model?: string;
-  departmentId?: number;
+  description?: string | null;
+  departmentId?: number | null;
+  userId?: number | null;
 }

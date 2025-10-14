@@ -4,9 +4,10 @@ import { PrintersService } from './printers.service';
 import { PrintersController } from './printers.controller';
 import { Printer } from './printer.entity';
 import { Department } from '../departments/department.entity';
+import { Employee } from '../employees/employee.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Printer, Department])],
+  imports: [TypeOrmModule.forFeature([Printer, Department, Employee])],
   controllers: [PrintersController],
   providers: [PrintersService],
 })
