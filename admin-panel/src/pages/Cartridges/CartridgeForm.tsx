@@ -1,7 +1,9 @@
 import { Form, Input, InputNumber } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-const CartridgeForm = ({ form }) => {
+const { TextArea } = Input;
+
+const CartridgeForm = ({ form, isEditing = false }) => {
   const { t } = useTranslation();
 
   return (
@@ -13,20 +15,18 @@ const CartridgeForm = ({ form }) => {
       >
         <Input />
       </Form.Item>
-      <Form.Item
-        name="sku"
-        label={t('SKU')}
-        rules={[{ required: true, message: t('Please input the SKU!') }]}
-      >
-        <Input />
+      <Form.Item name="description" label={t('Description')}>
+        <TextArea rows={3} />
       </Form.Item>
-      <Form.Item
-        name="stock"
-        label={t('Stock')}
-        rules={[{ required: true, message: t('Please input the stock!') }]}
-      >
-        <InputNumber style={{ width: '100%' }} />
-      </Form.Item>
+      {!isEditing && (
+        <Form.Item
+          name="quantity"
+          label={t('Quantity')}
+          rules={[{ required: true, message: t('Please input the quantity!') }]}
+        >
+          <InputNumber min={1} style={{ width: '100%' }} />
+        </Form.Item>
+      )}
     </Form>
   );
 };

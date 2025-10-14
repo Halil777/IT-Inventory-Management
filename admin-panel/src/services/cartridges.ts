@@ -24,3 +24,8 @@ export const deleteCartridge = async (id) => {
   const { data } = await api.delete(`/cartridges/${id}`);
   return data;
 };
+
+export const issueCartridge = async (payload) => {
+  const { data } = await api.post('/cartridges/issue', payload);
+  return data;
+};

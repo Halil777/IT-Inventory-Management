@@ -6,6 +6,7 @@ import AnimatedPage from '../components/AnimatedPage';
 
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Cartridges = lazy(() => import('../pages/Cartridges'));
+const CartridgeHistory = lazy(() => import('../pages/CartridgeHistory'));
 const Departments = lazy(() => import('../pages/Departments'));
 const Devices = lazy(() => import('../pages/Devices'));
 const Employees = lazy(() => import('../pages/Employees'));
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
       {
         path: 'cartridges',
         element: <Suspense fallback={<Loader />}><AnimatedPage><Cartridges /></AnimatedPage></Suspense>,
+      },
+      {
+        path: 'cartridges/history',
+        element: <Suspense fallback={<Loader />}><AnimatedPage><CartridgeHistory /></AnimatedPage></Suspense>,
       },
       {
         path: 'departments',
