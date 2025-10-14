@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { 
   DashboardOutlined, 
-  ShoppingCartOutlined, 
-  DesktopOutlined, 
-  UserOutlined, 
-  PrinterOutlined, 
-  BarChartOutlined 
+  ShoppingCartOutlined,
+  ApartmentOutlined,
+  DesktopOutlined,
+  UserOutlined,
+  PrinterOutlined,
+  KeyOutlined,
+  BarChartOutlined
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -25,16 +27,22 @@ const AppSidebar = () => {
         <Menu.Item key="2" icon={<ShoppingCartOutlined />}>
           <Link to="/cartridges">{t('Cartridges')}</Link>
         </Menu.Item>
-        <Menu.Item key="3" icon={<DesktopOutlined />}>
+        <Menu.Item key="3" icon={<ApartmentOutlined />}>
+          <Link to="/departments">{t('Departments')}</Link>
+        </Menu.Item>
+        <Menu.Item key="4" icon={<DesktopOutlined />}>
           <Link to="/devices">{t('Devices')}</Link>
         </Menu.Item>
-        <Menu.Item key="4" icon={<UserOutlined />}>
+        <Menu.Item key="5" icon={<UserOutlined />}>
           <Link to="/employees">{t('Employees')}</Link>
         </Menu.Item>
-        <Menu.Item key="5" icon={<PrinterOutlined />}>
+        <Menu.Item key="6" icon={<PrinterOutlined />}>
           <Link to="/printers">{t('Printers')}</Link>
         </Menu.Item>
-        <Menu.Item key="6" icon={<BarChartOutlined />}>
+        <Menu.Item key="7" icon={<KeyOutlined />}>
+          <Link to="/credentials">{t('Credentials')}</Link>
+        </Menu.Item>
+        <Menu.Item key="8" icon={<BarChartOutlined />}>
           <Link to="/reports">{t('Reports')}</Link>
         </Menu.Item>
       </Menu>
