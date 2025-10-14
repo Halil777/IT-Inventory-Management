@@ -5,6 +5,7 @@ import { Table, Button, Space, Modal, Form } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { PlusOutlined } from '@ant-design/icons';
 import DeviceForm from './DeviceForm';
+import ExcelExportButton from '../../components/ExcelExportButton';
 
 const Devices = () => {
   const { t } = useTranslation();
@@ -94,9 +95,12 @@ const Devices = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>{t('Devices')}</h1>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          {t('Add Device')}
-        </Button>
+        <Space>
+          <ExcelExportButton data={data} columns={columns} fileName="devices" isLoading={isLoading} />
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+            {t('Add Device')}
+          </Button>
+        </Space>
       </div>
       <Table columns={columns} dataSource={data} loading={isLoading} rowKey="id" />
       <Modal
