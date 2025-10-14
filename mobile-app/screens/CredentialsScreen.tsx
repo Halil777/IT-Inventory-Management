@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Button,
+  Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -38,6 +39,7 @@ const CredentialsScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState<CredentialFormState>(emptyForm);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const loadCredentials = useCallback(async () => {
     setLoading(true);
@@ -61,6 +63,7 @@ const CredentialsScreen: React.FC = () => {
     setForm(() => ({ ...emptyForm }));
     setSelectedId(null);
     setError(null);
+    setShowPassword(false);
   }, []);
 
   const handleChange = useCallback(<K extends keyof CredentialFormState>(
@@ -145,6 +148,7 @@ const CredentialsScreen: React.FC = () => {
       login: credential.login ?? '',
       password: '',
     });
+    setShowPassword(false);
   }, []);
 
   return (
@@ -171,13 +175,22 @@ const CredentialsScreen: React.FC = () => {
           value={form.login}
           onChangeText={(text) => handleChange('login', text)}
         />
-        <TextInput
-          placeholder={selectedId ? 'Password (leave blank to keep unchanged)' : 'Password'}
-          style={styles.input}
-          secureTextEntry
-          value={form.password}
-          onChangeText={(text) => handleChange('password', text)}
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            placeholder={selectedId ? 'Password (leave blank to keep unchanged)' : 'Password'}
+            style={styles.passwordInput}
+            secureTextEntry={!showPassword}
+            value={form.password}
+            onChangeText={(text) => handleChange('password', text)}
+          />
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => setShowPassword((prev) => !prev)}
+            style={styles.togglePasswordButton}
+          >
+            <Text style={styles.togglePasswordText}>{showPassword ? 'Hide' : 'Show'}</Text>
+          </Pressable>
+        </View>
 
         <View style={styles.buttonRow}>
           <View style={styles.buttonWrapper}>
@@ -247,6 +260,28 @@ const styles = StyleSheet.create({
     borderColor: '#d0d7de',
     padding: 12,
     marginBottom: 12,
+  },
+  passwordContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#d0d7de',
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  togglePasswordButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  togglePasswordText: {
+    color: '#0a66c2',
+    fontWeight: '600',
   },
   buttonRow: {
     flexDirection: 'row',
