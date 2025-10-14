@@ -1,22 +1,21 @@
-
 import React from 'react';
 import { FlatList, Text, View } from 'react-native';
 import ListItem from '../components/ListItem';
+import { Department } from '../interfaces/Department';
 import { useFetchList } from '../hooks/useFetchList';
-import { Employee } from '../interfaces/Employee';
-import { getEmployees } from '../services/employees';
+import { getDepartments } from '../services/departments';
 
-const EmployeesScreen = () => {
+const DepartmentsScreen = () => {
   const {
-    data: employees,
+    data: departments,
     loading,
     error,
-  } = useFetchList<Employee>(getEmployees);
+  } = useFetchList<Department>(getDepartments);
 
   if (loading) {
     return (
       <View>
-        <Text>Loading employees...</Text>
+        <Text>Loading departments...</Text>
       </View>
     );
   }
@@ -24,23 +23,24 @@ const EmployeesScreen = () => {
   if (error) {
     return (
       <View>
-        <Text>Error loading employees: {error.message}</Text>
+        <Text>Error loading departments: {error.message}</Text>
       </View>
     );
   }
 
   return (
     <FlatList
-      data={employees}
+      data={departments}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
         <ListItem
           title={item.name}
-          subtitle={`Email: ${item.email} • Department: ${item.department?.name ?? 'Unassigned'}`}
+          subtitle={`Head: ${item.head ?? 'N/A'}${item.description ? ` • ${item.description}` : ''}`}
         />
       )}
     />
   );
 };
 
-export default EmployeesScreen;
+export default DepartmentsScreen;
+

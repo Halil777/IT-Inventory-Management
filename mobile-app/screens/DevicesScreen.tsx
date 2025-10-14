@@ -1,31 +1,32 @@
 
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
-import { getDevices } from '../services/devices';
-import { Device } from '../interfaces/Device';
+import React from 'react';
+import { FlatList, Text, View } from 'react-native';
 import ListItem from '../components/ListItem';
+import { Device } from '../interfaces/Device';
+import { useFetchList } from '../hooks/useFetchList';
+import { getDevices } from '../services/devices';
 
 const DevicesScreen = () => {
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        const data = await getDevices();
-        setDevices(data);
-      } catch (error) {
-        console.error('Error fetching devices:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDevices();
-  }, []);
+  const {
+    data: devices,
+    loading,
+    error,
+  } = useFetchList<Device>(getDevices);
 
   if (loading) {
-    return <View><Text>Loading...</Text></View>;
+    return (
+      <View>
+        <Text>Loading devices...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View>
+        <Text>Error loading devices: {error.message}</Text>
+      </View>
+    );
   }
 
   return (
@@ -34,8 +35,8 @@ const DevicesScreen = () => {
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
         <ListItem
-          title={item.model || 'N/A'}
-          subtitle={`Serial: ${item.serialNumber || 'N/A'}`}
+          title={item.model ?? item.type?.name ?? 'Unnamed Device'}
+          subtitle={`Serial: ${item.serialNumber ?? 'N/A'} • Status: ${item.status}`}
         />
       )}
     />
