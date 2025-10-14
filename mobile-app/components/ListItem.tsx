@@ -1,26 +1,35 @@
 
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface ListItemProps {
   title: string;
   subtitle?: string;
+  onPress?: () => void;
+  selected?: boolean;
 }
 
-const ListItem: React.FC<ListItemProps> = ({ title, subtitle }) => {
+const ListItem: React.FC<ListItemProps> = ({ title, subtitle, onPress, selected = false }) => {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity
+      activeOpacity={onPress ? 0.7 : 1}
+      disabled={!onPress}
+      onPress={onPress}
+      style={[styles.container, selected && styles.selected]}
+    >
       <Text style={styles.title}>{title}</Text>
       {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 12,
   },
   title: {
     fontSize: 18,
@@ -29,6 +38,10 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#666',
+  },
+  selected: {
+    backgroundColor: '#e6f4ff',
+    borderColor: '#4da3ff',
   },
 });
 
