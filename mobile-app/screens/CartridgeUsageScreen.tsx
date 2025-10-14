@@ -13,7 +13,7 @@ const CartridgeUsageScreen = () => (
     emptyMessage="No cartridge usage records."
     renderItem={({ item }) => (
       <ListItem
-        title={`${item.cartridge?.type ?? 'Unknown cartridge'} • Count: ${item.count}`}
+        title={`${item.cartridge?.model ?? 'Unknown cartridge'} • Count: ${item.count}`}
         subtitle={`Printer: ${item.printer?.model ?? 'Unknown'} • User: ${item.user?.name ?? 'N/A'} • ${new Date(item.date).toLocaleString()}`}
       />
     )}

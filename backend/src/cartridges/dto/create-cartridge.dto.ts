@@ -1,4 +1,5 @@
 export class CreateCartridgeDto {
-  type: string;
-  status: string;
+  model: string;
+  description?: string;
+  quantity: number;
 }

@@ -1,6 +1,7 @@
 export interface Cartridge {
   id: number;
-  type: string;
-  status: string;
+  model: string;
+  description: string | null;
+  stock: number;
 }
 

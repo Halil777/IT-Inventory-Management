@@ -1,4 +1,4 @@
 export class UpdateCartridgeDto {
-  type?: string;
-  status?: string;
+  model?: string;
+  description?: string | null;
 }
