@@ -307,8 +307,10 @@ Content-Type: application/json
 
 {
   "name": "HP LaserJet Pro M404dn",
-  "ipAddress": "192.168.1.100",
-  "departmentId": 1
+  "model": "M404dn",
+  "description": "Duplex monochrome printer located on the first floor.",
+  "departmentId": 1,
+  "userId": 2
 }
 
 ###
@@ -317,7 +319,9 @@ PUT http://localhost:3001/printers/1
 Content-Type: application/json
 
 {
-  "ipAddress": "192.168.1.101"
+  "description": "Reassigned to the accounting area.",
+  "departmentId": 3,
+  "userId": null
 }
 
 ###

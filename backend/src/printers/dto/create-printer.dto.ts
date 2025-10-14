@@ -1,4 +1,7 @@
 export class CreatePrinterDto {
+  name: string;
   model: string;
-  departmentId: number;
+  description?: string;
+  departmentId?: number | null;
+  userId?: number | null;
 }

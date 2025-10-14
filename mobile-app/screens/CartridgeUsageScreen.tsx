@@ -14,7 +14,7 @@ const CartridgeUsageScreen = () => (
     renderItem={({ item }) => (
       <ListItem
         title={`${item.cartridge?.model ?? 'Unknown cartridge'} • Count: ${item.count}`}
-        subtitle={`Printer: ${item.printer?.model ?? 'Unknown'} • User: ${item.user?.name ?? 'N/A'} • ${new Date(item.date).toLocaleString()}`}
+        subtitle={`Printer: ${item.printer?.name ?? item.printer?.model ?? 'Unknown'} (${item.printer?.model ?? 'N/A'}) • User: ${item.user?.name ?? 'N/A'} • ${new Date(item.date).toLocaleString()}`}
       />
     )}
   />
