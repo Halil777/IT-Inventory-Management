@@ -215,7 +215,7 @@ const CredentialsScreen: React.FC = () => {
             <ListItem
               key={credential.id}
               title={credential.fullName}
-              subtitle={`Login: ${credential.login}`}
+              details={[`Login: ${credential.login}`, `Password: ${credential.password}`]}
               onPress={submitting ? undefined : () => handleSelect(credential)}
               selected={credential.id === selectedId}
             />

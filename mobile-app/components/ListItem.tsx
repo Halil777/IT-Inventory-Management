@@ -5,11 +5,18 @@ import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 interface ListItemProps {
   title: string;
   subtitle?: string;
+  details?: string[];
   onPress?: () => void;
   selected?: boolean;
 }
 
-const ListItem: React.FC<ListItemProps> = ({ title, subtitle, onPress, selected = false }) => {
+const ListItem: React.FC<ListItemProps> = ({
+  title,
+  subtitle,
+  details,
+  onPress,
+  selected = false,
+}) => {
   return (
     <TouchableOpacity
       activeOpacity={onPress ? 0.7 : 1}
@@ -19,6 +26,11 @@ const ListItem: React.FC<ListItemProps> = ({ title, subtitle, onPress, selected 
     >
       <Text style={styles.title}>{title}</Text>
       {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      {details?.map((detail, index) => (
+        <Text key={`${detail}-${index}`} style={styles.detail}>
+          {detail}
+        </Text>
+      ))}
     </TouchableOpacity>
   );
 };
@@ -38,6 +50,11 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#666',
+  },
+  detail: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 4,
   },
   selected: {
     backgroundColor: '#e6f4ff',
