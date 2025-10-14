@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getDevices, createDevice, updateDevice, deleteDevice } from '../../services/devices';
 import { Table, Button, Space, Modal, Form } from 'antd';
@@ -15,6 +15,17 @@ const Devices = () => {
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({ queryKey: ['devices'], queryFn: getDevices });
+
+  const tableData = useMemo(
+    () =>
+      data?.map((device) => ({
+        ...device,
+        typeName: device.type?.name ?? '',
+        userName: device.user?.name ?? '',
+        departmentName: device.department?.name ?? '',
+      })) ?? [],
+    [data],
+  );
 
   const createMutation = useMutation({ mutationFn: createDevice, onSuccess: () => { 
     queryClient.invalidateQueries(['devices']);
@@ -36,12 +47,20 @@ const Devices = () => {
   const handleAdd = () => {
     setEditingDevice(null);
     form.resetFields();
+    form.setFieldsValue({ status: 'active' });
     setIsModalVisible(true);
   };
 
   const handleEdit = (record) => {
     setEditingDevice(record);
-    form.setFieldsValue(record);
+    form.setFieldsValue({
+      typeId: record.type?.id ?? undefined,
+      status: record.status,
+      serialNumber: record.serialNumber,
+      model: record.model,
+      userId: record.user?.id ?? undefined,
+      departmentId: record.department?.id ?? undefined,
+    });
     setIsModalVisible(true);
   };
 
@@ -61,18 +80,35 @@ const Devices = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    setEditingDevice(null);
+    form.resetFields();
   };
 
   const columns = [
     {
-      title: t('Name'),
-      dataIndex: 'name',
-      key: 'name',
+      title: t('Type'),
+      dataIndex: 'typeName',
+      key: 'typeName',
+    },
+    {
+      title: t('Assigned User'),
+      dataIndex: 'userName',
+      key: 'userName',
+    },
+    {
+      title: t('Department'),
+      dataIndex: 'departmentName',
+      key: 'departmentName',
     },
     {
       title: t('Serial Number'),
       dataIndex: 'serialNumber',
       key: 'serialNumber',
+    },
+    {
+      title: t('Model'),
+      dataIndex: 'model',
+      key: 'model',
     },
     {
       title: t('Status'),
@@ -96,13 +132,13 @@ const Devices = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>{t('Devices')}</h1>
         <Space>
-          <ExcelExportButton data={data} columns={columns} fileName="devices" isLoading={isLoading} />
+          <ExcelExportButton data={tableData} columns={columns} fileName="devices" isLoading={isLoading} />
           <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
             {t('Add Device')}
           </Button>
         </Space>
       </div>
-      <Table columns={columns} dataSource={data} loading={isLoading} rowKey="id" />
+      <Table columns={columns} dataSource={tableData} loading={isLoading} rowKey="id" />
       <Modal
         title={editingDevice ? t('Edit Device') : t('Add Device')}
         visible={isModalVisible}
