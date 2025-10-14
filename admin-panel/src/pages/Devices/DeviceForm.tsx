@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getDeviceTypes } from '../../services/device-types';
 import { getDepartments } from '../../services/departments';
+import { getEmployees } from '../../services/employees';
 
 const { Option } = Select;
 
@@ -10,20 +11,14 @@ const DeviceForm = ({ form }) => {
   const { t } = useTranslation();
   const { data: deviceTypes, isLoading: isLoadingDeviceTypes } = useQuery({ queryKey: ['device-types'], queryFn: getDeviceTypes });
   const { data: departments, isLoading: isLoadingDepartments } = useQuery({ queryKey: ['departments'], queryFn: getDepartments });
+  const { data: employees, isLoading: isLoadingEmployees } = useQuery({ queryKey: ['employees'], queryFn: getEmployees });
 
   return (
     <Form form={form} layout="vertical">
       <Form.Item
-        name="name"
-        label={t('Name')}
-        rules={[{ required: true, message: t('Please input the name!') }]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
         name="typeId"
         label={t('Type')}
-        rules={[{ required: true, message: t('Please select a type!') }]}
+        rules={[{ required: true, message: t('Please select a device type!') }]}
       >
         <Select loading={isLoadingDeviceTypes}>
           {deviceTypes?.map(type => (
@@ -34,7 +29,12 @@ const DeviceForm = ({ form }) => {
       <Form.Item
         name="serialNumber"
         label={t('Serial Number')}
-        rules={[{ required: true, message: t('Please input the serial number!') }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        name="model"
+        label={t('Model')}
       >
         <Input />
       </Form.Item>
@@ -50,11 +50,20 @@ const DeviceForm = ({ form }) => {
         </Select>
       </Form.Item>
       <Form.Item
+        name="userId"
+        label={t('Assigned User')}
+      >
+        <Select loading={isLoadingEmployees} allowClear>
+          {employees?.map(employee => (
+            <Option key={employee.id} value={employee.id}>{employee.name}</Option>
+          ))}
+        </Select>
+      </Form.Item>
+      <Form.Item
         name="departmentId"
         label={t('Department')}
-        rules={[{ required: true, message: t('Please select a department!') }]}
       >
-        <Select loading={isLoadingDepartments}>
+        <Select loading={isLoadingDepartments} allowClear>
           {departments?.map(department => (
             <Option key={department.id} value={department.id}>{department.name}</Option>
           ))}
