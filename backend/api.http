@@ -1,10 +1,10 @@
 ### Audit Logs
 # @name getAuditLogs
-GET http://localhost:3000/audit-logs
+GET http://localhost:3001/audit-logs
 
 ###
 # @name createAuditLog
-POST http://localhost:3000/audit-logs
+POST http://localhost:3001/audit-logs
 Content-Type: application/json
 
 {
@@ -16,11 +16,11 @@ Content-Type: application/json
 
 ### Cartridge Usage
 # @name getCartridgeUsage
-GET http://localhost:3000/cartridge-usage
+GET http://localhost:3001/cartridge-usage
 
 ###
 # @name createCartridgeUsage
-POST http://localhost:3000/cartridge-usage
+POST http://localhost:3001/cartridge-usage
 Content-Type: application/json
 
 {
@@ -31,15 +31,15 @@ Content-Type: application/json
 
 ### Cartridges
 # @name getCartridges
-GET http://localhost:3000/cartridges
+GET http://localhost:3001/cartridges
 
 ###
 # @name getCartridgeById
-GET http://localhost:3000/cartridges/1
+GET http://localhost:3001/cartridges/1
 
 ###
 # @name createCartridge
-POST http://localhost:3000/cartridges
+POST http://localhost:3001/cartridges
 Content-Type: application/json
 
 {
@@ -50,7 +50,7 @@ Content-Type: application/json
 
 ###
 # @name updateCartridge
-PUT http://localhost:3000/cartridges/1
+PUT http://localhost:3001/cartridges/1
 Content-Type: application/json
 
 {
@@ -59,19 +59,19 @@ Content-Type: application/json
 
 ###
 # @name deleteCartridge
-DELETE http://localhost:3000/cartridges/1
+DELETE http://localhost:3001/cartridges/1
 
 ### Consumables
 # @name getConsumables
-GET http://localhost:3000/consumables
+GET http://localhost:3001/consumables
 
 ###
 # @name getConsumableById
-GET http://localhost:3000/consumables/1
+GET http://localhost:3001/consumables/1
 
 ###
 # @name createConsumable
-POST http://localhost:3000/consumables
+POST http://localhost:3001/consumables
 Content-Type: application/json
 
 {
@@ -82,7 +82,7 @@ Content-Type: application/json
 
 ###
 # @name updateConsumable
-PUT http://localhost:3000/consumables/1
+PUT http://localhost:3001/consumables/1
 Content-Type: application/json
 
 {
@@ -91,11 +91,11 @@ Content-Type: application/json
 
 ###
 # @name deleteConsumable
-DELETE http://localhost:3000/consumables/1
+DELETE http://localhost:3001/consumables/1
 
 ###
 # @name assignConsumable
-POST http://localhost:3000/consumables/assign
+POST http://localhost:3001/consumables/assign
 Content-Type: application/json
 
 {
@@ -105,15 +105,15 @@ Content-Type: application/json
 
 ### Credentials
 # @name getCredentials
-GET http://localhost:3000/credentials
+GET http://localhost:3001/credentials
 
 ###
 # @name getCredentialById
-GET http://localhost:3000/credentials/1
+GET http://localhost:3001/credentials/1
 
 ###
 # @name createCredential
-POST http://localhost:3000/credentials
+POST http://localhost:3001/credentials
 Content-Type: application/json
 
 {
@@ -124,7 +124,7 @@ Content-Type: application/json
 
 ###
 # @name updateCredential
-PUT http://localhost:3000/credentials/1
+PUT http://localhost:3001/credentials/1
 Content-Type: application/json
 
 {
@@ -133,19 +133,19 @@ Content-Type: application/json
 
 ###
 # @name deleteCredential
-DELETE http://localhost:3000/credentials/1
+DELETE http://localhost:3001/credentials/1
 
 ### Departments
 # @name getDepartments
-GET http://localhost:3000/departments
+GET http://localhost:3001/departments
 
 ###
 # @name getDepartmentById
-GET http://localhost:3000/departments/1
+GET http://localhost:3001/departments/1
 
 ###
 # @name createDepartment
-POST http://localhost:3000/departments
+POST http://localhost:3001/departments
 Content-Type: application/json
 
 {
@@ -154,7 +154,7 @@ Content-Type: application/json
 
 ###
 # @name updateDepartment
-PUT http://localhost:3000/departments/1
+PUT http://localhost:3001/departments/1
 Content-Type: application/json
 
 {
@@ -163,19 +163,19 @@ Content-Type: application/json
 
 ###
 # @name deleteDepartment
-DELETE http://localhost:3000/departments/1
+DELETE http://localhost:3001/departments/1
 
 ### Device Types
 # @name getDeviceTypes
-GET http://localhost:3000/device-types
+GET http://localhost:3001/device-types
 
 ###
 # @name getDeviceTypeById
-GET http://localhost:3000/device-types/1
+GET http://localhost:3001/device-types/1
 
 ###
 # @name createDeviceType
-POST http://localhost:3000/device-types
+POST http://localhost:3001/device-types
 Content-Type: application/json
 
 {
@@ -184,7 +184,7 @@ Content-Type: application/json
 
 ###
 # @name updateDeviceType
-PUT http://localhost:3000/device-types/1
+PUT http://localhost:3001/device-types/1
 Content-Type: application/json
 
 {
@@ -193,23 +193,23 @@ Content-Type: application/json
 
 ###
 # @name deleteDeviceType
-DELETE http://localhost:3000/device-types/1
+DELETE http://localhost:3001/device-types/1
 
 ### Devices
 # @name getDevices
-GET http://localhost:3000/devices
+GET http://localhost:3001/devices
 
 ###
 # @name getDevicesWithFilters
-GET http://localhost:3000/devices?typeId=1&status=active&departmentId=1
+GET http://localhost:3001/devices?typeId=1&status=active&departmentId=1
 
 ###
 # @name getDeviceById
-GET http://localhost:3000/devices/1
+GET http://localhost:3001/devices/1
 
 ###
 # @name createDevice
-POST http://localhost:3000/devices
+POST http://localhost:3001/devices
 Content-Type: application/json
 
 {
@@ -222,7 +222,7 @@ Content-Type: application/json
 
 ###
 # @name updateDevice
-PUT http://localhost:3000/devices/1
+PUT http://localhost:3001/devices/1
 Content-Type: application/json
 
 {
@@ -231,19 +231,19 @@ Content-Type: application/json
 
 ###
 # @name deleteDevice
-DELETE http://localhost:3000/devices/1
+DELETE http://localhost:3001/devices/1
 
 ### Employees
 # @name getEmployees
-GET http://localhost:3000/employees
+GET http://localhost:3001/employees
 
 ###
 # @name getEmployeeById
-GET http://localhost:3000/employees/1
+GET http://localhost:3001/employees/1
 
 ###
 # @name createEmployee
-POST http://localhost:3000/employees
+POST http://localhost:3001/employees
 Content-Type: application/json
 
 {
@@ -254,7 +254,7 @@ Content-Type: application/json
 
 ###
 # @name updateEmployee
-PUT http://localhost:3000/employees/1
+PUT http://localhost:3001/employees/1
 Content-Type: application/json
 
 {
@@ -263,15 +263,15 @@ Content-Type: application/json
 
 ###
 # @name deleteEmployee
-DELETE http://localhost:3000/employees/1
+DELETE http://localhost:3001/employees/1
 
 ### Notifications
 # @name getNotifications
-GET http://localhost:3000/notifications
+GET http://localhost:3001/notifications
 
 ###
 # @name createNotification
-POST http://localhost:3000/notifications
+POST http://localhost:3001/notifications
 Content-Type: application/json
 
 {
@@ -281,7 +281,7 @@ Content-Type: application/json
 
 ###
 # @name updateNotification
-PUT http://localhost:3000/notifications/1
+PUT http://localhost:3001/notifications/1
 Content-Type: application/json
 
 {
@@ -290,19 +290,19 @@ Content-Type: application/json
 
 ###
 # @name deleteNotification
-DELETE http://localhost:3000/notifications/1
+DELETE http://localhost:3001/notifications/1
 
 ### Printers
 # @name getPrinters
-GET http://localhost:3000/printers
+GET http://localhost:3001/printers
 
 ###
 # @name getPrinterById
-GET http://localhost:3000/printers/1
+GET http://localhost:3001/printers/1
 
 ###
 # @name createPrinter
-POST http://localhost:3000/printers
+POST http://localhost:3001/printers
 Content-Type: application/json
 
 {
@@ -313,7 +313,7 @@ Content-Type: application/json
 
 ###
 # @name updatePrinter
-PUT http://localhost:3000/printers/1
+PUT http://localhost:3001/printers/1
 Content-Type: application/json
 
 {
@@ -322,20 +322,20 @@ Content-Type: application/json
 
 ###
 # @name deletePrinter
-DELETE http://localhost:3000/printers/1
+DELETE http://localhost:3001/printers/1
 
 ### Reports
 # @name getDevicesByDepartmentReport
-GET http://localhost:3000/reports/devices
+GET http://localhost:3001/reports/devices
 
 ###
 # @name getPrintersStatsReport
-GET http://localhost:3000/reports/printers
+GET http://localhost:3001/reports/printers
 
 ###
 # @name getConsumablesStatsReport
-GET http://localhost:3000/reports/consumables
+GET http://localhost:3001/reports/consumables
 
 ###
 # @name getDevicesByEmployeeReport
-GET http://localhost:3000/reports/employees
+GET http://localhost:3001/reports/employees
