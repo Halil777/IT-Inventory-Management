@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from '../context/LanguageContext';
 import { ReportItem, ReportsData } from '../interfaces/Report';
 import {
   getConsumablesStatsReport,
@@ -12,6 +13,7 @@ const ReportsScreen = () => {
   const [reports, setReports] = useState<ReportsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     let isMounted = true;
@@ -36,7 +38,7 @@ const ReportsScreen = () => {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err as Error);
+          setError(err instanceof Error ? err : new Error(String(err)));
         }
       } finally {
         if (isMounted) {
@@ -55,7 +57,7 @@ const ReportsScreen = () => {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <Text>Loading reports...</Text>
+        <Text>{t('screens.reports.loading')}</Text>
       </View>
     );
   }
@@ -63,7 +65,9 @@ const ReportsScreen = () => {
   if (error) {
     return (
       <View style={styles.centered}>
-        <Text>Error loading reports: {error.message}</Text>
+        <Text>
+          {t('screens.reports.error')} {error.message}
+        </Text>
       </View>
     );
   }
@@ -72,21 +76,37 @@ const ReportsScreen = () => {
     <ScrollView contentContainerStyle={styles.container}>
       {reports && (
         <>
-          {renderReportSection('Devices by Department', reports.devicesByDepartment)}
-          {renderReportSection('Printers Stats', reports.printersStats)}
-          {renderReportSection('Consumables Stats', reports.consumablesStats)}
-          {renderReportSection('Devices by Employee', reports.devicesByEmployee)}
+          {renderReportSection(
+            t('screens.reports.sections.devicesByDepartment'),
+            reports.devicesByDepartment,
+            t('screens.reports.empty'),
+          )}
+          {renderReportSection(
+            t('screens.reports.sections.printersStats'),
+            reports.printersStats,
+            t('screens.reports.empty'),
+          )}
+          {renderReportSection(
+            t('screens.reports.sections.consumablesStats'),
+            reports.consumablesStats,
+            t('screens.reports.empty'),
+          )}
+          {renderReportSection(
+            t('screens.reports.sections.devicesByEmployee'),
+            reports.devicesByEmployee,
+            t('screens.reports.empty'),
+          )}
         </>
       )}
     </ScrollView>
   );
 };
 
-const renderReportSection = (title: string, items: ReportItem[]) => (
+const renderReportSection = (title: string, items: ReportItem[], emptyLabel: string) => (
   <View key={title} style={styles.section}>
     <Text style={styles.sectionTitle}>{title}</Text>
     {items.length === 0 ? (
-      <Text style={styles.emptyText}>No data available.</Text>
+      <Text style={styles.emptyText}>{emptyLabel}</Text>
     ) : (
       items.map((item, index) => (
         <View key={`${title}-${index}`} style={styles.reportCard}>

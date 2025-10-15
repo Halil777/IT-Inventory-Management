@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import ListItem from '../components/ListItem';
+import { useTranslation } from '../context/LanguageContext';
 import { Credential } from '../interfaces/Credential';
 import {
   createCredential,
@@ -40,6 +41,7 @@ const CredentialsScreen: React.FC = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState<CredentialFormState>(emptyForm);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   const loadCredentials = useCallback(async () => {
     setLoading(true);
@@ -48,12 +50,14 @@ const CredentialsScreen: React.FC = () => {
       setCredentials(data);
       setError(null);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to load credentials.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.credentials.errors.load');
       setError(message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void loadCredentials();
@@ -94,7 +98,7 @@ const CredentialsScreen: React.FC = () => {
 
   const handleSubmit = useCallback(async () => {
     if (!payload) {
-      setError('Full name and login are required. Include a password when creating a credential.');
+      setError(t('screens.credentials.errors.required'));
       return;
     }
 
@@ -114,16 +118,18 @@ const CredentialsScreen: React.FC = () => {
       setError(null);
       resetForm();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to save credential.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.credentials.errors.save');
       setError(message);
     } finally {
       setSubmitting(false);
     }
-  }, [payload, resetForm, selectedId]);
+  }, [payload, resetForm, selectedId, t]);
 
   const handleDelete = useCallback(async () => {
     if (!selectedId) {
-      setError('Select a credential to delete.');
+      setError(t('screens.credentials.errors.selectForDelete'));
       return;
     }
 
@@ -134,12 +140,14 @@ const CredentialsScreen: React.FC = () => {
       setError(null);
       resetForm();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to delete credential.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.credentials.errors.delete');
       setError(message);
     } finally {
       setSubmitting(false);
     }
-  }, [resetForm, selectedId]);
+  }, [resetForm, selectedId, t]);
 
   const handleSelect = useCallback((credential: Credential) => {
     setSelectedId(credential.id);
@@ -154,22 +162,21 @@ const CredentialsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.heading}>{selectedId ? 'Edit Credential' : 'Add Credential'}</Text>
-        <Text style={styles.helper}>
-          Tap a credential to edit it. Passwords are required when creating credentials and optional
-          when updating.
+        <Text style={styles.heading}>
+          {selectedId ? t('screens.credentials.editTitle') : t('screens.credentials.addTitle')}
         </Text>
+        <Text style={styles.helper}>{t('screens.credentials.helper')}</Text>
 
         {error && <Text style={styles.error}>{error}</Text>}
 
         <TextInput
-          placeholder="Full name"
+          placeholder={t('screens.credentials.placeholders.fullName')}
           style={styles.input}
           value={form.fullName}
           onChangeText={(text) => handleChange('fullName', text)}
         />
         <TextInput
-          placeholder="Login"
+          placeholder={t('screens.credentials.placeholders.login')}
           style={styles.input}
           autoCapitalize="none"
           value={form.login}
@@ -177,7 +184,11 @@ const CredentialsScreen: React.FC = () => {
         />
         <View style={styles.passwordContainer}>
           <TextInput
-            placeholder={selectedId ? 'Password (leave blank to keep unchanged)' : 'Password'}
+            placeholder={
+              selectedId
+                ? t('screens.credentials.placeholders.passwordUpdate')
+                : t('screens.credentials.placeholders.password')
+            }
             style={styles.passwordInput}
             secureTextEntry={!showPassword}
             value={form.password}
@@ -188,26 +199,39 @@ const CredentialsScreen: React.FC = () => {
             onPress={() => setShowPassword((prev) => !prev)}
             style={styles.togglePasswordButton}
           >
-            <Text style={styles.togglePasswordText}>{showPassword ? 'Hide' : 'Show'}</Text>
+            <Text style={styles.togglePasswordText}>
+              {showPassword
+                ? t('screens.credentials.togglePassword.hide')
+                : t('screens.credentials.togglePassword.show')}
+            </Text>
           </Pressable>
         </View>
 
         <View style={styles.buttonRow}>
           <View style={styles.buttonWrapper}>
-            <Button title={selectedId ? 'Update' : 'Create'} onPress={handleSubmit} disabled={submitting} />
+            <Button
+              title={selectedId ? t('screens.credentials.buttons.update') : t('screens.credentials.buttons.create')}
+              onPress={handleSubmit}
+              disabled={submitting}
+            />
           </View>
           <View style={styles.buttonWrapper}>
-            <Button title="Reset" onPress={resetForm} disabled={submitting} />
+            <Button title={t('screens.credentials.buttons.reset')} onPress={resetForm} disabled={submitting} />
           </View>
         </View>
 
         {selectedId && (
           <View style={styles.deleteButton}>
-            <Button color="#c1121f" title="Delete" onPress={handleDelete} disabled={submitting} />
+            <Button
+              color="#c1121f"
+              title={t('screens.credentials.buttons.delete')}
+              onPress={handleDelete}
+              disabled={submitting}
+            />
           </View>
         )}
 
-        <Text style={[styles.heading, styles.listHeading]}>Credentials</Text>
+        <Text style={[styles.heading, styles.listHeading]}>{t('screens.credentials.listTitle')}</Text>
         {loading ? (
           <ActivityIndicator style={styles.loading} />
         ) : credentials.length ? (
@@ -215,13 +239,16 @@ const CredentialsScreen: React.FC = () => {
             <ListItem
               key={credential.id}
               title={credential.fullName}
-              details={[`Login: ${credential.login}`, `Password: ${credential.password}`]}
+              details={[
+                t('screens.credentials.details.login', { login: credential.login }),
+                t('screens.credentials.details.password', { password: credential.password }),
+              ]}
               onPress={submitting ? undefined : () => handleSelect(credential)}
               selected={credential.id === selectedId}
             />
           ))
         ) : (
-          <Text style={styles.empty}>No credentials available.</Text>
+          <Text style={styles.empty}>{t('screens.credentials.empty')}</Text>
         )}
       </ScrollView>
     </SafeAreaView>

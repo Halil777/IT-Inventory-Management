@@ -3,27 +3,42 @@ import React from 'react';
 import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
+import { useTranslation } from '../context/LanguageContext';
+
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.heading}>Inventory Management</Text>
-        <Text style={styles.subheading}>Choose a section to manage data.</Text>
+        <Text style={styles.heading}>{t('screens.legacyHome.title')}</Text>
+        <Text style={styles.subheading}>{t('screens.legacyHome.subtitle')}</Text>
 
         <View style={styles.buttonGroup}>
           <View style={styles.buttonWrapper}>
-            <Button title="Devices" onPress={() => navigation.navigate('Devices')} />
+            <Button
+              title={t('screens.legacyHome.buttons.devices')}
+              onPress={() => navigation.navigate('Devices')}
+            />
           </View>
           <View style={styles.buttonWrapper}>
-            <Button title="Employees" onPress={() => navigation.navigate('Employees')} />
+            <Button
+              title={t('screens.legacyHome.buttons.employees')}
+              onPress={() => navigation.navigate('Employees')}
+            />
           </View>
           <View style={styles.buttonWrapper}>
-            <Button title="Departments" onPress={() => navigation.navigate('Departments')} />
+            <Button
+              title={t('screens.legacyHome.buttons.departments')}
+              onPress={() => navigation.navigate('Departments')}
+            />
           </View>
           <View style={styles.buttonWrapper}>
-            <Button title="Credentials" onPress={() => navigation.navigate('Credentials')} />
+            <Button
+              title={t('screens.legacyHome.buttons.credentials')}
+              onPress={() => navigation.navigate('Credentials')}
+            />
           </View>
         </View>
       </View>
