@@ -44,9 +44,9 @@ export const StatCard: React.FC<StatCardProps> = ({
         {
           backgroundColor,
           borderColor: accentColor,
-          transform: pressed ? [{ scale: 0.98 }] : undefined,
           shadowOpacity: colorScheme === 'dark' ? 0.35 : 0.1,
         },
+        pressed ? { transform: [{ scale: 0.98 }] } : null,
       ]}>
       <ThemedView lightColor="transparent" darkColor="transparent">
         <View style={[styles.iconContainer, { backgroundColor: accentBackground }]}> 
