@@ -140,8 +140,7 @@ const en = {
     employees: {
       addTitle: 'Add Employee',
       editTitle: 'Edit Employee',
-      helper:
-        'Tap an employee to edit it. Use the pickers below to choose the employee status and department.',
+      helper: 'Tap an employee to edit it. Use the filters to quickly find team members.',
       placeholders: {
         name: 'Full name',
         email: 'Email',
@@ -159,6 +158,24 @@ const en = {
       },
       departmentOptions: {
         unassigned: 'Unassigned',
+      },
+      overview: {
+        title: 'Team overview',
+        total: 'Total employees',
+        active: 'Active employees',
+        inactive: 'Inactive employees',
+      },
+      filters: {
+        title: 'Filters',
+        search: 'Search employees...',
+        status: 'Status',
+        department: 'Department',
+        role: 'Role',
+        anyStatus: 'All statuses',
+        anyDepartment: 'All departments',
+        anyRole: 'All roles',
+        results: '{{count}} employees found',
+        reset: 'Clear filters',
       },
       errors: {
         required: 'Name, email, and status are required.',

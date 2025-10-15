@@ -141,7 +141,7 @@ const tr: TranslationDictionary = {
       addTitle: 'Çalışan ekle',
       editTitle: 'Çalışanı düzenle',
       helper:
-        'Bir çalışanı düzenlemek için üzerine dokunun. Aşağıdaki seçimlerden çalışan durumunu ve departmanı belirleyin.',
+        'Bir çalışanı düzenlemek için üzerine dokunun. Ekip üyelerini hızlıca bulmak için filtreleri kullanın.',
       placeholders: {
         name: 'Ad soyad',
         email: 'E-posta',
@@ -159,6 +159,24 @@ const tr: TranslationDictionary = {
       },
       departmentOptions: {
         unassigned: 'Atanmadı',
+      },
+      overview: {
+        title: 'Ekip özeti',
+        total: 'Toplam çalışan',
+        active: 'Aktif çalışan',
+        inactive: 'Pasif çalışan',
+      },
+      filters: {
+        title: 'Filtreler',
+        search: 'Çalışanlarda ara...',
+        status: 'Durum',
+        department: 'Departman',
+        role: 'Görev',
+        anyStatus: 'Tüm durumlar',
+        anyDepartment: 'Tüm departmanlar',
+        anyRole: 'Tüm roller',
+        results: '{{count}} çalışan bulundu',
+        reset: 'Filtreleri temizle',
       },
       errors: {
         required: 'İsim, e-posta ve durum zorunludur.',

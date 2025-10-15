@@ -140,8 +140,7 @@ const zh: TranslationDictionary = {
     employees: {
       addTitle: '新增员工',
       editTitle: '编辑员工',
-      helper:
-        '点按员工进行编辑。使用下方选择器设置员工状态和所属部门。',
+      helper: '点按员工进行编辑。使用筛选器快速查找团队成员。',
       placeholders: {
         name: '姓名',
         email: '邮箱',
@@ -159,6 +158,24 @@ const zh: TranslationDictionary = {
       },
       departmentOptions: {
         unassigned: '未分配',
+      },
+      overview: {
+        title: '团队概览',
+        total: '员工总数',
+        active: '在职员工',
+        inactive: '离职员工',
+      },
+      filters: {
+        title: '筛选',
+        search: '搜索员工...',
+        status: '状态',
+        department: '部门',
+        role: '职位',
+        anyStatus: '全部状态',
+        anyDepartment: '全部部门',
+        anyRole: '全部职位',
+        results: '共找到 {{count}} 名员工',
+        reset: '清除筛选',
       },
       errors: {
         required: '姓名、邮箱和状态为必填项。',

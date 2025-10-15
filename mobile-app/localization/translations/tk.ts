@@ -141,7 +141,7 @@ const tk: TranslationDictionary = {
       addTitle: 'Işgär goş',
       editTitle: 'Işgäri redaktirle',
       helper:
-        'Işgäri redaktirlemek üçin üstüne basyň. Aşakdaky saýlaýjylar bilen ýagdaýy we bölümi saýlaň.',
+        'Işgäri redaktirlemek üçin üstüne basyň. Toparyň agzalaryny çalt tapmak üçin süzgüçleri ulanyň.',
       placeholders: {
         name: 'Doly ady',
         email: 'E-poçta',
@@ -159,6 +159,24 @@ const tk: TranslationDictionary = {
       },
       departmentOptions: {
         unassigned: 'Bellenmedik',
+      },
+      overview: {
+        title: 'Topar gysgaça syn',
+        total: 'Jemi işgär',
+        active: 'Işjeň işgär',
+        inactive: 'Işlemeýän işgär',
+      },
+      filters: {
+        title: 'Süzgüçler',
+        search: 'Işgärleri gözle...',
+        status: 'Weziýet',
+        department: 'Bölüm',
+        role: 'Wezipe',
+        anyStatus: 'Ähli ýagdaýlar',
+        anyDepartment: 'Ähli bölümler',
+        anyRole: 'Ähli wezipeler',
+        results: '{{count}} işgär tapyldy',
+        reset: 'Süzgüçleri arassala',
       },
       errors: {
         required: 'At, e-poçta we ýagdaý hökmany.',
