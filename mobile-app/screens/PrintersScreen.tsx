@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import ListItem from '../components/ListItem';
+import SearchFilterBar from '../components/SearchFilterBar';
 import { useTranslation } from '../context/LanguageContext';
 import { Printer } from '../interfaces/Printer';
 import { Department } from '../interfaces/Department';
@@ -50,6 +51,9 @@ const PrintersScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState<PrinterFormState>(emptyForm);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [assignmentFilter, setAssignmentFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
   const { t } = useTranslation();
 
   const loadPrinters = useCallback(async () => {
@@ -82,6 +86,12 @@ const PrintersScreen: React.FC = () => {
     setForm(() => ({ ...emptyForm }));
     setSelectedId(null);
     setError(null);
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setSearchQuery('');
+    setDepartmentFilter('all');
+    setAssignmentFilter('all');
   }, []);
 
   const handleChange = useCallback(<K extends keyof PrinterFormState>(
@@ -203,7 +213,65 @@ const PrintersScreen: React.FC = () => {
     });
   }, []);
 
+  const departmentOptions = useMemo(
+    () => {
+      const options = departments
+        .map((department) => ({ label: department.name, value: String(department.id) }))
+        .sort((a, b) => a.label.localeCompare(b.label));
 
+      return [
+        { label: t('screens.printers.filters.options.all'), value: 'all' },
+        { label: t('screens.printers.filters.options.unassigned'), value: 'unassigned' },
+        ...options,
+      ];
+    },
+    [departments, t],
+  );
+
+  const assignmentOptions = useMemo(
+    () => [
+      { label: t('screens.printers.filters.options.all'), value: 'all' },
+      { label: t('screens.printers.filters.options.assigned'), value: 'assigned' },
+      { label: t('screens.printers.filters.options.unassigned'), value: 'unassigned' },
+    ],
+    [t],
+  );
+
+  const filteredPrinters = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    return printers.filter((printer) => {
+      const matchesQuery =
+        !normalizedQuery ||
+        [
+          printer.name,
+          printer.model,
+          printer.description,
+          printer.department?.name,
+          printer.user?.name,
+        ]
+          .filter((value): value is string => Boolean(value))
+          .some((value) => value.toLowerCase().includes(normalizedQuery));
+
+      const matchesDepartment =
+        departmentFilter === 'all' ||
+        (departmentFilter === 'unassigned' && !printer.department) ||
+        (printer.department?.id && String(printer.department.id) === departmentFilter);
+
+      const matchesAssignment =
+        assignmentFilter === 'all' ||
+        (assignmentFilter === 'assigned' && !!printer.user) ||
+        (assignmentFilter === 'unassigned' && !printer.user);
+
+      return matchesQuery && matchesDepartment && matchesAssignment;
+    });
+  }, [assignmentFilter, departmentFilter, printers, searchQuery]);
+
+  const hasActiveFilters = useMemo(
+    () =>
+      Boolean(searchQuery.trim()) || departmentFilter !== 'all' || assignmentFilter !== 'all',
+    [assignmentFilter, departmentFilter, searchQuery],
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -214,6 +282,32 @@ const PrintersScreen: React.FC = () => {
 
 
         {error && <Text style={styles.error}>{error}</Text>}
+
+        <SearchFilterBar
+          searchPlaceholder={t('screens.printers.filters.searchPlaceholder')}
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          filterGroups={[
+            {
+              key: 'department',
+              label: t('screens.printers.filters.departmentLabel'),
+              options: departmentOptions,
+              selectedValue: departmentFilter,
+              onChange: setDepartmentFilter,
+            },
+            {
+              key: 'assignment',
+              label: t('screens.printers.filters.assignmentLabel'),
+              options: assignmentOptions,
+              selectedValue: assignmentFilter,
+              onChange: setAssignmentFilter,
+            },
+          ]}
+          onReset={resetFilters}
+          resetLabel={t('screens.printers.filters.reset')}
+          disabled={loading}
+          canReset={hasActiveFilters}
+        />
 
         <TextInput
           placeholder={t('screens.printers.placeholders.name')}
@@ -264,8 +358,8 @@ const PrintersScreen: React.FC = () => {
         <Text style={[styles.heading, styles.listHeading]}>{t('screens.printers.listTitle')}</Text>
         {loading ? (
           <ActivityIndicator style={styles.loading} />
-        ) : printers.length ? (
-          printers.map((printer) => {
+        ) : filteredPrinters.length ? (
+          filteredPrinters.map((printer) => {
             const details: string[] = [
               t('screens.printers.details.department', {
                 department: printer.department?.name ?? t('screens.printers.unassigned'),
@@ -294,7 +388,11 @@ const PrintersScreen: React.FC = () => {
             );
           })
         ) : (
-          <Text style={styles.empty}>{t('screens.printers.empty')}</Text>
+          <Text style={styles.empty}>
+            {printers.length
+              ? t('screens.printers.filters.noResults')
+              : t('screens.printers.empty')}
+          </Text>
         )}
       </ScrollView>
     </SafeAreaView>

@@ -292,6 +292,18 @@ const ru: TranslationDictionary = {
         reset: 'Сбросить',
         delete: 'Удалить',
       },
+      filters: {
+        searchPlaceholder: 'Поиск принтеров...',
+        departmentLabel: 'Отдел',
+        assignmentLabel: 'Назначение',
+        reset: 'Сбросить фильтры',
+        noResults: 'Нет принтеров, соответствующих фильтрам.',
+        options: {
+          all: 'Все',
+          assigned: 'Назначены',
+          unassigned: 'Не назначены',
+        },
+      },
       listTitle: 'Принтеры',
       empty: 'Нет доступных принтеров.',
       details: {

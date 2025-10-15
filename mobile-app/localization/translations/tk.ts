@@ -293,6 +293,18 @@ const tk: TranslationDictionary = {
         reset: 'Arassala',
         delete: 'Poz',
       },
+      filters: {
+        searchPlaceholder: 'Printerleri gözle...',
+        departmentLabel: 'Bölüm',
+        assignmentLabel: 'Bellenişi',
+        reset: 'Süzgüçleri arassala',
+        noResults: 'Süzgüçlere laýyk printer tapylmady.',
+        options: {
+          all: 'Ählisi',
+          assigned: 'Bellenenler',
+          unassigned: 'Bellenmedikler',
+        },
+      },
       listTitle: 'Printerler',
       empty: 'Printer ýok.',
       details: {

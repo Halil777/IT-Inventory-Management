@@ -291,6 +291,18 @@ const en = {
         reset: 'Reset',
         delete: 'Delete',
       },
+      filters: {
+        searchPlaceholder: 'Search printers...',
+        departmentLabel: 'Department',
+        assignmentLabel: 'Assignment',
+        reset: 'Reset filters',
+        noResults: 'No printers match your filters.',
+        options: {
+          all: 'All',
+          assigned: 'Assigned',
+          unassigned: 'Unassigned',
+        },
+      },
       listTitle: 'Printers',
       empty: 'No printers available.',
       details: {
