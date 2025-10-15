@@ -183,6 +183,7 @@ const zh: TranslationDictionary = {
         name: '部门名称',
         head: '负责人（可选）',
         description: '描述（可选）',
+        search: '按名称或负责人搜索',
       },
       errors: {
         required: '部门名称为必填项。',

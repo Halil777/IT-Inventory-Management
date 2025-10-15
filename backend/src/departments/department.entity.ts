@@ -29,4 +29,6 @@ export class Department {
 
   @OneToMany(() => Consumable, (consumable) => consumable.department)
   consumables: Consumable[];
+
+  employeesCount?: number;
 }

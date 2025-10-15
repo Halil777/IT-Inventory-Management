@@ -39,6 +39,7 @@ const DepartmentsScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState<DepartmentFormState>(emptyForm);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const { t } = useTranslation();
 
   const loadDepartments = useCallback(async () => {
@@ -150,6 +151,19 @@ const DepartmentsScreen: React.FC = () => {
     });
   }, []);
 
+  const filteredDepartments = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) {
+      return departments;
+    }
+
+    return departments.filter((department) =>
+      [department.name, department.head]
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(term)),
+    );
+  }, [departments, searchTerm]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -205,10 +219,18 @@ const DepartmentsScreen: React.FC = () => {
         )}
 
         <Text style={[styles.heading, styles.listHeading]}>{t('screens.departments.listTitle')}</Text>
+        <TextInput
+          placeholder={t('screens.departments.placeholders.search')}
+          style={[styles.input, styles.searchInput]}
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
         {loading ? (
           <ActivityIndicator style={styles.loading} />
-        ) : departments.length ? (
-          departments.map((department) => {
+        ) : filteredDepartments.length ? (
+          filteredDepartments.map((department) => {
             const headText = t('screens.departments.head', {
               head: department.head ?? t('common.general.notAvailable'),
             });
@@ -218,6 +240,11 @@ const DepartmentsScreen: React.FC = () => {
                   description: department.description,
                 })
               : headText;
+            const employeeCount = department.employeesCount ?? 0;
+            const employeeLabel = employeeCount === 1
+              ? t('entities.employee.singular')
+              : t('entities.employee.plural');
+            const details = [`${employeeCount} ${employeeLabel}`];
 
             return (
               <ListItem
@@ -226,11 +253,14 @@ const DepartmentsScreen: React.FC = () => {
                 subtitle={subtitle}
                 onPress={submitting ? undefined : () => handleSelect(department)}
                 selected={department.id === selectedId}
+                details={details}
               />
             );
           })
         ) : (
-          <Text style={styles.empty}>{t('screens.departments.empty')}</Text>
+          <Text style={styles.empty}>
+            {searchTerm ? t('common.general.empty') : t('screens.departments.empty')}
+          </Text>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -269,6 +299,9 @@ const styles = StyleSheet.create({
     borderColor: '#d0d7de',
     padding: 12,
     marginBottom: 12,
+  },
+  searchInput: {
+    marginBottom: 16,
   },
   multiline: {
     minHeight: 80,
