@@ -7,7 +7,7 @@ const { Header } = Layout;
 const AppHeader = () => {
   const { i18n } = useTranslation();
 
-  const changeLanguage = (lng) => {
+  const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
 
@@ -16,8 +16,17 @@ const AppHeader = () => {
       <Menu.Item key="en" onClick={() => changeLanguage('en')}>
         English
       </Menu.Item>
-      <Menu.Item key="es" onClick={() => changeLanguage('es')}>
-        Español
+      <Menu.Item key="ru" onClick={() => changeLanguage('ru')}>
+        Русский
+      </Menu.Item>
+      <Menu.Item key="tr" onClick={() => changeLanguage('tr')}>
+        Türkçe
+      </Menu.Item>
+      <Menu.Item key="tk" onClick={() => changeLanguage('tk')}>
+        Türkmençe
+      </Menu.Item>
+      <Menu.Item key="zh" onClick={() => changeLanguage('zh')}>
+        中文
       </Menu.Item>
     </Menu>
   );
