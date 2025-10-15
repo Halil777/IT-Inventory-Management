@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
@@ -51,6 +52,10 @@ const EmployeesScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState<EmployeeFormState>(emptyForm);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const { t } = useTranslation();
 
   const translateStatus = useCallback(
@@ -95,6 +100,13 @@ const EmployeesScreen: React.FC = () => {
     setForm(() => ({ ...emptyForm }));
     setSelectedId(null);
     setError(null);
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setSearchQuery('');
+    setStatusFilter('all');
+    setDepartmentFilter('all');
+    setRoleFilter('all');
   }, []);
 
   const handleChange = useCallback(<K extends keyof EmployeeFormState>(
@@ -191,140 +203,283 @@ const EmployeesScreen: React.FC = () => {
     });
   }, []);
 
+  const availableRoles = useMemo(() => {
+    const uniqueRoles = Array.from(
+      new Set(
+        employees
+          .map((employee) => employee.role)
+          .filter((role): role is string => Boolean(role))
+          .map((role) => role.trim())
+          .filter(Boolean),
+      ),
+    ).sort((a, b) => a.localeCompare(b));
+    return uniqueRoles;
+  }, [employees]);
+
+  const overview = useMemo(() => {
+    const total = employees.length;
+    const active = employees.filter((employee) => employee.status?.toLowerCase() === 'active').length;
+    const inactive = employees.filter((employee) => employee.status?.toLowerCase() === 'inactive').length;
+    return { total, active, inactive };
+  }, [employees]);
+
+  const filteredEmployees = useMemo(() => {
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+    const normalizedRole = roleFilter.toLowerCase();
+
+    return employees
+      .filter((employee) => {
+        const matchesSearch =
+          !normalizedSearch ||
+          [
+            employee.name,
+            employee.email,
+            employee.phone,
+            employee.civilNumber,
+            employee.role,
+            employee.department?.name,
+          ]
+            .filter((value): value is string => Boolean(value))
+            .some((value) => value.toLowerCase().includes(normalizedSearch));
+
+        const matchesStatus =
+          statusFilter === 'all' || (employee.status ?? '').toLowerCase() === statusFilter;
+
+        const matchesDepartment =
+          departmentFilter === 'all' || String(employee.department?.id ?? '') === departmentFilter;
+
+        const matchesRole =
+          normalizedRole === 'all' || (employee.role ?? '').toLowerCase() === normalizedRole;
+
+        return matchesSearch && matchesStatus && matchesDepartment && matchesRole;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [departmentFilter, employees, roleFilter, searchQuery, statusFilter]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.heading}>
-          {selectedId ? t('screens.employees.editTitle') : t('screens.employees.addTitle')}
-        </Text>
-        <Text style={styles.helper}>{t('screens.employees.helper')}</Text>
+        <View style={styles.card}>
+          <Text style={styles.heading}>
+            {selectedId ? t('screens.employees.editTitle') : t('screens.employees.addTitle')}
+          </Text>
+          <Text style={styles.helper}>{t('screens.employees.helper')}</Text>
 
-        {error && <Text style={styles.error}>{error}</Text>}
+          {error && <Text style={styles.error}>{error}</Text>}
 
-        <TextInput
-          placeholder={t('screens.employees.placeholders.name')}
-          style={styles.input}
-          value={form.name}
-          onChangeText={(text) => handleChange('name', text)}
-        />
-        <TextInput
-          placeholder={t('screens.employees.placeholders.email')}
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={form.email}
-          onChangeText={(text) => handleChange('email', text)}
-        />
-        <Text style={styles.label}>{t('screens.employees.labels.status')}</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            style={styles.picker}
-            selectedValue={form.status}
-            onValueChange={(value) => handleChange('status', value)}
-          >
-            <Picker.Item label={t('screens.employees.statusOptions.active')} value="active" />
-            <Picker.Item label={t('screens.employees.statusOptions.inactive')} value="inactive" />
-          </Picker>
-        </View>
-        <TextInput
-          placeholder={t('screens.employees.placeholders.phone')}
-          style={styles.input}
-          keyboardType="phone-pad"
-          value={form.phone}
-          onChangeText={(text) => handleChange('phone', text)}
-        />
-        <TextInput
-          placeholder={t('screens.employees.placeholders.civilNumber')}
-          style={styles.input}
-          value={form.civilNumber}
-          onChangeText={(text) => handleChange('civilNumber', text)}
-        />
-        <Text style={styles.label}>{t('screens.employees.labels.department')}</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            style={styles.picker}
-            selectedValue={form.departmentId ?? 'none'}
-            onValueChange={(value) => {
-              if (value === 'none') {
-                handleChange('departmentId', null);
-              } else {
-                handleChange('departmentId', Number(value));
-              }
-            }}
-          >
-            <Picker.Item label={t('screens.employees.departmentOptions.unassigned')} value="none" />
-            {departments.map((department) => (
-              <Picker.Item key={department.id} label={department.name} value={department.id} />
-            ))}
-          </Picker>
-        </View>
-        <TextInput
-          placeholder={t('screens.employees.placeholders.role')}
-          style={styles.input}
-          value={form.role}
-          onChangeText={(text) => handleChange('role', text)}
-        />
-
-        <View style={styles.buttonRow}>
-          <View style={styles.buttonWrapper}>
-            <Button
-              title={selectedId ? t('screens.employees.buttons.update') : t('screens.employees.buttons.create')}
-              onPress={handleSubmit}
-              disabled={submitting}
-            />
+          <TextInput
+            placeholder={t('screens.employees.placeholders.name')}
+            style={styles.input}
+            value={form.name}
+            onChangeText={(text) => handleChange('name', text)}
+          />
+          <TextInput
+            placeholder={t('screens.employees.placeholders.email')}
+            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={form.email}
+            onChangeText={(text) => handleChange('email', text)}
+          />
+          <Text style={styles.label}>{t('screens.employees.labels.status')}</Text>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              style={styles.picker}
+              selectedValue={form.status}
+              onValueChange={(value) => handleChange('status', value)}
+            >
+              <Picker.Item label={t('screens.employees.statusOptions.active')} value="active" />
+              <Picker.Item label={t('screens.employees.statusOptions.inactive')} value="inactive" />
+            </Picker>
           </View>
-          <View style={styles.buttonWrapper}>
-            <Button title={t('screens.employees.buttons.reset')} onPress={resetForm} disabled={submitting} />
+          <TextInput
+            placeholder={t('screens.employees.placeholders.phone')}
+            style={styles.input}
+            keyboardType="phone-pad"
+            value={form.phone}
+            onChangeText={(text) => handleChange('phone', text)}
+          />
+          <TextInput
+            placeholder={t('screens.employees.placeholders.civilNumber')}
+            style={styles.input}
+            value={form.civilNumber}
+            onChangeText={(text) => handleChange('civilNumber', text)}
+          />
+          <Text style={styles.label}>{t('screens.employees.labels.department')}</Text>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              style={styles.picker}
+              selectedValue={form.departmentId ?? 'none'}
+              onValueChange={(value) => {
+                if (value === 'none') {
+                  handleChange('departmentId', null);
+                } else {
+                  handleChange('departmentId', Number(value));
+                }
+              }}
+            >
+              <Picker.Item label={t('screens.employees.departmentOptions.unassigned')} value="none" />
+              {departments.map((department) => (
+                <Picker.Item key={department.id} label={department.name} value={department.id} />
+              ))}
+            </Picker>
           </View>
-        </View>
+          <TextInput
+            placeholder={t('screens.employees.placeholders.role')}
+            style={styles.input}
+            value={form.role}
+            onChangeText={(text) => handleChange('role', text)}
+          />
 
-        {selectedId && (
-          <View style={styles.deleteButton}>
-            <Button
-              color="#c1121f"
-              title={t('screens.employees.buttons.delete')}
-              onPress={handleDelete}
-              disabled={submitting}
-            />
-          </View>
-        )}
-
-        <Text style={[styles.heading, styles.listHeading]}>{t('screens.employees.listTitle')}</Text>
-        {loading ? (
-          <ActivityIndicator style={styles.loading} />
-        ) : employees.length ? (
-          employees.map((employee) => {
-            const subtitle = employee.email
-              ? t('screens.employees.details.email', { email: employee.email })
-              : undefined;
-            const details = [
-              employee.department?.name
-                ? t('screens.employees.details.department', { department: employee.department.name })
-                : null,
-              employee.status
-                ? t('screens.employees.details.status', { status: translateStatus(employee.status) })
-                : null,
-              employee.phone ? t('screens.employees.details.phone', { phone: employee.phone }) : null,
-              employee.role ? t('screens.employees.details.role', { role: employee.role }) : null,
-              employee.civilNumber
-                ? t('screens.employees.details.civilNumber', { civilNumber: employee.civilNumber })
-                : null,
-            ].filter(Boolean) as string[];
-
-            return (
-              <ListItem
-                key={employee.id}
-                title={employee.name}
-                subtitle={subtitle}
-                details={details}
-                onPress={submitting ? undefined : () => handleSelect(employee)}
-                selected={employee.id === selectedId}
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonWrapper}>
+              <Button
+                title={selectedId ? t('screens.employees.buttons.update') : t('screens.employees.buttons.create')}
+                onPress={handleSubmit}
+                disabled={submitting}
               />
-            );
-          })
-        ) : (
-          <Text style={styles.empty}>{t('screens.employees.empty')}</Text>
-        )}
+            </View>
+            <View style={styles.buttonWrapper}>
+              <Button title={t('screens.employees.buttons.reset')} onPress={resetForm} disabled={submitting} />
+            </View>
+          </View>
+
+          {selectedId && (
+            <View style={styles.deleteButton}>
+              <Button
+                color="#c1121f"
+                title={t('screens.employees.buttons.delete')}
+                onPress={handleDelete}
+                disabled={submitting}
+              />
+            </View>
+          )}
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>{t('screens.employees.overview.title')}</Text>
+          <View style={styles.statsRow}>
+            <View style={[styles.statCard, styles.statPrimary]}>
+              <Text style={styles.statValue}>{overview.total}</Text>
+              <Text style={styles.statLabel}>{t('screens.employees.overview.total')}</Text>
+            </View>
+            <View style={[styles.statCard, styles.statSuccess]}>
+              <Text style={styles.statValue}>{overview.active}</Text>
+              <Text style={styles.statLabel}>{t('screens.employees.overview.active')}</Text>
+            </View>
+            <View style={[styles.statCard, styles.statWarning]}>
+              <Text style={styles.statValue}>{overview.inactive}</Text>
+              <Text style={styles.statLabel}>{t('screens.employees.overview.inactive')}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.sectionTitle}>{t('screens.employees.filters.title')}</Text>
+          <TextInput
+            placeholder={t('screens.employees.filters.search')}
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCapitalize="none"
+          />
+
+          <View style={styles.filtersRow}>
+            <View style={styles.filterColumn}>
+              <Text style={styles.filterLabel}>{t('screens.employees.filters.status')}</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  style={styles.picker}
+                  selectedValue={statusFilter}
+                  onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}
+                >
+                  <Picker.Item label={t('screens.employees.filters.anyStatus')} value="all" />
+                  <Picker.Item label={t('screens.employees.statusOptions.active')} value="active" />
+                  <Picker.Item label={t('screens.employees.statusOptions.inactive')} value="inactive" />
+                </Picker>
+              </View>
+            </View>
+            <View style={styles.filterColumn}>
+              <Text style={styles.filterLabel}>{t('screens.employees.filters.department')}</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  style={styles.picker}
+                  selectedValue={departmentFilter}
+                  onValueChange={(value) => setDepartmentFilter(value as string)}
+                >
+                  <Picker.Item label={t('screens.employees.filters.anyDepartment')} value="all" />
+                  {departments.map((department) => (
+                    <Picker.Item key={department.id} label={department.name} value={String(department.id)} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+          </View>
+
+          {!!availableRoles.length && (
+            <View style={styles.filterColumn}>
+              <Text style={styles.filterLabel}>{t('screens.employees.filters.role')}</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  style={styles.picker}
+                  selectedValue={roleFilter}
+                  onValueChange={(value) => setRoleFilter(value as string)}
+                >
+                  <Picker.Item label={t('screens.employees.filters.anyRole')} value="all" />
+                  {availableRoles.map((role) => (
+                    <Picker.Item key={role} label={role} value={role} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+          )}
+
+          <View style={styles.filterActions}>
+            <Text style={styles.filterCount}>
+              {t('screens.employees.filters.results', { count: filteredEmployees.length })}
+            </Text>
+            <TouchableOpacity style={styles.clearButton} onPress={resetFilters}>
+              <Text style={styles.clearButtonText}>{t('screens.employees.filters.reset')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.heading}>{t('screens.employees.listTitle')}</Text>
+          {loading ? (
+            <ActivityIndicator style={styles.loading} />
+          ) : filteredEmployees.length ? (
+            filteredEmployees.map((employee) => {
+              const subtitle = employee.email
+                ? t('screens.employees.details.email', { email: employee.email })
+                : undefined;
+              const details = [
+                employee.department?.name
+                  ? t('screens.employees.details.department', { department: employee.department.name })
+                  : null,
+                employee.status
+                  ? t('screens.employees.details.status', { status: translateStatus(employee.status) })
+                  : null,
+                employee.phone ? t('screens.employees.details.phone', { phone: employee.phone }) : null,
+                employee.role ? t('screens.employees.details.role', { role: employee.role }) : null,
+                employee.civilNumber
+                  ? t('screens.employees.details.civilNumber', { civilNumber: employee.civilNumber })
+                  : null,
+              ].filter(Boolean) as string[];
+
+              return (
+                <ListItem
+                  key={employee.id}
+                  title={employee.name}
+                  subtitle={subtitle}
+                  details={details}
+                  onPress={submitting ? undefined : () => handleSelect(employee)}
+                  selected={employee.id === selectedId}
+                />
+              );
+            })
+          ) : (
+            <Text style={styles.empty}>{t('screens.employees.empty')}</Text>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -337,6 +492,17 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
   heading: {
     fontSize: 22,
@@ -376,6 +542,14 @@ const styles = StyleSheet.create({
     borderColor: '#d0d7de',
     marginBottom: 12,
   },
+  searchInput: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#d0d7de',
+    padding: 12,
+    marginBottom: 16,
+  },
   picker: {
     height: 48,
     width: '100%',
@@ -397,6 +571,86 @@ const styles = StyleSheet.create({
   },
   loading: {
     marginVertical: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
+    color: '#1f2937',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    marginHorizontal: -4,
+  },
+  statCard: {
+    flexBasis: '32%',
+    flexGrow: 1,
+    borderRadius: 16,
+    padding: 16,
+    backgroundColor: '#f3f4f6',
+    marginHorizontal: 4,
+    marginBottom: 12,
+  },
+  statPrimary: {
+    backgroundColor: '#eef2ff',
+  },
+  statSuccess: {
+    backgroundColor: '#ecfdf5',
+  },
+  statWarning: {
+    backgroundColor: '#fef3c7',
+  },
+  statValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 4,
+    color: '#111827',
+  },
+  statLabel: {
+    fontSize: 13,
+    color: '#4b5563',
+  },
+  filtersRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -6,
+    marginBottom: 12,
+  },
+  filterColumn: {
+    flexBasis: '50%',
+    flexGrow: 1,
+    paddingHorizontal: 6,
+    marginBottom: 12,
+  },
+  filterLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 6,
+    color: '#374151',
+  },
+  filterActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  filterCount: {
+    fontSize: 14,
+    color: '#4b5563',
+  },
+  clearButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 999,
+    backgroundColor: '#111827',
+  },
+  clearButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 13,
   },
   empty: {
     fontSize: 16,
