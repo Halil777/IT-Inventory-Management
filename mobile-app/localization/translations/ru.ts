@@ -22,6 +22,8 @@ const ru: TranslationDictionary = {
       inactive: 'Неактивен',
       issued: 'Выдано',
       received: 'Получено',
+      in_repair: 'В ремонте',
+      retired: 'Списано',
     },
     general: {
       loading: 'Загрузка...',
@@ -127,6 +129,13 @@ const ru: TranslationDictionary = {
       unnamed: 'Устройство без имени',
       serial: 'Серийный номер: {{serial}}',
       status: 'Статус: {{status}}',
+      searchPlaceholder: 'Поиск устройств...',
+      clearFilters: 'Сбросить фильтры',
+      results: '{{count}} устройств',
+      statuses: {
+        in_repair: 'В ремонте',
+        retired: 'Списано',
+      },
     },
     employees: {
       addTitle: 'Добавить сотрудника',
