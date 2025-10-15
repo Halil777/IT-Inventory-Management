@@ -22,6 +22,8 @@ const en = {
       inactive: 'Inactive',
       issued: 'Issued',
       received: 'Received',
+      in_repair: 'In repair',
+      retired: 'Retired',
     },
     general: {
       loading: 'Loading...',
@@ -127,6 +129,13 @@ const en = {
       unnamed: 'Unnamed Device',
       serial: 'Serial: {{serial}}',
       status: 'Status: {{status}}',
+      searchPlaceholder: 'Search devices...',
+      clearFilters: 'Clear filters',
+      results: '{{count}} devices',
+      statuses: {
+        in_repair: 'In repair',
+        retired: 'Retired',
+      },
     },
     employees: {
       addTitle: 'Add Employee',

@@ -1,7 +1,10 @@
 import api from './api';
 
-export const getDevices = async () => {
-  const { data } = await api.get('/devices');
+export const getDevices = async (params: Record<string, unknown> = {}) => {
+  const filteredParams = Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== ''),
+  );
+  const { data } = await api.get('/devices', { params: filteredParams });
   return data;
 };
 

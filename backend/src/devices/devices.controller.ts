@@ -13,11 +13,13 @@ export class DevicesController {
     @Query('typeId') typeId?: string,
     @Query('status') status?: string,
     @Query('departmentId') departmentId?: string,
+    @Query('search') search?: string,
   ): Promise<Device[]> {
     return this.devicesService.findAll({
       typeId: typeId ? +typeId : undefined,
       status,
       departmentId: departmentId ? +departmentId : undefined,
+      search,
     });
   }
 

@@ -22,6 +22,8 @@ const tr: TranslationDictionary = {
       inactive: 'Pasif',
       issued: 'Teslim edildi',
       received: 'Teslim alındı',
+      in_repair: 'Tamirde',
+      retired: 'Kullanımdan çıkarıldı',
     },
     general: {
       loading: 'Yükleniyor...',
@@ -127,6 +129,13 @@ const tr: TranslationDictionary = {
       unnamed: 'İsimsiz cihaz',
       serial: 'Seri numarası: {{serial}}',
       status: 'Durum: {{status}}',
+      searchPlaceholder: 'Cihazlarda ara...',
+      clearFilters: 'Filtreleri temizle',
+      results: '{{count}} cihaz',
+      statuses: {
+        in_repair: 'Tamirde',
+        retired: 'Kullanımdan çıkarıldı',
+      },
     },
     employees: {
       addTitle: 'Çalışan ekle',

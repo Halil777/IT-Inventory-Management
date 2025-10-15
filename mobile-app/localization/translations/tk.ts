@@ -22,6 +22,8 @@ const tk: TranslationDictionary = {
       inactive: 'Işjeň däl',
       issued: 'Berildi',
       received: 'Alındy',
+      in_repair: 'Remontda',
+      retired: 'Ulanyşdan aýryldy',
     },
     general: {
       loading: 'Ýüklenýär...',
@@ -127,6 +129,13 @@ const tk: TranslationDictionary = {
       unnamed: 'Ady ýok enjam',
       serial: 'Seri nomer: {{serial}}',
       status: 'Weziýet: {{status}}',
+      searchPlaceholder: 'Enjamlary gözle...',
+      clearFilters: 'Süzgüçleri arassala',
+      results: '{{count}} enjam',
+      statuses: {
+        in_repair: 'Remontda',
+        retired: 'Ulanyşdan aýryldy',
+      },
     },
     employees: {
       addTitle: 'Işgär goş',

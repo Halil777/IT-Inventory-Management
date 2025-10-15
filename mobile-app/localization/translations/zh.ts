@@ -22,6 +22,8 @@ const zh: TranslationDictionary = {
       inactive: '停用',
       issued: '已发放',
       received: '已接收',
+      in_repair: '维修中',
+      retired: '已退役',
     },
     general: {
       loading: '加载中…',
@@ -127,6 +129,13 @@ const zh: TranslationDictionary = {
       unnamed: '未命名设备',
       serial: '序列号：{{serial}}',
       status: '状态：{{status}}',
+      searchPlaceholder: '搜索设备...',
+      clearFilters: '清除筛选',
+      results: '{{count}} 台设备',
+      statuses: {
+        in_repair: '维修中',
+        retired: '已退役',
+      },
     },
     employees: {
       addTitle: '新增员工',
