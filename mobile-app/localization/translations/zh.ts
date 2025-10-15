@@ -290,6 +290,18 @@ const zh: TranslationDictionary = {
         reset: '重置',
         delete: '删除',
       },
+      filters: {
+        searchPlaceholder: '搜索打印机...',
+        departmentLabel: '部门',
+        assignmentLabel: '分配情况',
+        reset: '重置筛选',
+        noResults: '没有符合筛选条件的打印机。',
+        options: {
+          all: '全部',
+          assigned: '已分配',
+          unassigned: '未分配',
+        },
+      },
       listTitle: '打印机',
       empty: '暂无打印机。',
       details: {

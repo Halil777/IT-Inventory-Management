@@ -293,6 +293,18 @@ const tr: TranslationDictionary = {
         reset: 'Sıfırla',
         delete: 'Sil',
       },
+      filters: {
+        searchPlaceholder: 'Yazıcıları ara...',
+        departmentLabel: 'Departman',
+        assignmentLabel: 'Atama durumu',
+        reset: 'Filtreleri sıfırla',
+        noResults: 'Filtrelerinize uyan yazıcı bulunamadı.',
+        options: {
+          all: 'Tümü',
+          assigned: 'Atananlar',
+          unassigned: 'Atanmayanlar',
+        },
+      },
       listTitle: 'Yazıcılar',
       empty: 'Kayıtlı yazıcı yok.',
       details: {
