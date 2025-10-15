@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import ListItem from '../components/ListItem';
+import { useTranslation } from '../context/LanguageContext';
 import { Department } from '../interfaces/Department';
 import { Employee } from '../interfaces/Employee';
 import { getDepartments } from '../services/departments';
@@ -50,6 +51,21 @@ const EmployeesScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState<EmployeeFormState>(emptyForm);
+  const { t } = useTranslation();
+
+  const translateStatus = useCallback(
+    (status?: string | null) => {
+      if (!status) {
+        return t('common.general.notAvailable');
+      }
+
+      const normalized = status.toLowerCase();
+      const key = `common.status.${normalized}`;
+      const translated = t(key);
+      return translated !== key ? translated : status;
+    },
+    [t],
+  );
 
   const loadEmployees = useCallback(async () => {
     setLoading(true);
@@ -62,12 +78,14 @@ const EmployeesScreen: React.FC = () => {
       setDepartments(departmentData);
       setError(null);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to load employees.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.employees.errors.load');
       setError(message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void loadEmployees();
@@ -111,7 +129,7 @@ const EmployeesScreen: React.FC = () => {
 
   const handleSubmit = useCallback(async () => {
     if (!payload) {
-      setError('Name, email, and status are required.');
+      setError(t('screens.employees.errors.required'));
       return;
     }
 
@@ -129,16 +147,18 @@ const EmployeesScreen: React.FC = () => {
       setError(null);
       resetForm();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to save employee.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.employees.errors.save');
       setError(message);
     } finally {
       setSubmitting(false);
     }
-  }, [payload, resetForm, selectedId]);
+  }, [payload, resetForm, selectedId, t]);
 
   const handleDelete = useCallback(async () => {
     if (!selectedId) {
-      setError('Select an employee to delete.');
+      setError(t('screens.employees.errors.selectForDelete'));
       return;
     }
 
@@ -149,12 +169,14 @@ const EmployeesScreen: React.FC = () => {
       setError(null);
       resetForm();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to delete employee.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.employees.errors.delete');
       setError(message);
     } finally {
       setSubmitting(false);
     }
-  }, [resetForm, selectedId]);
+  }, [resetForm, selectedId, t]);
 
   const handleSelect = useCallback((employee: Employee) => {
     setSelectedId(employee.id);
@@ -172,53 +194,52 @@ const EmployeesScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.heading}>{selectedId ? 'Edit Employee' : 'Add Employee'}</Text>
-        <Text style={styles.helper}>
-          Tap an employee to edit it. Use the pickers below to choose the employee status and
-          department.
+        <Text style={styles.heading}>
+          {selectedId ? t('screens.employees.editTitle') : t('screens.employees.addTitle')}
         </Text>
+        <Text style={styles.helper}>{t('screens.employees.helper')}</Text>
 
         {error && <Text style={styles.error}>{error}</Text>}
 
         <TextInput
-          placeholder="Full name"
+          placeholder={t('screens.employees.placeholders.name')}
           style={styles.input}
           value={form.name}
           onChangeText={(text) => handleChange('name', text)}
         />
         <TextInput
-          placeholder="Email"
+          placeholder={t('screens.employees.placeholders.email')}
           style={styles.input}
           keyboardType="email-address"
           autoCapitalize="none"
           value={form.email}
           onChangeText={(text) => handleChange('email', text)}
         />
-        <Text style={styles.label}>Status</Text>
+        <Text style={styles.label}>{t('screens.employees.labels.status')}</Text>
         <View style={styles.pickerWrapper}>
           <Picker
             style={styles.picker}
             selectedValue={form.status}
             onValueChange={(value) => handleChange('status', value)}
           >
-            <Picker.Item label="Active" value="active" />
-            <Picker.Item label="Inactive" value="inactive" />
+            <Picker.Item label={t('screens.employees.statusOptions.active')} value="active" />
+            <Picker.Item label={t('screens.employees.statusOptions.inactive')} value="inactive" />
           </Picker>
         </View>
         <TextInput
-          placeholder="Phone (optional)"
+          placeholder={t('screens.employees.placeholders.phone')}
           style={styles.input}
           keyboardType="phone-pad"
           value={form.phone}
           onChangeText={(text) => handleChange('phone', text)}
         />
         <TextInput
-          placeholder="Civil number (optional)"
+          placeholder={t('screens.employees.placeholders.civilNumber')}
           style={styles.input}
           value={form.civilNumber}
           onChangeText={(text) => handleChange('civilNumber', text)}
         />
-        <Text style={styles.label}>Department</Text>
+        <Text style={styles.label}>{t('screens.employees.labels.department')}</Text>
         <View style={styles.pickerWrapper}>
           <Picker
             style={styles.picker}
@@ -231,14 +252,14 @@ const EmployeesScreen: React.FC = () => {
               }
             }}
           >
-            <Picker.Item label="Unassigned" value="none" />
+            <Picker.Item label={t('screens.employees.departmentOptions.unassigned')} value="none" />
             {departments.map((department) => (
               <Picker.Item key={department.id} label={department.name} value={department.id} />
             ))}
           </Picker>
         </View>
         <TextInput
-          placeholder="Role (optional)"
+          placeholder={t('screens.employees.placeholders.role')}
           style={styles.input}
           value={form.role}
           onChangeText={(text) => handleChange('role', text)}
@@ -246,31 +267,48 @@ const EmployeesScreen: React.FC = () => {
 
         <View style={styles.buttonRow}>
           <View style={styles.buttonWrapper}>
-            <Button title={selectedId ? 'Update' : 'Create'} onPress={handleSubmit} disabled={submitting} />
+            <Button
+              title={selectedId ? t('screens.employees.buttons.update') : t('screens.employees.buttons.create')}
+              onPress={handleSubmit}
+              disabled={submitting}
+            />
           </View>
           <View style={styles.buttonWrapper}>
-            <Button title="Reset" onPress={resetForm} disabled={submitting} />
+            <Button title={t('screens.employees.buttons.reset')} onPress={resetForm} disabled={submitting} />
           </View>
         </View>
 
         {selectedId && (
           <View style={styles.deleteButton}>
-            <Button color="#c1121f" title="Delete" onPress={handleDelete} disabled={submitting} />
+            <Button
+              color="#c1121f"
+              title={t('screens.employees.buttons.delete')}
+              onPress={handleDelete}
+              disabled={submitting}
+            />
           </View>
         )}
 
-        <Text style={[styles.heading, styles.listHeading]}>Employees</Text>
+        <Text style={[styles.heading, styles.listHeading]}>{t('screens.employees.listTitle')}</Text>
         {loading ? (
           <ActivityIndicator style={styles.loading} />
         ) : employees.length ? (
           employees.map((employee) => {
-            const subtitle = employee.email ? `Email: ${employee.email}` : undefined;
+            const subtitle = employee.email
+              ? t('screens.employees.details.email', { email: employee.email })
+              : undefined;
             const details = [
-              employee.department?.name ? `Department: ${employee.department.name}` : null,
-              employee.status ? `Status: ${employee.status.charAt(0).toUpperCase()}${employee.status.slice(1)}` : null,
-              employee.phone ? `Phone: ${employee.phone}` : null,
-              employee.role ? `Role: ${employee.role}` : null,
-              employee.civilNumber ? `Civil number: ${employee.civilNumber}` : null,
+              employee.department?.name
+                ? t('screens.employees.details.department', { department: employee.department.name })
+                : null,
+              employee.status
+                ? t('screens.employees.details.status', { status: translateStatus(employee.status) })
+                : null,
+              employee.phone ? t('screens.employees.details.phone', { phone: employee.phone }) : null,
+              employee.role ? t('screens.employees.details.role', { role: employee.role }) : null,
+              employee.civilNumber
+                ? t('screens.employees.details.civilNumber', { civilNumber: employee.civilNumber })
+                : null,
             ].filter(Boolean) as string[];
 
             return (
@@ -285,7 +323,7 @@ const EmployeesScreen: React.FC = () => {
             );
           })
         ) : (
-          <Text style={styles.empty}>No employees available.</Text>
+          <Text style={styles.empty}>{t('screens.employees.empty')}</Text>
         )}
       </ScrollView>
     </SafeAreaView>

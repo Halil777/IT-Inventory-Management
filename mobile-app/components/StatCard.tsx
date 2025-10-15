@@ -6,6 +6,8 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
+import { useTranslation } from '../context/LanguageContext';
+
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 export interface StatCardProps {
@@ -27,12 +29,14 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const formattedValue = useMemo(() => value.toLocaleString(), [value]);
+  const { t } = useTranslation();
 
   const backgroundColor = colorScheme === 'dark' ? '#1f2937' : '#ffffff';
+  const accessibilityHint = t('components.statCard.navigateHint', { label });
 
   return (
     <Pressable
-      accessibilityHint={`Navigate to ${label}`}
+      accessibilityHint={accessibilityHint}
       accessibilityRole={onPress ? 'button' : undefined}
       onPress={onPress}
       style={({ pressed }) => [

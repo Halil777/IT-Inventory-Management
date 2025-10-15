@@ -11,6 +11,7 @@ import {
 import { StatCard, StatCardProps } from '@/components/StatCard';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useTranslation } from '@/context/LanguageContext';
 import {
   createEmptyMetrics,
   getOverviewMetrics,
@@ -21,7 +22,7 @@ import {
 const metricConfigs = [
   {
     key: 'departments' as const,
-    label: 'Departments',
+    labelKey: 'screens.overview.metrics.departments',
     icon: 'apartment',
     accentColor: '#6366f1',
     accentBackground: 'rgba(99, 102, 241, 0.12)',
@@ -29,7 +30,7 @@ const metricConfigs = [
   },
   {
     key: 'employees' as const,
-    label: 'Employees',
+    labelKey: 'screens.overview.metrics.employees',
     icon: 'groups',
     accentColor: '#f97316',
     accentBackground: 'rgba(249, 115, 22, 0.12)',
@@ -37,7 +38,7 @@ const metricConfigs = [
   },
   {
     key: 'cartridges' as const,
-    label: 'Cartridges',
+    labelKey: 'screens.overview.metrics.cartridges',
     icon: 'inventory',
     accentColor: '#10b981',
     accentBackground: 'rgba(16, 185, 129, 0.12)',
@@ -45,7 +46,7 @@ const metricConfigs = [
   },
   {
     key: 'devices' as const,
-    label: 'Devices',
+    labelKey: 'screens.overview.metrics.devices',
     icon: 'devices',
     accentColor: '#2563eb',
     accentBackground: 'rgba(37, 99, 235, 0.12)',
@@ -53,7 +54,7 @@ const metricConfigs = [
   },
   {
     key: 'credentials' as const,
-    label: 'Credentials',
+    labelKey: 'screens.overview.metrics.credentials',
     icon: 'badge',
     accentColor: '#a855f7',
     accentBackground: 'rgba(168, 85, 247, 0.12)',
@@ -61,7 +62,7 @@ const metricConfigs = [
   },
   {
     key: 'printers' as const,
-    label: 'Printers',
+    labelKey: 'screens.overview.metrics.printers',
     icon: 'print',
     accentColor: '#0ea5e9',
     accentBackground: 'rgba(14, 165, 233, 0.12)',
@@ -69,7 +70,7 @@ const metricConfigs = [
   },
 ] as const satisfies Array<{
   key: OverviewMetricKey;
-  label: string;
+  labelKey: string;
   icon: StatCardProps['icon'];
   accentColor: string;
   accentBackground: string;
@@ -83,6 +84,16 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const { t, locale } = useTranslation();
+
+  const localizedMetricConfigs = useMemo(
+    () =>
+      metricConfigs.map((config) => ({
+        ...config,
+        label: t(config.labelKey),
+      })),
+    [locale, t],
+  );
 
   const fetchMetrics = useCallback(
     async (options?: { silent?: boolean }) => {
@@ -99,7 +110,8 @@ export default function HomeScreen() {
         setLastUpdated(new Date());
         setError(null);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to load statistics.';
+        const fallback = t('screens.overview.error');
+        const message = err instanceof Error && err.message ? err.message : fallback;
         setError(message);
       } finally {
         if (silent) {
@@ -109,7 +121,7 @@ export default function HomeScreen() {
         }
       }
     },
-    [],
+    [t],
   );
 
   useEffect(() => {
@@ -138,18 +150,18 @@ export default function HomeScreen() {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
         <ThemedText type="title" style={styles.heading}>
-          Inventory Snapshot
+          {t('screens.overview.title')}
         </ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Track every department, device, and credential in one beautiful overview.
-        </ThemedText>
+        <ThemedText style={styles.subtitle}>{t('screens.overview.subtitle')}</ThemedText>
 
         {lastUpdated && !loading ? (
           <ThemedText
             lightColor="#475569"
             darkColor="#94a3b8"
             style={styles.updatedAt}>
-            Updated {lastUpdated.toLocaleString()}
+            {t('screens.overview.updatedAt', {
+              datetime: lastUpdated.toLocaleString(),
+            })}
           </ThemedText>
         ) : null}
 
@@ -161,7 +173,7 @@ export default function HomeScreen() {
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#2563eb" />
             <ThemedText style={styles.loadingLabel}>
-              Loading latest statistics…
+              {t('screens.overview.loadingLabel')}
             </ThemedText>
           </View>
         ) : (
@@ -172,7 +184,7 @@ export default function HomeScreen() {
                 lightColor="rgba(226, 232, 240, 0.85)"
                 darkColor="rgba(191, 219, 254, 0.9)"
                 style={styles.summaryLabel}>
-                Total records tracked
+                {t('screens.overview.totalRecords')}
               </ThemedText>
               <ThemedText lightColor="#ffffff" darkColor="#ffffff" style={styles.summaryValue}>
                 {totalRecords.toLocaleString()}
@@ -181,13 +193,19 @@ export default function HomeScreen() {
                 lightColor="rgba(226, 232, 240, 0.8)"
                 darkColor="rgba(191, 219, 254, 0.75)"
                 style={styles.summaryHelper}>
-                Combined count of departments, employees, cartridges, devices, credentials, and
-                printers.
+                {t('screens.overview.totalRecordsHelper')}
               </ThemedText>
             </ThemedView>
 
             <View style={styles.grid}>
-              {metricConfigs.map(({ key, label, icon, accentColor, accentBackground, href }) => (
+              {localizedMetricConfigs.map(({
+                key,
+                label,
+                icon,
+                accentColor,
+                accentBackground,
+                href,
+              }) => (
                 <StatCard
                   key={key}
                   label={label}

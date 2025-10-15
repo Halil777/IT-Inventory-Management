@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useTranslation } from '../context/LanguageContext';
 import { Cartridge } from '../interfaces/Cartridge';
 import {
   getCartridges,
@@ -29,10 +30,10 @@ import {
 
 type HistoryTab = 'received' | 'issued' | 'statistics';
 
-const historyTabs: { key: HistoryTab; label: string }[] = [
-  { key: 'received', label: 'Received' },
-  { key: 'issued', label: 'Issued' },
-  { key: 'statistics', label: 'Statistics' },
+const historyTabs: { key: HistoryTab; labelKey: string }[] = [
+  { key: 'received', labelKey: 'screens.cartridges.historyTabs.received' },
+  { key: 'issued', labelKey: 'screens.cartridges.historyTabs.issued' },
+  { key: 'statistics', labelKey: 'screens.cartridges.historyTabs.statistics' },
 ];
 
 const extractErrorMessage = (err: any, fallback: string) => {
@@ -58,6 +59,7 @@ const CartridgesScreen = () => {
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [historyEntries, setHistoryEntries] = useState<CartridgeHistoryEntry[]>([]);
   const [statistics, setStatistics] = useState<CartridgeStatistic[]>([]);
+  const { t } = useTranslation();
 
   const loadCartridges = useCallback(async () => {
     setLoading(true);
@@ -66,11 +68,11 @@ const CartridgesScreen = () => {
       const data = await getCartridges();
       setCartridges(data);
     } catch (err: any) {
-      setError(extractErrorMessage(err, 'Failed to load cartridges.'));
+      setError(extractErrorMessage(err, t('screens.cartridges.alerts.unableToLoad')));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const loadHistory = useCallback(async (tab: HistoryTab) => {
     setHistoryLoading(true);
@@ -84,11 +86,11 @@ const CartridgesScreen = () => {
         setHistoryEntries(data);
       }
     } catch (err: any) {
-      setHistoryError(extractErrorMessage(err, 'Failed to load history.'));
+      setHistoryError(extractErrorMessage(err, t('screens.cartridges.alerts.unableToLoadHistory')));
     } finally {
       setHistoryLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadCartridges();
@@ -116,14 +118,14 @@ const CartridgesScreen = () => {
 
   const submitForm = async () => {
     if (!formModel.trim()) {
-      Alert.alert('Validation', 'Model is required.');
+      Alert.alert(t('common.validation'), t('screens.cartridges.alerts.modelRequired'));
       return;
     }
 
     if (!editingCartridge) {
       const quantityNumber = Number(formQuantity);
       if (!quantityNumber || quantityNumber <= 0) {
-        Alert.alert('Validation', 'Quantity must be greater than zero.');
+        Alert.alert(t('common.validation'), t('screens.cartridges.alerts.quantityPositive'));
         return;
       }
       try {
@@ -138,7 +140,10 @@ const CartridgesScreen = () => {
           loadHistory('received');
         }
       } catch (err: any) {
-        Alert.alert('Error', extractErrorMessage(err, 'Unable to save cartridge.'));
+        Alert.alert(
+          t('common.error'),
+          extractErrorMessage(err, t('screens.cartridges.alerts.unableToSave')),
+        );
       }
     } else {
       try {
@@ -150,26 +155,32 @@ const CartridgesScreen = () => {
         setEditingCartridge(null);
         loadCartridges();
       } catch (err: any) {
-        Alert.alert('Error', extractErrorMessage(err, 'Unable to update cartridge.'));
+        Alert.alert(
+          t('common.error'),
+          extractErrorMessage(err, t('screens.cartridges.alerts.unableToUpdate')),
+        );
       }
     }
   };
 
   const confirmDelete = (cartridge: Cartridge) => {
     Alert.alert(
-      'Delete Cartridge',
-      'Are you sure you want to delete this cartridge?',
+      t('screens.cartridges.alerts.deleteTitle'),
+      t('screens.cartridges.alerts.deleteMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('screens.cartridges.buttons.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('screens.cartridges.buttons.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteCartridge(cartridge.id);
               loadCartridges();
             } catch (err: any) {
-              Alert.alert('Error', extractErrorMessage(err, 'Unable to delete cartridge.'));
+              Alert.alert(
+                t('common.error'),
+                extractErrorMessage(err, t('screens.cartridges.alerts.unableToDelete')),
+              );
             }
           },
         },
@@ -187,11 +198,11 @@ const CartridgesScreen = () => {
   const submitIssue = async () => {
     const quantityNumber = Number(issueQuantity);
     if (!quantityNumber || quantityNumber <= 0) {
-      Alert.alert('Validation', 'Quantity must be greater than zero.');
+      Alert.alert(t('common.validation'), t('screens.cartridges.alerts.quantityPositive'));
       return;
     }
     if (!issueNote.trim()) {
-      Alert.alert('Validation', 'Reason or recipient is required.');
+      Alert.alert(t('common.validation'), t('screens.cartridges.alerts.noteRequired'));
       return;
     }
 
@@ -208,7 +219,10 @@ const CartridgesScreen = () => {
       loadCartridges();
       loadHistory(historyTab);
     } catch (err: any) {
-      Alert.alert('Error', extractErrorMessage(err, 'Unable to issue cartridge.'));
+      Alert.alert(
+        t('common.error'),
+        extractErrorMessage(err, t('screens.cartridges.alerts.unableToIssue')),
+      );
     }
   };
 
@@ -216,18 +230,18 @@ const CartridgesScreen = () => {
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{item.model}</Text>
-        <Text style={styles.cardStock}>Stock: {item.stock}</Text>
+        <Text style={styles.cardStock}>{t('screens.cartridges.cardStock', { count: item.stock })}</Text>
       </View>
       {item.description ? <Text style={styles.cardDescription}>{item.description}</Text> : null}
       <View style={styles.cardActions}>
         <TouchableOpacity style={styles.secondaryButton} onPress={() => openEditModal(item)}>
-          <Text style={styles.secondaryButtonText}>Edit</Text>
+          <Text style={styles.secondaryButtonText}>{t('screens.cartridges.buttons.edit')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryButton} onPress={() => openIssueModal(item)}>
-          <Text style={styles.secondaryButtonText}>Issue</Text>
+          <Text style={styles.secondaryButtonText}>{t('screens.cartridges.buttons.issue')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.deleteButton} onPress={() => confirmDelete(item)}>
-          <Text style={styles.deleteButtonText}>Delete</Text>
+          <Text style={styles.deleteButtonText}>{t('screens.cartridges.buttons.delete')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -244,15 +258,15 @@ const CartridgesScreen = () => {
 
     if (historyTab === 'statistics') {
       if (!statistics.length) {
-        return <Text style={styles.emptyText}>No statistics available.</Text>;
+        return <Text style={styles.emptyText}>{t('screens.cartridges.history.noStatistics')}</Text>;
       }
       return (
         <View>
           {statistics.map((stat) => (
             <View key={stat.cartridgeId} style={styles.historyItem}>
               <Text style={styles.historyTitle}>{stat.model}</Text>
-              <Text>Total issued: {stat.totalIssued}</Text>
-              <Text>Times issued: {stat.issueCount}</Text>
+              <Text>{t('screens.cartridges.history.totalIssued', { count: stat.totalIssued })}</Text>
+              <Text>{t('screens.cartridges.history.timesIssued', { count: stat.issueCount })}</Text>
             </View>
           ))}
         </View>
@@ -260,19 +274,25 @@ const CartridgesScreen = () => {
     }
 
     if (!historyEntries.length) {
-      return <Text style={styles.emptyText}>No history records.</Text>;
+      return <Text style={styles.emptyText}>{t('screens.cartridges.history.noRecords')}</Text>;
     }
 
     return (
       <View>
         {historyEntries.map((entry) => (
           <View key={entry.id} style={styles.historyItem}>
-            <Text style={styles.historyTitle}>{entry.cartridge?.model ?? 'Unknown cartridge'}</Text>
-            <Text>
-              Quantity: {historyTab === 'issued' ? '-' : '+'}
-              {entry.quantity}
+            <Text style={styles.historyTitle}>
+              {entry.cartridge?.model ?? t('screens.cartridges.history.unknownCartridge')}
             </Text>
-            {historyTab === 'issued' && entry.note ? <Text>Reason: {entry.note}</Text> : null}
+            <Text>
+              {t('screens.cartridges.history.quantity', {
+                sign: t(`screens.cartridges.history.prefix.${historyTab}`),
+                quantity: entry.quantity,
+              })}
+            </Text>
+            {historyTab === 'issued' && entry.note ? (
+              <Text>{t('screens.cartridges.history.reason', { reason: entry.note })}</Text>
+            ) : null}
             <Text>{new Date(entry.createdAt).toLocaleString()}</Text>
           </View>
         ))}
@@ -284,7 +304,7 @@ const CartridgesScreen = () => {
     return (
       <View style={styles.centered}>
         <ActivityIndicator />
-        <Text style={styles.loadingText}>Loading cartridges...</Text>
+        <Text style={styles.loadingText}>{t('screens.cartridges.loading')}</Text>
       </View>
     );
   }
@@ -294,7 +314,7 @@ const CartridgesScreen = () => {
       <View style={styles.centered}>
         <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity style={styles.primaryButton} onPress={loadCartridges}>
-          <Text style={styles.primaryButtonText}>Retry</Text>
+          <Text style={styles.primaryButtonText}>{t('common.actions.retry')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -303,20 +323,20 @@ const CartridgesScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Cartridges</Text>
+        <Text style={styles.title}>{t('screens.cartridges.title')}</Text>
         <TouchableOpacity style={styles.primaryButton} onPress={openAddModal}>
-          <Text style={styles.primaryButtonText}>Add Cartridge</Text>
+          <Text style={styles.primaryButtonText}>{t('screens.cartridges.addButton')}</Text>
         </TouchableOpacity>
       </View>
       <FlatList
         data={cartridges}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderCartridge}
-        ListEmptyComponent={<Text style={styles.emptyText}>No cartridges available.</Text>}
+        ListEmptyComponent={<Text style={styles.emptyText}>{t('screens.cartridges.empty')}</Text>}
         contentContainerStyle={cartridges.length ? undefined : styles.emptyList}
       />
       <View style={styles.historySection}>
-        <Text style={styles.subtitle}>History</Text>
+        <Text style={styles.subtitle}>{t('screens.cartridges.historyTitle')}</Text>
         <View style={styles.tabRow}>
           {historyTabs.map((tab) => (
             <TouchableOpacity
@@ -327,7 +347,7 @@ const CartridgesScreen = () => {
               <Text
                 style={[styles.tabButtonText, historyTab === tab.key && styles.activeTabButtonText]}
               >
-                {tab.label}
+                {t(tab.labelKey)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -339,17 +359,19 @@ const CartridgesScreen = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>
-              {editingCartridge ? 'Edit Cartridge' : 'Add Cartridge'}
+              {editingCartridge
+                ? t('screens.cartridges.modals.form.titleEdit')
+                : t('screens.cartridges.modals.form.titleAdd')}
             </Text>
             <TextInput
               style={styles.input}
-              placeholder="Model"
+              placeholder={t('screens.cartridges.modals.form.modelPlaceholder')}
               value={formModel}
               onChangeText={setFormModel}
             />
             <TextInput
               style={[styles.input, styles.multilineInput]}
-              placeholder="Description"
+              placeholder={t('screens.cartridges.modals.form.descriptionPlaceholder')}
               value={formDescription}
               onChangeText={setFormDescription}
               multiline
@@ -357,7 +379,7 @@ const CartridgesScreen = () => {
             {!editingCartridge && (
               <TextInput
                 style={styles.input}
-                placeholder="Quantity"
+                placeholder={t('screens.cartridges.modals.form.quantityPlaceholder')}
                 keyboardType="number-pad"
                 value={formQuantity}
                 onChangeText={setFormQuantity}
@@ -371,10 +393,10 @@ const CartridgesScreen = () => {
                   setEditingCartridge(null);
                 }}
               >
-                <Text style={styles.secondaryButtonText}>Cancel</Text>
+                <Text style={styles.secondaryButtonText}>{t('screens.cartridges.buttons.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={submitForm}>
-                <Text style={styles.primaryButtonText}>Save</Text>
+                <Text style={styles.primaryButtonText}>{t('screens.cartridges.buttons.save')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -385,18 +407,20 @@ const CartridgesScreen = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>
-              {selectedCartridge ? `Issue ${selectedCartridge.model}` : 'Issue Cartridge'}
+              {selectedCartridge
+                ? t('screens.cartridges.modals.issue.title', { model: selectedCartridge.model })
+                : t('screens.cartridges.modals.issue.titleGeneric')}
             </Text>
             <TextInput
               style={styles.input}
-              placeholder="Quantity"
+              placeholder={t('screens.cartridges.modals.issue.quantityPlaceholder')}
               keyboardType="number-pad"
               value={issueQuantity}
               onChangeText={setIssueQuantity}
             />
             <TextInput
               style={[styles.input, styles.multilineInput]}
-              placeholder="Reason or recipient"
+              placeholder={t('screens.cartridges.modals.issue.notePlaceholder')}
               value={issueNote}
               onChangeText={setIssueNote}
             />
@@ -408,10 +432,12 @@ const CartridgesScreen = () => {
                   setSelectedCartridge(null);
                 }}
               >
-                <Text style={styles.secondaryButtonText}>Cancel</Text>
+                <Text style={styles.secondaryButtonText}>{t('screens.cartridges.buttons.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={submitIssue}>
-                <Text style={styles.primaryButtonText}>Issue</Text>
+                <Text style={styles.primaryButtonText}>
+                  {t('screens.cartridges.modals.issue.submit')}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

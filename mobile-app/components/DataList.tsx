@@ -1,5 +1,7 @@
 import React from 'react';
 import { FlatList, ListRenderItem, StyleSheet, Text, View } from 'react-native';
+
+import { useTranslation } from '../context/LanguageContext';
 import { useFetchList } from '../hooks/useFetchList';
 
 interface DataListProps<T> {
@@ -15,16 +17,21 @@ const DataList = <T,>({
   fetcher,
   renderItem,
   keyExtractor,
-  loadingMessage = 'Loading...',
-  errorMessage = 'Error:',
-  emptyMessage = 'No data available.',
+  loadingMessage,
+  errorMessage,
+  emptyMessage,
 }: DataListProps<T>) => {
+  const { t } = useTranslation();
   const { data, loading, error } = useFetchList<T>(fetcher);
+
+  const loadingLabel = loadingMessage ?? t('components.dataList.loading');
+  const errorLabel = errorMessage ?? t('components.dataList.error');
+  const emptyLabel = emptyMessage ?? t('components.dataList.empty');
 
   if (loading) {
     return (
       <View style={styles.centered}>
-        <Text>{loadingMessage}</Text>
+        <Text>{loadingLabel}</Text>
       </View>
     );
   }
@@ -33,7 +40,7 @@ const DataList = <T,>({
     return (
       <View style={styles.centered}>
         <Text>
-          {errorMessage}
+          {errorLabel}
           {error.message ? ` ${error.message}` : ''}
         </Text>
       </View>
@@ -43,7 +50,7 @@ const DataList = <T,>({
   if (!data.length) {
     return (
       <View style={styles.centered}>
-        <Text>{emptyMessage}</Text>
+        <Text>{emptyLabel}</Text>
       </View>
     );
   }

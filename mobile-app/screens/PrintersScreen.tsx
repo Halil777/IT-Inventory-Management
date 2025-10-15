@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import ListItem from '../components/ListItem';
+import { useTranslation } from '../context/LanguageContext';
 import { Printer } from '../interfaces/Printer';
 import { Department } from '../interfaces/Department';
 import { Employee } from '../interfaces/Employee';
@@ -49,6 +50,7 @@ const PrintersScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState<PrinterFormState>(emptyForm);
+  const { t } = useTranslation();
 
   const loadPrinters = useCallback(async () => {
     setLoading(true);
@@ -63,12 +65,14 @@ const PrintersScreen: React.FC = () => {
       setEmployees(employeeData);
       setError(null);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to load printers.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.printers.errors.load');
       setError(message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void loadPrinters();
@@ -95,11 +99,11 @@ const PrintersScreen: React.FC = () => {
     const trimmedModel = form.model.trim();
 
     if (!trimmedName || !trimmedModel) {
-      setError('Printer name and model are required.');
+      setError(t('screens.printers.errors.required'));
       return null;
     }
 
-    const parseNullableId = (value: string, label: string): number | null => {
+    const parseNullableId = (value: string, type: 'department' | 'employee'): number | null => {
       const trimmed = value.trim();
       if (!trimmed) {
         return null;
@@ -107,7 +111,15 @@ const PrintersScreen: React.FC = () => {
 
       const parsed = Number(trimmed);
       if (Number.isNaN(parsed)) {
-        throw new Error(`${label} must be a number.`);
+        if (type === 'department') {
+          throw new Error(t('screens.printers.errors.invalidDepartmentId'));
+        }
+
+        if (type === 'employee') {
+          throw new Error(t('screens.printers.errors.invalidEmployeeId'));
+        }
+
+        throw new Error(t('screens.printers.errors.invalidInput'));
       }
 
       return parsed;
@@ -118,16 +130,18 @@ const PrintersScreen: React.FC = () => {
         name: trimmedName,
         model: trimmedModel,
         description: form.description.trim() ? form.description.trim() : null,
-        departmentId: parseNullableId(form.departmentId, 'Department ID'),
-        userId: parseNullableId(form.userId, 'Employee ID'),
+        departmentId: parseNullableId(form.departmentId, 'department'),
+        userId: parseNullableId(form.userId, 'employee'),
       };
     } catch (validationError) {
       const message =
-        validationError instanceof Error ? validationError.message : 'Invalid form input.';
+        validationError instanceof Error && validationError.message
+          ? validationError.message
+          : t('screens.printers.errors.invalidInput');
       setError(message);
       return null;
     }
-  }, [form.departmentId, form.description, form.model, form.name, form.userId]);
+  }, [form.departmentId, form.description, form.model, form.name, form.userId, t]);
 
   const handleSubmit = useCallback(async () => {
     setError(null);
@@ -147,16 +161,18 @@ const PrintersScreen: React.FC = () => {
       }
       resetForm();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to save printer.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.printers.errors.save');
       setError(message);
     } finally {
       setSubmitting(false);
     }
-  }, [buildPayload, resetForm, selectedId]);
+  }, [buildPayload, resetForm, selectedId, t]);
 
   const handleDelete = useCallback(async () => {
     if (!selectedId) {
-      setError('Select a printer to delete.');
+      setError(t('screens.printers.errors.selectForDelete'));
       return;
     }
 
@@ -166,12 +182,14 @@ const PrintersScreen: React.FC = () => {
       setPrinters((prev) => prev.filter((printer) => printer.id !== selectedId));
       resetForm();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to delete printer.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.printers.errors.delete');
       setError(message);
     } finally {
       setSubmitting(false);
     }
-  }, [resetForm, selectedId]);
+  }, [resetForm, selectedId, t]);
 
   const handleSelect = useCallback((printer: Printer) => {
     setSelectedId(printer.id);
@@ -190,25 +208,27 @@ const PrintersScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.heading}>{selectedId ? 'Edit Printer' : 'Add Printer'}</Text>
+        <Text style={styles.heading}>
+          {selectedId ? t('screens.printers.editTitle') : t('screens.printers.addTitle')}
+        </Text>
 
 
         {error && <Text style={styles.error}>{error}</Text>}
 
         <TextInput
-          placeholder="Printer name"
+          placeholder={t('screens.printers.placeholders.name')}
           style={styles.input}
           value={form.name}
           onChangeText={(text) => handleChange('name', text)}
         />
         <TextInput
-          placeholder="Model"
+          placeholder={t('screens.printers.placeholders.model')}
           style={styles.input}
           value={form.model}
           onChangeText={(text) => handleChange('model', text)}
         />
         <TextInput
-          placeholder="Description (optional)"
+          placeholder={t('screens.printers.placeholders.description')}
           style={[styles.input, styles.multiline]}
           value={form.description}
           onChangeText={(text) => handleChange('description', text)}
@@ -220,42 +240,53 @@ const PrintersScreen: React.FC = () => {
         <View style={styles.buttonRow}>
           <View style={styles.buttonWrapper}>
             <Button
-              title={selectedId ? 'Update' : 'Create'}
+              title={selectedId ? t('screens.printers.buttons.update') : t('screens.printers.buttons.create')}
               onPress={handleSubmit}
               disabled={submitting}
             />
           </View>
           <View style={styles.buttonWrapper}>
-            <Button title="Reset" onPress={resetForm} disabled={submitting} />
+            <Button title={t('screens.printers.buttons.reset')} onPress={resetForm} disabled={submitting} />
           </View>
         </View>
 
         {selectedId && (
           <View style={styles.deleteButton}>
-            <Button color="#c1121f" title="Delete" onPress={handleDelete} disabled={submitting} />
+            <Button
+              color="#c1121f"
+              title={t('screens.printers.buttons.delete')}
+              onPress={handleDelete}
+              disabled={submitting}
+            />
           </View>
         )}
 
-        <Text style={[styles.heading, styles.listHeading]}>Printers</Text>
+        <Text style={[styles.heading, styles.listHeading]}>{t('screens.printers.listTitle')}</Text>
         {loading ? (
           <ActivityIndicator style={styles.loading} />
         ) : printers.length ? (
           printers.map((printer) => {
             const details: string[] = [
-              `Department: ${printer.department?.name ?? 'Unassigned'}`,
-              `Assigned To: ${printer.user?.name ?? 'Unassigned'}`,
+              t('screens.printers.details.department', {
+                department: printer.department?.name ?? t('screens.printers.unassigned'),
+              }),
+              t('screens.printers.details.assignedTo', {
+                user: printer.user?.name ?? t('screens.printers.unassigned'),
+              }),
             ];
 
 
             if (printer.description) {
-              details.push(`Description: ${printer.description}`);
+              details.push(
+                t('screens.printers.details.description', { description: printer.description }),
+              );
             }
 
             return (
               <ListItem
                 key={printer.id}
                 title={printer.name}
-                subtitle={`Model: ${printer.model}`}
+                subtitle={t('screens.printers.details.model', { model: printer.model })}
                 details={details}
                 onPress={submitting ? undefined : () => handleSelect(printer)}
                 selected={printer.id === selectedId}
@@ -263,7 +294,7 @@ const PrintersScreen: React.FC = () => {
             );
           })
         ) : (
-          <Text style={styles.empty}>No printers available.</Text>
+          <Text style={styles.empty}>{t('screens.printers.empty')}</Text>
         )}
       </ScrollView>
     </SafeAreaView>

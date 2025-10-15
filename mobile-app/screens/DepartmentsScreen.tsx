@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import ListItem from '../components/ListItem';
+import { useTranslation } from '../context/LanguageContext';
 import { Department } from '../interfaces/Department';
 import {
   createDepartment,
@@ -38,6 +39,7 @@ const DepartmentsScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState<DepartmentFormState>(emptyForm);
+  const { t } = useTranslation();
 
   const loadDepartments = useCallback(async () => {
     setLoading(true);
@@ -46,12 +48,14 @@ const DepartmentsScreen: React.FC = () => {
       setDepartments(data);
       setError(null);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to load departments.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.departments.errors.load');
       setError(message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void loadDepartments();
@@ -88,7 +92,7 @@ const DepartmentsScreen: React.FC = () => {
 
   const handleSubmit = useCallback(async () => {
     if (!payload) {
-      setError('Department name is required.');
+      setError(t('screens.departments.errors.required'));
       return;
     }
 
@@ -106,16 +110,18 @@ const DepartmentsScreen: React.FC = () => {
       setError(null);
       resetForm();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to save department.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.departments.errors.save');
       setError(message);
     } finally {
       setSubmitting(false);
     }
-  }, [payload, resetForm, selectedId]);
+  }, [payload, resetForm, selectedId, t]);
 
   const handleDelete = useCallback(async () => {
     if (!selectedId) {
-      setError('Select a department to delete.');
+      setError(t('screens.departments.errors.selectForDelete'));
       return;
     }
 
@@ -126,12 +132,14 @@ const DepartmentsScreen: React.FC = () => {
       setError(null);
       resetForm();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to delete department.';
+      const message = err instanceof Error && err.message
+        ? err.message
+        : t('screens.departments.errors.delete');
       setError(message);
     } finally {
       setSubmitting(false);
     }
-  }, [resetForm, selectedId]);
+  }, [resetForm, selectedId, t]);
 
   const handleSelect = useCallback((department: Department) => {
     setSelectedId(department.id);
@@ -145,27 +153,27 @@ const DepartmentsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.heading}>{selectedId ? 'Edit Department' : 'Add Department'}</Text>
-        <Text style={styles.helper}>
-          Tap a department to edit it. Use the form below to create, update, or delete entries.
+        <Text style={styles.heading}>
+          {selectedId ? t('screens.departments.editTitle') : t('screens.departments.addTitle')}
         </Text>
+        <Text style={styles.helper}>{t('screens.departments.helper')}</Text>
 
         {error && <Text style={styles.error}>{error}</Text>}
 
         <TextInput
-          placeholder="Department name"
+          placeholder={t('screens.departments.placeholders.name')}
           style={styles.input}
           value={form.name}
           onChangeText={(text) => handleChange('name', text)}
         />
         <TextInput
-          placeholder="Head (optional)"
+          placeholder={t('screens.departments.placeholders.head')}
           style={styles.input}
           value={form.head}
           onChangeText={(text) => handleChange('head', text)}
         />
         <TextInput
-          placeholder="Description (optional)"
+          placeholder={t('screens.departments.placeholders.description')}
           style={[styles.input, styles.multiline]}
           value={form.description}
           multiline
@@ -175,43 +183,54 @@ const DepartmentsScreen: React.FC = () => {
         <View style={styles.buttonRow}>
           <View style={styles.buttonWrapper}>
             <Button
-              title={selectedId ? 'Update' : 'Create'}
+              title={selectedId ? t('screens.departments.buttons.update') : t('screens.departments.buttons.create')}
               onPress={handleSubmit}
               disabled={submitting}
             />
           </View>
           <View style={styles.buttonWrapper}>
-            <Button title="Reset" onPress={resetForm} disabled={submitting} />
+            <Button title={t('screens.departments.buttons.reset')} onPress={resetForm} disabled={submitting} />
           </View>
         </View>
 
         {selectedId && (
           <View style={styles.deleteButton}>
-            <Button color="#c1121f" title="Delete" onPress={handleDelete} disabled={submitting} />
+            <Button
+              color="#c1121f"
+              title={t('screens.departments.buttons.delete')}
+              onPress={handleDelete}
+              disabled={submitting}
+            />
           </View>
         )}
 
-        <Text style={[styles.heading, styles.listHeading]}>Departments</Text>
+        <Text style={[styles.heading, styles.listHeading]}>{t('screens.departments.listTitle')}</Text>
         {loading ? (
           <ActivityIndicator style={styles.loading} />
         ) : departments.length ? (
           departments.map((department) => {
-            const descriptionDetails = department.description
-              ? ` • ${department.description}`
-              : '';
+            const headText = t('screens.departments.head', {
+              head: department.head ?? t('common.general.notAvailable'),
+            });
+            const subtitle = department.description
+              ? t('screens.departments.subtitleWithDescription', {
+                  head: headText,
+                  description: department.description,
+                })
+              : headText;
 
             return (
               <ListItem
                 key={department.id}
                 title={department.name}
-                subtitle={`Head: ${department.head ?? 'N/A'}${descriptionDetails}`}
+                subtitle={subtitle}
                 onPress={submitting ? undefined : () => handleSelect(department)}
                 selected={department.id === selectedId}
               />
             );
           })
         ) : (
-          <Text style={styles.empty}>No departments available.</Text>
+          <Text style={styles.empty}>{t('screens.departments.empty')}</Text>
         )}
       </ScrollView>
     </SafeAreaView>
