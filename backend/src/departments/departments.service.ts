@@ -12,22 +12,30 @@ export class DepartmentsService {
     private departmentsRepo: Repository<Department>,
   ) {}
 
+  private createDepartmentsQuery() {
+    return this.departmentsRepo
+      .createQueryBuilder('department')
+      .loadRelationCountAndMap('department.employeesCount', 'department.employees');
+  }
+
   findAll(): Promise<Department[]> {
-    return this.departmentsRepo.find();
+    return this.createDepartmentsQuery().getMany();
   }
 
   findOne(id: number): Promise<Department | null> {
-    return this.departmentsRepo.findOne({ where: { id } });
+    return this.createDepartmentsQuery().where('department.id = :id', { id }).getOne();
   }
 
-  create(dto: CreateDepartmentDto): Promise<Department> {
+  async create(dto: CreateDepartmentDto): Promise<Department> {
     const department = this.departmentsRepo.create(dto);
-    return this.departmentsRepo.save(department);
+    const saved = await this.departmentsRepo.save(department);
+    return (await this.findOne(saved.id))!;
   }
 
-  update(id: number, dto: UpdateDepartmentDto): Promise<Department> {
+  async update(id: number, dto: UpdateDepartmentDto): Promise<Department> {
     const department = this.departmentsRepo.create({ id, ...dto });
-    return this.departmentsRepo.save(department);
+    const saved = await this.departmentsRepo.save(department);
+    return (await this.findOne(saved.id))!;
   }
 
   async remove(id: number): Promise<void> {

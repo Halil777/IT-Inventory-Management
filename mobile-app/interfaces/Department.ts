@@ -4,4 +4,5 @@ export interface Department {
   name: string;
   head?: string;
   description?: string;
+  employeesCount?: number;
 }

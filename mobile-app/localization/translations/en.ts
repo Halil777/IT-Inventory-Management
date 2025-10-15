@@ -183,6 +183,7 @@ const en = {
         name: 'Department name',
         head: 'Head (optional)',
         description: 'Description (optional)',
+        search: 'Search by name or head',
       },
       errors: {
         required: 'Department name is required.',

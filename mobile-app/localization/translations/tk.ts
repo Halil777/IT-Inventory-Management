@@ -184,6 +184,7 @@ const tk: TranslationDictionary = {
         name: 'Bölümiň ady',
         head: 'Başlyk (islege görä)',
         description: 'Düşündiriş (islege görä)',
+        search: 'Ady ýa-da ýolbaşçysy boýunça gözleg',
       },
       errors: {
         required: 'Bölüm ady hökmany.',

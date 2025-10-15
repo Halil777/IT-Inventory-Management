@@ -184,6 +184,7 @@ const tr: TranslationDictionary = {
         name: 'Departman adı',
         head: 'Yönetici (isteğe bağlı)',
         description: 'Açıklama (isteğe bağlı)',
+        search: 'Ad veya yöneticiye göre ara',
       },
       errors: {
         required: 'Departman adı zorunludur.',
