@@ -47,3 +47,4 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 export const useTranslation = () => useContext(LanguageContext);
 
 export { availableLocales };
+export type { Locale };

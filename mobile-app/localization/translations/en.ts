@@ -50,8 +50,8 @@ const en = {
       turkish: 'Turkish',
       turkmen: 'Turkmen',
       chinese: 'Chinese',
-      switcherLabel: 'Language: {{language}}',
-      switcherAccessibility: 'Switch application language',
+      switcherLabel: 'Language',
+      switcherAccessibility: 'Choose application language',
     },
   },
   entities: {
@@ -78,8 +78,8 @@ const en = {
       navigateHint: 'Navigate to {{label}}',
     },
     languageSwitcher: {
-      buttonLabel: 'Language: {{language}}',
-      accessibilityHint: 'Switch application language',
+      label: 'Language',
+      accessibilityLabel: 'Select application language',
     },
   },
   tabs: {
