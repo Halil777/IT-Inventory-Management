@@ -1,11 +1,11 @@
-import { Layout } from 'antd';
+import { Layout } from "antd";
 
 const { Footer } = Layout;
 
 const AppFooter = () => {
   return (
-    <Footer style={{ textAlign: 'center' }}>
-      IT Inventory Management ©2025 Created by Gemini
+    <Footer style={{ textAlign: "center" }}>
+      IT Inventory Management ©2025 Created by Halil Gayypov
     </Footer>
   );
 };
