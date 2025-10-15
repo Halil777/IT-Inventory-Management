@@ -1,48 +1,59 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
-import { availableLocales, useTranslation } from '../context/LanguageContext';
+import { availableLocales, Locale, useTranslation } from '../context/LanguageContext';
 
 export const LanguageSwitcher: React.FC = () => {
   const { locale, setLocale, t } = useTranslation();
 
-  const currentLocale = useMemo(
-    () => availableLocales.find((entry) => entry.code === locale) ?? availableLocales[0],
-    [locale],
+  const options = useMemo(
+    () =>
+      availableLocales.map(({ code, labelKey }) => ({
+        code,
+        label: t(labelKey),
+      })),
+    [t],
   );
 
-  const nextLocale = useMemo(() => {
-    const currentIndex = availableLocales.findIndex((entry) => entry.code === locale);
-    return availableLocales[(currentIndex + 1) % availableLocales.length];
-  }, [locale]);
-
-  const currentLabel = t(currentLocale.labelKey);
-  const buttonLabel = t('components.languageSwitcher.buttonLabel', { language: currentLabel });
+  const handleChange = (value: string) => {
+    if (value !== locale) {
+      setLocale(value as Locale);
+    }
+  };
 
   return (
-    <Pressable
-      accessibilityHint={t('components.languageSwitcher.accessibilityHint')}
-      accessibilityRole="button"
-      onPress={() => setLocale(nextLocale.code)}
-      style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
-      <Text style={styles.text}>{buttonLabel}</Text>
-    </Pressable>
+    <View style={styles.container}>
+      <Text style={styles.label}>{t('components.languageSwitcher.label')}</Text>
+      <Picker
+        selectedValue={locale}
+        onValueChange={handleChange}
+        style={styles.picker}
+        mode={Platform.OS === 'ios' ? 'dialog' : 'dropdown'}
+        dropdownIconColor="#1e3a8a"
+        accessibilityLabel={t('components.languageSwitcher.accessibilityLabel')}>
+        {options.map(({ code, label }) => (
+          <Picker.Item key={code} label={label} value={code} />
+        ))}
+      </Picker>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  button: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#1e3a8a',
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 12,
   },
-  buttonPressed: {
-    opacity: 0.85,
-  },
-  text: {
-    color: '#ffffff',
-    fontWeight: '600',
+  label: {
     fontSize: 12,
+    fontWeight: '600',
+    color: '#1e3a8a',
+    marginRight: 8,
+  },
+  picker: {
+    width: 140,
+    color: '#1f2937',
   },
 });
