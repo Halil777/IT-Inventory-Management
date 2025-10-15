@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getEmployees, createEmployee, updateEmployee, deleteEmployee } from '../../services/employees';
 import { Table, Button, Space, Modal, Form } from 'antd';
@@ -41,7 +41,10 @@ const Employees = () => {
 
   const handleEdit = (record) => {
     setEditingEmployee(record);
-    form.setFieldsValue(record);
+    form.setFieldsValue({
+      ...record,
+      departmentId: record.department?.id,
+    });
     setIsModalVisible(true);
   };
 
@@ -75,6 +78,33 @@ const Employees = () => {
       key: 'email',
     },
     {
+      title: t('Phone'),
+      dataIndex: 'phone',
+      key: 'phone',
+    },
+    {
+      title: t('Civil Number'),
+      dataIndex: 'civilNumber',
+      key: 'civilNumber',
+    },
+    {
+      title: t('Role'),
+      dataIndex: 'role',
+      key: 'role',
+    },
+    {
+      title: t('Department'),
+      dataIndex: 'departmentName',
+      key: 'departmentName',
+      render: (_, record) => record.department?.name ?? t('Unassigned'),
+    },
+    {
+      title: t('Status'),
+      dataIndex: 'status',
+      key: 'status',
+      render: (value) => (value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : ''),
+    },
+    {
       title: t('Actions'),
       key: 'actions',
       render: (text, record) => (
@@ -86,18 +116,27 @@ const Employees = () => {
     },
   ];
 
+  const tableData = useMemo(
+    () =>
+      data?.map((employee) => ({
+        ...employee,
+        departmentName: employee.department?.name ?? t('Unassigned'),
+      })),
+    [data, t],
+  );
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>{t('Employees')}</h1>
         <Space>
-          <ExcelExportButton data={data} columns={columns} fileName="employees" isLoading={isLoading} />
+          <ExcelExportButton data={tableData ?? []} columns={columns} fileName="employees" isLoading={isLoading} />
           <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
             {t('Add Employee')}
           </Button>
         </Space>
       </div>
-      <Table columns={columns} dataSource={data} loading={isLoading} rowKey="id" />
+      <Table columns={columns} dataSource={tableData ?? []} loading={isLoading} rowKey="id" />
       <Modal
         title={editingEmployee ? t('Edit Employee') : t('Add Employee')}
         visible={isModalVisible}

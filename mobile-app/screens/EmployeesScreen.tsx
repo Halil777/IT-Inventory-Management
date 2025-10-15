@@ -9,6 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import ListItem from '../components/ListItem';
 import { Department } from '../interfaces/Department';
 import { Employee } from '../interfaces/Employee';
@@ -27,17 +28,17 @@ interface EmployeeFormState {
   status: string;
   phone: string;
   civilNumber: string;
-  departmentId: string;
+  departmentId: number | null;
   role: string;
 }
 
 const emptyForm: EmployeeFormState = {
   name: '',
   email: '',
-  status: '',
+  status: 'active',
   phone: '',
   civilNumber: '',
-  departmentId: '',
+  departmentId: null,
   role: '',
 };
 
@@ -97,8 +98,6 @@ const EmployeesScreen: React.FC = () => {
       return null;
     }
 
-    const departmentIdNumber = Number(form.departmentId);
-
     return {
       name: trimmedName,
       email: trimmedEmail,
@@ -106,8 +105,7 @@ const EmployeesScreen: React.FC = () => {
       phone: form.phone.trim() || undefined,
       civilNumber: form.civilNumber.trim() || undefined,
       role: form.role.trim() || undefined,
-      departmentId:
-        Number.isNaN(departmentIdNumber) || !form.departmentId ? undefined : departmentIdNumber,
+      departmentId: form.departmentId ?? undefined,
     };
   }, [form.civilNumber, form.departmentId, form.email, form.name, form.phone, form.role, form.status]);
 
@@ -163,33 +161,22 @@ const EmployeesScreen: React.FC = () => {
     setForm({
       name: employee.name ?? '',
       email: employee.email ?? '',
-      status: employee.status ?? '',
+      status: employee.status ?? 'active',
       phone: employee.phone ?? '',
       civilNumber: employee.civilNumber ?? '',
-      departmentId: employee.department?.id ? String(employee.department.id) : '',
+      departmentId: employee.department?.id ?? null,
       role: employee.role ?? '',
     });
   }, []);
-
-  const renderDepartmentHint = useMemo(() => {
-    if (!departments.length) {
-      return null;
-    }
-
-    return `Available departments: ${departments
-      .map((department) => `${department.id} - ${department.name}`)
-      .join(', ')}`;
-  }, [departments]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.heading}>{selectedId ? 'Edit Employee' : 'Add Employee'}</Text>
         <Text style={styles.helper}>
-          Tap an employee to edit it. Provide the department ID to associate an employee with a
+          Tap an employee to edit it. Use the pickers below to choose the employee status and
           department.
         </Text>
-        {renderDepartmentHint && <Text style={styles.hint}>{renderDepartmentHint}</Text>}
 
         {error && <Text style={styles.error}>{error}</Text>}
 
@@ -207,12 +194,17 @@ const EmployeesScreen: React.FC = () => {
           value={form.email}
           onChangeText={(text) => handleChange('email', text)}
         />
-        <TextInput
-          placeholder="Status"
-          style={styles.input}
-          value={form.status}
-          onChangeText={(text) => handleChange('status', text)}
-        />
+        <Text style={styles.label}>Status</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            style={styles.picker}
+            selectedValue={form.status}
+            onValueChange={(value) => handleChange('status', value)}
+          >
+            <Picker.Item label="Active" value="active" />
+            <Picker.Item label="Inactive" value="inactive" />
+          </Picker>
+        </View>
         <TextInput
           placeholder="Phone (optional)"
           style={styles.input}
@@ -226,12 +218,25 @@ const EmployeesScreen: React.FC = () => {
           value={form.civilNumber}
           onChangeText={(text) => handleChange('civilNumber', text)}
         />
-        <TextInput
-          placeholder="Department ID (optional)"
-          style={styles.input}
-          value={form.departmentId}
-          onChangeText={(text) => handleChange('departmentId', text)}
-        />
+        <Text style={styles.label}>Department</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            style={styles.picker}
+            selectedValue={form.departmentId ?? 'none'}
+            onValueChange={(value) => {
+              if (value === 'none') {
+                handleChange('departmentId', null);
+              } else {
+                handleChange('departmentId', Number(value));
+              }
+            }}
+          >
+            <Picker.Item label="Unassigned" value="none" />
+            {departments.map((department) => (
+              <Picker.Item key={department.id} label={department.name} value={department.id} />
+            ))}
+          </Picker>
+        </View>
         <TextInput
           placeholder="Role (optional)"
           style={styles.input}
@@ -259,19 +264,21 @@ const EmployeesScreen: React.FC = () => {
           <ActivityIndicator style={styles.loading} />
         ) : employees.length ? (
           employees.map((employee) => {
+            const subtitle = employee.email ? `Email: ${employee.email}` : undefined;
             const details = [
-              employee.email ? `Email: ${employee.email}` : null,
               employee.department?.name ? `Department: ${employee.department.name}` : null,
-              employee.status ? `Status: ${employee.status}` : null,
-            ]
-              .filter(Boolean)
-              .join(' • ');
+              employee.status ? `Status: ${employee.status.charAt(0).toUpperCase()}${employee.status.slice(1)}` : null,
+              employee.phone ? `Phone: ${employee.phone}` : null,
+              employee.role ? `Role: ${employee.role}` : null,
+              employee.civilNumber ? `Civil number: ${employee.civilNumber}` : null,
+            ].filter(Boolean) as string[];
 
             return (
               <ListItem
                 key={employee.id}
                 title={employee.name}
-                subtitle={details}
+                subtitle={subtitle}
+                details={details}
                 onPress={submitting ? undefined : () => handleSelect(employee)}
                 selected={employee.id === selectedId}
               />
@@ -303,11 +310,6 @@ const styles = StyleSheet.create({
     color: '#555',
     marginBottom: 8,
   },
-  hint: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 12,
-  },
   error: {
     backgroundColor: '#fdecea',
     color: '#b71c1c',
@@ -322,6 +324,23 @@ const styles = StyleSheet.create({
     borderColor: '#d0d7de',
     padding: 12,
     marginBottom: 12,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+    color: '#333',
+  },
+  pickerWrapper: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#d0d7de',
+    marginBottom: 12,
+  },
+  picker: {
+    height: 48,
+    width: '100%',
   },
   buttonRow: {
     flexDirection: 'row',
