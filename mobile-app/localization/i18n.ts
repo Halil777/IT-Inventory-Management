@@ -1,12 +1,18 @@
 import en from './translations/en';
-import es from './translations/es';
+import ru from './translations/ru';
+import tr from './translations/tr';
+import tk from './translations/tk';
+import zh from './translations/zh';
 import { TranslationDictionary } from './translations/types';
 
 type TranslationValue = string | TranslationDictionary;
 
 const translations = {
   en,
-  es,
+  ru,
+  tr,
+  tk,
+  zh,
 } as const;
 
 export type Locale = keyof typeof translations;
@@ -77,5 +83,8 @@ export const detectInitialLocale = (): Locale => {
 
 export const availableLocales: Array<{ code: Locale; labelKey: string }> = [
   { code: 'en', labelKey: 'common.language.english' },
-  { code: 'es', labelKey: 'common.language.spanish' },
+  { code: 'ru', labelKey: 'common.language.russian' },
+  { code: 'tr', labelKey: 'common.language.turkish' },
+  { code: 'tk', labelKey: 'common.language.turkmen' },
+  { code: 'zh', labelKey: 'common.language.chinese' },
 ];

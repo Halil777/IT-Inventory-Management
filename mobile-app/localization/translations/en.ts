@@ -46,7 +46,10 @@ const en = {
     },
     language: {
       english: 'English',
-      spanish: 'Spanish',
+      russian: 'Russian',
+      turkish: 'Turkish',
+      turkmen: 'Turkmen',
+      chinese: 'Chinese',
       switcherLabel: 'Language: {{language}}',
       switcherAccessibility: 'Switch application language',
     },
