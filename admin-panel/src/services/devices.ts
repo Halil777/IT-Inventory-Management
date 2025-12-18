@@ -8,22 +8,22 @@ export const getDevices = async (params: Record<string, unknown> = {}) => {
   return data;
 };
 
-export const getDevice = async (id) => {
+export const getDevice = async (id: number) => {
   const { data } = await api.get(`/devices/${id}`);
   return data;
 };
 
-export const createDevice = async (device) => {
+export const createDevice = async (device: Record<string, unknown>) => {
   const { data } = await api.post('/devices', device);
   return data;
 };
 
-export const updateDevice = async (id, device) => {
+export const updateDevice = async (id: number, device: Record<string, unknown>) => {
   const { data } = await api.put(`/devices/${id}`, device);
   return data;
 };
 
-export const deleteDevice = async (id) => {
+export const deleteDevice = async (id: number) => {
   const { data } = await api.delete(`/devices/${id}`);
   return data;
 };

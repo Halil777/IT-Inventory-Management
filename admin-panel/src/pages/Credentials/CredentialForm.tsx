@@ -1,7 +1,12 @@
 import { Form, Input } from 'antd';
+import type { FormInstance } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-const CredentialForm = ({ form }) => {
+interface CredentialFormProps {
+  form: FormInstance;
+}
+
+const CredentialForm = ({ form }: CredentialFormProps) => {
   const { t } = useTranslation();
 
   return (

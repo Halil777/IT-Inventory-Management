@@ -8,51 +8,99 @@ import {
   issueCartridge,
 } from '../../services/cartridges';
 import { Table, Button, Space, Modal, Form, InputNumber, Input, message } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import type { AxiosError } from 'axios';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { PlusOutlined, HistoryOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import CartridgeForm from './CartridgeForm';
 import ExcelExportButton from '../../components/ExcelExportButton';
 
+interface Cartridge {
+  id: number;
+  model: string;
+  description?: string | null;
+  stock?: number;
+}
+
+interface CartridgeFormValues {
+  [key: string]: unknown;
+  model: string;
+  description?: string | null;
+  quantity?: number;
+}
+
+interface CartridgeUpdatePayload {
+  [key: string]: unknown;
+  model: string;
+  description: string | null;
+}
+
+interface IssuePayload {
+  [key: string]: unknown;
+  cartridgeId: number;
+  quantity: number;
+  note: string;
+}
+
+type ApiError = AxiosError<{ message?: string }>;
+
 const Cartridges = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isIssueModalVisible, setIsIssueModalVisible] = useState(false);
-  const [editingCartridge, setEditingCartridge] = useState(null);
-  const [selectedCartridge, setSelectedCartridge] = useState(null);
+  const [editingCartridge, setEditingCartridge] = useState<Cartridge | null>(null);
+  const [selectedCartridge, setSelectedCartridge] = useState<Cartridge | null>(null);
   const [form] = Form.useForm();
   const [issueForm] = Form.useForm();
 
-  const { data, isLoading } = useQuery({ queryKey: ['cartridges'], queryFn: getCartridges });
+  const { data: cartridges = [], isLoading } = useQuery<Cartridge[]>({
+    queryKey: ['cartridges'],
+    queryFn: getCartridges,
+  });
 
-  const createMutation = useMutation({ mutationFn: createCartridge, onSuccess: () => {
-    queryClient.invalidateQueries(['cartridges']);
-    setIsModalVisible(false);
-    form.resetFields();
-  } });
+  const createMutation = useMutation<unknown, ApiError, CartridgeFormValues>({
+    mutationFn: createCartridge,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cartridges'] });
+      setIsModalVisible(false);
+      form.resetFields();
+    },
+  });
 
-  const updateMutation = useMutation({ mutationFn: (variables) => updateCartridge(variables.id, variables.data), onSuccess: () => {
-    queryClient.invalidateQueries(['cartridges']);
-    setIsModalVisible(false);
-    setEditingCartridge(null);
-    form.resetFields();
-  } });
+  const updateMutation = useMutation<unknown, ApiError, { id: number; data: CartridgeUpdatePayload }>({
+    mutationFn: ({ id, data: payload }) => updateCartridge(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cartridges'] });
+      setIsModalVisible(false);
+      setEditingCartridge(null);
+      form.resetFields();
+    },
+  });
 
-  const deleteMutation = useMutation({ mutationFn: deleteCartridge, onSuccess: () => {
-    queryClient.invalidateQueries(['cartridges']);
-  }, onError: (error) => {
-    message.error(error?.response?.data?.message || t('Unable to delete cartridge.'));
-  } });
+  const deleteMutation = useMutation<unknown, ApiError, number>({
+    mutationFn: deleteCartridge,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cartridges'] });
+    },
+    onError: (error) => {
+      message.error(error.response?.data?.message || t('Unable to delete cartridge.'));
+    },
+  });
 
-  const issueMutation = useMutation({ mutationFn: issueCartridge, onSuccess: () => {
-    queryClient.invalidateQueries(['cartridges']);
-    setIsIssueModalVisible(false);
-    issueForm.resetFields();
-    setSelectedCartridge(null);
-  }, onError: (error) => {
-    message.error(error?.response?.data?.message || t('Unable to issue cartridge.'));
-  } });
+  const issueMutation = useMutation<unknown, ApiError, IssuePayload>({
+    mutationFn: issueCartridge,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cartridges'] });
+      setIsIssueModalVisible(false);
+      issueForm.resetFields();
+      setSelectedCartridge(null);
+    },
+    onError: (error) => {
+      message.error(error.response?.data?.message || t('Unable to issue cartridge.'));
+    },
+  });
 
   const handleAdd = () => {
     setEditingCartridge(null);
@@ -61,7 +109,7 @@ const Cartridges = () => {
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record: Cartridge) => {
     setEditingCartridge(record);
     form.setFieldsValue({
       model: record.model,
@@ -70,7 +118,7 @@ const Cartridges = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: number) => {
     Modal.confirm({
       title: t('Delete Cartridge'),
       icon: <ExclamationCircleOutlined />,
@@ -82,17 +130,17 @@ const Cartridges = () => {
     });
   };
 
-  const handleIssue = (record) => {
+  const handleIssue = (record: Cartridge) => {
     setSelectedCartridge(record);
     issueForm.setFieldsValue({ quantity: 1, note: '' });
     setIsIssueModalVisible(true);
   };
 
   const handleOk = () => {
-    form.validateFields().then(values => {
+    form.validateFields().then((values: CartridgeFormValues) => {
       if (editingCartridge) {
         const description = values.description ? values.description.trim() : '';
-        const payload = {
+        const payload: CartridgeUpdatePayload = {
           model: values.model.trim(),
           description: description ? description : null,
         };
@@ -114,7 +162,11 @@ const Cartridges = () => {
   };
 
   const handleIssueOk = () => {
-    issueForm.validateFields().then(values => {
+    if (!selectedCartridge) {
+      return;
+    }
+
+    issueForm.validateFields().then((values: { quantity: number; note: string }) => {
       issueMutation.mutate({
         cartridgeId: selectedCartridge.id,
         quantity: values.quantity,
@@ -128,7 +180,7 @@ const Cartridges = () => {
     setSelectedCartridge(null);
   };
 
-  const columns = [
+  const columns: ColumnsType<Cartridge> = [
     {
       title: t('Model'),
       dataIndex: 'model',
@@ -147,7 +199,7 @@ const Cartridges = () => {
     {
       title: t('Actions'),
       key: 'actions',
-      render: (text, record) => (
+      render: (_: unknown, record) => (
         <Space size="middle">
           <a onClick={() => handleEdit(record)}>{t('Edit')}</a>
           <a onClick={() => handleIssue(record)}>{t('Issue')}</a>
@@ -162,7 +214,7 @@ const Cartridges = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>{t('Cartridges')}</h1>
         <Space>
-          <ExcelExportButton data={data} columns={columns} fileName="cartridges" isLoading={isLoading} />
+          <ExcelExportButton data={cartridges} columns={columns} fileName="cartridges" isLoading={isLoading} />
           <Link to="/cartridges/history">
             <Button icon={<HistoryOutlined />}>
               {t('View History')}
@@ -173,13 +225,13 @@ const Cartridges = () => {
           </Button>
         </Space>
       </div>
-      <Table columns={columns} dataSource={data || []} loading={isLoading} rowKey="id" />
+      <Table columns={columns} dataSource={cartridges} loading={isLoading} rowKey="id" />
       <Modal
         title={editingCartridge ? t('Edit Cartridge') : t('Add Cartridge')}
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        confirmLoading={createMutation.isLoading || updateMutation.isLoading}
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
       >
         <CartridgeForm form={form} isEditing={!!editingCartridge} />
       </Modal>
@@ -188,7 +240,7 @@ const Cartridges = () => {
         visible={isIssueModalVisible}
         onOk={handleIssueOk}
         onCancel={handleIssueCancel}
-        confirmLoading={issueMutation.isLoading}
+        confirmLoading={issueMutation.isPending}
       >
         <Form form={issueForm} layout="vertical">
           <Form.Item

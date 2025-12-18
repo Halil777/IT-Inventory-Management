@@ -1,4 +1,5 @@
 import { Form, Input, Select } from 'antd';
+import type { FormInstance } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getDeviceTypes } from '../../services/device-types';
@@ -7,11 +8,39 @@ import { getEmployees } from '../../services/employees';
 
 const { Option } = Select;
 
-const DeviceForm = ({ form }) => {
+interface DeviceTypeOption {
+  id: number;
+  name: string;
+}
+
+interface DepartmentOption {
+  id: number;
+  name: string;
+}
+
+interface EmployeeOption {
+  id: number;
+  name: string;
+}
+
+interface DeviceFormProps {
+  form: FormInstance;
+}
+
+const DeviceForm = ({ form }: DeviceFormProps) => {
   const { t } = useTranslation();
-  const { data: deviceTypes, isLoading: isLoadingDeviceTypes } = useQuery({ queryKey: ['device-types'], queryFn: getDeviceTypes });
-  const { data: departments, isLoading: isLoadingDepartments } = useQuery({ queryKey: ['departments'], queryFn: getDepartments });
-  const { data: employees, isLoading: isLoadingEmployees } = useQuery({ queryKey: ['employees'], queryFn: getEmployees });
+  const { data: deviceTypes, isLoading: isLoadingDeviceTypes } = useQuery<DeviceTypeOption[]>({
+    queryKey: ['device-types'],
+    queryFn: getDeviceTypes,
+  });
+  const { data: departments, isLoading: isLoadingDepartments } = useQuery<DepartmentOption[]>({
+    queryKey: ['departments'],
+    queryFn: getDepartments,
+  });
+  const { data: employees, isLoading: isLoadingEmployees } = useQuery<EmployeeOption[]>({
+    queryKey: ['employees'],
+    queryFn: getEmployees,
+  });
 
   return (
     <Form form={form} layout="vertical">
@@ -21,7 +50,7 @@ const DeviceForm = ({ form }) => {
         rules={[{ required: true, message: t('Please select a device type!') }]}
       >
         <Select loading={isLoadingDeviceTypes}>
-          {deviceTypes?.map(type => (
+          {deviceTypes?.map((type) => (
             <Option key={type.id} value={type.id}>{type.name}</Option>
           ))}
         </Select>
@@ -54,7 +83,7 @@ const DeviceForm = ({ form }) => {
         label={t('Assigned User')}
       >
         <Select loading={isLoadingEmployees} allowClear>
-          {employees?.map(employee => (
+          {employees?.map((employee) => (
             <Option key={employee.id} value={employee.id}>{employee.name}</Option>
           ))}
         </Select>
@@ -64,7 +93,7 @@ const DeviceForm = ({ form }) => {
         label={t('Department')}
       >
         <Select loading={isLoadingDepartments} allowClear>
-          {departments?.map(department => (
+          {departments?.map((department) => (
             <Option key={department.id} value={department.id}>{department.name}</Option>
           ))}
         </Select>

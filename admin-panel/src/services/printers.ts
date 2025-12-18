@@ -5,22 +5,22 @@ export const getPrinters = async () => {
   return data;
 };
 
-export const getPrinter = async (id) => {
+export const getPrinter = async (id: number) => {
   const { data } = await api.get(`/printers/${id}`);
   return data;
 };
 
-export const createPrinter = async (printer) => {
+export const createPrinter = async (printer: Record<string, unknown>) => {
   const { data } = await api.post('/printers', printer);
   return data;
 };
 
-export const updatePrinter = async (id, printer) => {
+export const updatePrinter = async (id: number, printer: Record<string, unknown>) => {
   const { data } = await api.put(`/printers/${id}`, printer);
   return data;
 };
 
-export const deletePrinter = async (id) => {
+export const deletePrinter = async (id: number) => {
   const { data } = await api.delete(`/printers/${id}`);
   return data;
 };

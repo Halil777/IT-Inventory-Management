@@ -1,4 +1,5 @@
 import { Form, Input, Select } from "antd";
+import type { FormInstance } from "antd";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { getDepartments } from "../../services/departments";
@@ -6,13 +7,27 @@ import { getEmployees } from "../../services/employees";
 
 const { Option } = Select;
 
-const PrinterForm = ({ form }) => {
+interface DepartmentOption {
+  id: number;
+  name: string;
+}
+
+interface EmployeeOption {
+  id: number;
+  name: string;
+}
+
+interface PrinterFormProps {
+  form: FormInstance;
+}
+
+const PrinterForm = ({ form }: PrinterFormProps) => {
   const { t } = useTranslation();
-  const { data: departments, isLoading: isLoadingDepartments } = useQuery({
+  const { data: departments, isLoading: isLoadingDepartments } = useQuery<DepartmentOption[]>({
     queryKey: ["departments"],
     queryFn: getDepartments,
   });
-  const { data: employees, isLoading: isLoadingEmployees } = useQuery({
+  const { data: employees, isLoading: isLoadingEmployees } = useQuery<EmployeeOption[]>({
     queryKey: ["employees"],
     queryFn: getEmployees,
   });

@@ -1,13 +1,23 @@
 import { Form, Input, Select } from 'antd';
+import type { FormInstance } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getDepartments } from '../../services/departments';
 
 const { Option } = Select;
 
-const EmployeeForm = ({ form }) => {
+interface DepartmentOption {
+  id: number;
+  name: string;
+}
+
+interface EmployeeFormProps {
+  form: FormInstance;
+}
+
+const EmployeeForm = ({ form }: EmployeeFormProps) => {
   const { t } = useTranslation();
-  const { data: departments, isLoading: isLoadingDepartments } = useQuery({
+  const { data: departments, isLoading: isLoadingDepartments } = useQuery<DepartmentOption[]>({
     queryKey: ['departments'],
     queryFn: getDepartments,
   });

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Tabs, Table, Button } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -8,6 +9,23 @@ import {
   getCartridgeHistory,
   getCartridgeStatistics,
 } from '../../services/cartridgeHistory';
+
+interface CartridgeHistoryEntry {
+  id: number;
+  quantity: number;
+  createdAt: string;
+  note?: string | null;
+  cartridge?: {
+    model?: string;
+  } | null;
+}
+
+interface CartridgeUsageStat {
+  cartridgeId: number;
+  model: string;
+  totalIssued: number;
+  issueCount: number;
+}
 
 const formatDateTime = (value: string) => new Date(value).toLocaleString();
 
@@ -33,7 +51,7 @@ const CartridgeHistory = () => {
     enabled: activeTab === 'statistics',
   });
 
-  const receivedColumns = [
+  const receivedColumns: ColumnsType<CartridgeHistoryEntry> = [
     {
       title: t('Model'),
       dataIndex: ['cartridge', 'model'],
@@ -43,17 +61,17 @@ const CartridgeHistory = () => {
       title: t('Quantity'),
       dataIndex: 'quantity',
       key: 'quantity',
-      render: (value) => `+${value ?? 0}`,
+      render: (value: number | undefined) => `+${value ?? 0}`,
     },
     {
       title: t('Date & Time'),
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (value) => formatDateTime(value),
+      render: (value: string) => formatDateTime(value),
     },
   ];
 
-  const issuedColumns = [
+  const issuedColumns: ColumnsType<CartridgeHistoryEntry> = [
     {
       title: t('Model'),
       dataIndex: ['cartridge', 'model'],
@@ -63,7 +81,7 @@ const CartridgeHistory = () => {
       title: t('Quantity'),
       dataIndex: 'quantity',
       key: 'quantity',
-      render: (value) => `-${value ?? 0}`,
+      render: (value: number | undefined) => `-${value ?? 0}`,
     },
     {
       title: t('Reason or Recipient'),
@@ -74,11 +92,11 @@ const CartridgeHistory = () => {
       title: t('Date & Time'),
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (value) => formatDateTime(value),
+      render: (value: string) => formatDateTime(value),
     },
   ];
 
-  const statisticsColumns = [
+  const statisticsColumns: ColumnsType<CartridgeUsageStat> = [
     {
       title: t('Model'),
       dataIndex: 'model',

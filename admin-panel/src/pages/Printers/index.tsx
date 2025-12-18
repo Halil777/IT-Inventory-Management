@@ -2,31 +2,64 @@ import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPrinters, createPrinter, updatePrinter, deletePrinter } from '../../services/printers';
 import { Table, Button, Space, Modal, Form } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import type { AxiosError } from 'axios';
 import { useTranslation } from 'react-i18next';
 import { PlusOutlined } from '@ant-design/icons';
 import PrinterForm from './PrinterForm';
 import ExcelExportButton from '../../components/ExcelExportButton';
 import PrinterFilters from './PrinterFilters';
 
+interface Department {
+  id: number;
+  name: string;
+}
+
+interface User {
+  id: number;
+  name: string;
+}
+
+interface Printer {
+  id: number;
+  name: string;
+  model?: string | null;
+  description?: string | null;
+  department?: Department | null;
+  user?: User | null;
+}
+
+type PrinterPayload = Omit<Printer, 'id' | 'department' | 'user'> & {
+  departmentId?: number;
+  userId?: number | null;
+};
+
+type ApiError = AxiosError<{ message?: string }>;
+
+type PrinterRow = Printer & {
+  departmentName: string;
+  userName: string;
+};
+
 const Printers = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingPrinter, setEditingPrinter] = useState(null);
+  const [editingPrinter, setEditingPrinter] = useState<PrinterRow | null>(null);
   const [searchValue, setSearchValue] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [assignmentFilter, setAssignmentFilter] = useState('all');
   const [form] = Form.useForm();
 
-  const { data, isLoading } = useQuery({ queryKey: ['printers'], queryFn: getPrinters });
+  const { data = [], isLoading } = useQuery<Printer[]>({ queryKey: ['printers'], queryFn: getPrinters });
 
-  const tableData = useMemo(
+  const tableData: PrinterRow[] = useMemo(
     () =>
-      data?.map((printer) => ({
+      data.map((printer) => ({
         ...printer,
         departmentName: printer.department?.name ?? t('Unassigned'),
         userName: printer.user?.name ?? t('Unassigned'),
-      })) ?? [],
+      })),
     [data, t],
   );
 
@@ -57,7 +90,7 @@ const Printers = () => {
     [t],
   );
 
-  const filteredData = useMemo(() => {
+  const filteredData: PrinterRow[] = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
 
     return tableData.filter((printer) => {
@@ -87,22 +120,31 @@ const Printers = () => {
     setAssignmentFilter('all');
   };
 
-  const createMutation = useMutation({ mutationFn: createPrinter, onSuccess: () => { 
-    queryClient.invalidateQueries(['printers']);
-    setIsModalVisible(false);
-    form.resetFields();
-  } });
+  const createMutation = useMutation<unknown, ApiError, PrinterPayload>({
+    mutationFn: (payload) => createPrinter(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['printers'] });
+      setIsModalVisible(false);
+      form.resetFields();
+    },
+  });
 
-  const updateMutation = useMutation({ mutationFn: (variables) => updatePrinter(variables.id, variables.data), onSuccess: () => { 
-    queryClient.invalidateQueries(['printers']);
-    setIsModalVisible(false);
-    setEditingPrinter(null);
-    form.resetFields();
-  } });
+  const updateMutation = useMutation<unknown, ApiError, { id: number; data: PrinterPayload }>({
+    mutationFn: ({ id, data }) => updatePrinter(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['printers'] });
+      setIsModalVisible(false);
+      setEditingPrinter(null);
+      form.resetFields();
+    },
+  });
 
-  const deleteMutation = useMutation({ mutationFn: deletePrinter, onSuccess: () => { 
-    queryClient.invalidateQueries(['printers']);
-  } });
+  const deleteMutation = useMutation<unknown, ApiError, number>({
+    mutationFn: deletePrinter,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['printers'] });
+    },
+  });
 
   const handleAdd = () => {
     setEditingPrinter(null);
@@ -110,7 +152,7 @@ const Printers = () => {
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record: PrinterRow) => {
     setEditingPrinter(record);
     form.setFieldsValue({
       name: record.name,
@@ -122,12 +164,12 @@ const Printers = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: number) => {
     deleteMutation.mutate(id);
   };
 
   const handleOk = () => {
-    form.validateFields().then(values => {
+    form.validateFields().then((values: PrinterPayload) => {
       const payload = {
         ...values,
         userId: values.userId ?? null,
@@ -144,7 +186,7 @@ const Printers = () => {
     setIsModalVisible(false);
   };
 
-  const columns = [
+  const columns: ColumnsType<PrinterRow> = [
     {
       title: t('Printer Name'),
       dataIndex: 'name',
@@ -154,12 +196,13 @@ const Printers = () => {
       title: t('Model'),
       dataIndex: 'model',
       key: 'model',
+      render: (value: string | null | undefined) => value ?? '',
     },
     {
       title: t('Description'),
       dataIndex: 'description',
       key: 'description',
-      render: (value) => value || '—',
+      render: (value: string | null | undefined) => value || 'N/A',
     },
     {
       title: t('Department'),
@@ -174,7 +217,7 @@ const Printers = () => {
     {
       title: t('Actions'),
       key: 'actions',
-      render: (text, record) => (
+      render: (_: unknown, record) => (
         <Space size="middle">
           <a onClick={() => handleEdit(record)}>{t('Edit')}</a>
           <a onClick={() => handleDelete(record.id)}>{t('Delete')}</a>
@@ -216,7 +259,7 @@ const Printers = () => {
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        confirmLoading={createMutation.isLoading || updateMutation.isLoading}
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
       >
         <PrinterForm form={form} />
       </Modal>

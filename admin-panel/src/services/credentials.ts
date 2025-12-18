@@ -5,22 +5,22 @@ export const getCredentials = async () => {
   return data;
 };
 
-export const getCredential = async (id) => {
+export const getCredential = async (id: number) => {
   const { data } = await api.get(`/credentials/${id}`);
   return data;
 };
 
-export const createCredential = async (payload) => {
+export const createCredential = async (payload: Record<string, unknown>) => {
   const { data } = await api.post('/credentials', payload);
   return data;
 };
 
-export const updateCredential = async (id, payload) => {
+export const updateCredential = async (id: number, payload: Record<string, unknown>) => {
   const { data } = await api.put(`/credentials/${id}`, payload);
   return data;
 };
 
-export const deleteCredential = async (id) => {
+export const deleteCredential = async (id: number) => {
   const { data } = await api.delete(`/credentials/${id}`);
   return data;
 };

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Modal, Space, Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import type { AxiosError } from 'axios';
 import { PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,38 +14,50 @@ import {
 import CredentialForm from './CredentialForm';
 import ExcelExportButton from '../../components/ExcelExportButton';
 
+interface Credential {
+  id: number;
+  fullName: string;
+  login: string;
+  password: string;
+}
+
+type ApiError = AxiosError<{ message?: string }>;
+
 const Credentials = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingCredential, setEditingCredential] = useState(null);
+  const [editingCredential, setEditingCredential] = useState<Credential | null>(null);
   const [form] = Form.useForm();
 
-  const { data, isLoading } = useQuery({ queryKey: ['credentials'], queryFn: getCredentials });
+  const { data: credentials = [], isLoading } = useQuery<Credential[]>({
+    queryKey: ['credentials'],
+    queryFn: getCredentials,
+  });
 
-  const createMutation = useMutation({
+  const createMutation = useMutation<unknown, ApiError, Omit<Credential, 'id'>>({
     mutationFn: createCredential,
     onSuccess: () => {
-      queryClient.invalidateQueries(['credentials']);
+      queryClient.invalidateQueries({ queryKey: ['credentials'] });
       setIsModalVisible(false);
       form.resetFields();
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (variables) => updateCredential(variables.id, variables.data),
+  const updateMutation = useMutation<unknown, ApiError, { id: number; data: Omit<Credential, 'id'> }>({
+    mutationFn: ({ id, data }) => updateCredential(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['credentials']);
+      queryClient.invalidateQueries({ queryKey: ['credentials'] });
       setIsModalVisible(false);
       setEditingCredential(null);
       form.resetFields();
     },
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useMutation<unknown, ApiError, number>({
     mutationFn: deleteCredential,
     onSuccess: () => {
-      queryClient.invalidateQueries(['credentials']);
+      queryClient.invalidateQueries({ queryKey: ['credentials'] });
     },
   });
 
@@ -53,13 +67,13 @@ const Credentials = () => {
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record: Credential) => {
     setEditingCredential(record);
     form.setFieldsValue(record);
     setIsModalVisible(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: number) => {
     deleteMutation.mutate(id);
   };
 
@@ -77,7 +91,7 @@ const Credentials = () => {
     setIsModalVisible(false);
   };
 
-  const columns = [
+  const columns: ColumnsType<Credential> = [
     {
       title: t('Full Name'),
       dataIndex: 'fullName',
@@ -96,7 +110,7 @@ const Credentials = () => {
     {
       title: t('Actions'),
       key: 'actions',
-      render: (text, record) => (
+      render: (_: unknown, record) => (
         <Space size="middle">
           <a onClick={() => handleEdit(record)}>{t('Edit')}</a>
           <a onClick={() => handleDelete(record.id)}>{t('Delete')}</a>
@@ -112,19 +126,19 @@ const Credentials = () => {
       >
         <h1>{t('Credentials')}</h1>
         <Space>
-          <ExcelExportButton data={data} columns={columns} fileName="credentials" isLoading={isLoading} />
+          <ExcelExportButton data={credentials} columns={columns} fileName="credentials" isLoading={isLoading} />
           <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
             {t('Add Credential')}
           </Button>
         </Space>
       </div>
-      <Table columns={columns} dataSource={data} loading={isLoading} rowKey="id" />
+      <Table columns={columns} dataSource={credentials} loading={isLoading} rowKey="id" />
       <Modal
         title={editingCredential ? t('Edit Credential') : t('Add Credential')}
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        confirmLoading={createMutation.isLoading || updateMutation.isLoading}
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
       >
         <CredentialForm form={form} />
       </Modal>

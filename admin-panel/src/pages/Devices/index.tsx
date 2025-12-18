@@ -23,6 +23,8 @@ import {
   ReloadOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
+import type { ColumnsType } from 'antd/es/table';
+import type { AxiosError } from 'axios';
 import { useTranslation } from 'react-i18next';
 import DeviceForm from './DeviceForm';
 import ExcelExportButton from '../../components/ExcelExportButton';
@@ -39,12 +41,64 @@ const statusColorMap: Record<string, string> = {
   retired: 'red',
 };
 
+interface DeviceType {
+  id: number;
+  name: string;
+}
+
+interface DeviceUser {
+  id: number;
+  name: string;
+}
+
+interface DeviceDepartment {
+  id: number;
+  name: string;
+}
+
+interface Device {
+  id: number;
+  type?: DeviceType | null;
+  status?: string | null;
+  serialNumber?: string | null;
+  model?: string | null;
+  user?: DeviceUser | null;
+  department?: DeviceDepartment | null;
+}
+
+interface DeviceFilters {
+  search?: string;
+  typeId?: number;
+  departmentId?: number;
+  status?: string;
+  [key: string]: string | number | undefined;
+}
+
+type DevicePayload = {
+  typeId: number;
+  status: string;
+  serialNumber?: string;
+  model?: string;
+  userId?: number | null;
+  departmentId?: number | null;
+};
+
+type ApiError = AxiosError<{ message?: string }>;
+
+type DeviceTableRow = Device & {
+  typeName: string;
+  userName: string;
+  departmentName: string;
+  statusLabel: string;
+  normalizedStatus: string;
+};
+
 const Devices = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingDevice, setEditingDevice] = useState<any>(null);
+  const [editingDevice, setEditingDevice] = useState<DeviceTableRow | null>(null);
   const [form] = Form.useForm();
 
   const [searchValue, setSearchValue] = useState('');
@@ -53,7 +107,7 @@ const Devices = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<number | undefined>();
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>();
 
-  const filters = useMemo(
+  const filters = useMemo<DeviceFilters>(
     () => ({
       ...(appliedSearch ? { search: appliedSearch } : {}),
       ...(selectedType ? { typeId: selectedType } : {}),
@@ -63,17 +117,17 @@ const Devices = () => {
     [appliedSearch, selectedType, selectedDepartment, selectedStatus],
   );
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<Device[]>({
     queryKey: ['devices', filters],
     queryFn: () => getDevices(filters),
   });
 
-  const { data: deviceTypes, isLoading: isLoadingTypes } = useQuery({
+  const { data: deviceTypes, isLoading: isLoadingTypes } = useQuery<DeviceType[]>({
     queryKey: ['device-types'],
     queryFn: getDeviceTypes,
   });
 
-  const { data: departments, isLoading: isLoadingDepartments } = useQuery({
+  const { data: departments, isLoading: isLoadingDepartments } = useQuery<DeviceDepartment[]>({
     queryKey: ['departments'],
     queryFn: getDepartments,
   });
@@ -88,11 +142,12 @@ const Devices = () => {
     [t],
   );
 
-  const tableData = useMemo(
+  const tableData: DeviceTableRow[] = useMemo(
     () =>
       data?.map((device) => {
         const normalizedStatus = device.status?.toLowerCase?.() ?? '';
-        const statusLabel = statusLabels[normalizedStatus] ?? device.status ?? '';
+        const statusLabel =
+          statusLabels[normalizedStatus as keyof typeof statusLabels] ?? device.status ?? '';
         return {
           ...device,
           typeName: device.type?.name ?? t('Unassigned'),
@@ -124,7 +179,7 @@ const Devices = () => {
       .filter(([status]) => status !== 'unknown')
       .map(([status, count]) => ({
         key: status,
-        title: statusLabels[status] ?? status,
+        title: statusLabels[status as keyof typeof statusLabels] ?? status,
         value: count,
         color: statusColorMap[status] ?? 'blue',
       }));
@@ -158,11 +213,11 @@ const Devices = () => {
       .filter(Boolean)
       .map((value) => ({
         value,
-        label: statusLabels[value] ?? value,
+        label: statusLabels[value as keyof typeof statusLabels] ?? value,
       }));
   }, [statusLabels, tableData]);
 
-  const createMutation = useMutation({
+  const createMutation = useMutation<unknown, ApiError, DevicePayload>({
     mutationFn: createDevice,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['devices'] });
@@ -171,8 +226,8 @@ const Devices = () => {
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (variables: { id: number; data: any }) => updateDevice(variables.id, variables.data),
+  const updateMutation = useMutation<unknown, ApiError, { id: number; data: DevicePayload }>({
+    mutationFn: ({ id, data: payload }) => updateDevice(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['devices'] });
       setIsModalVisible(false);
@@ -181,7 +236,7 @@ const Devices = () => {
     },
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useMutation<unknown, ApiError, number>({
     mutationFn: deleteDevice,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['devices'] });
@@ -195,7 +250,7 @@ const Devices = () => {
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record: any) => {
+  const handleEdit = (record: DeviceTableRow) => {
     setEditingDevice(record);
     form.setFieldsValue({
       typeId: record.type?.id ?? undefined,
@@ -213,7 +268,7 @@ const Devices = () => {
   };
 
   const handleModalOk = () => {
-    form.validateFields().then((values) => {
+    form.validateFields().then((values: DevicePayload) => {
       if (editingDevice) {
         updateMutation.mutate({ id: editingDevice.id, data: values });
       } else {
@@ -241,7 +296,7 @@ const Devices = () => {
     setSelectedStatus(undefined);
   };
 
-  const columns = [
+  const columns: ColumnsType<DeviceTableRow> = [
     {
       title: t('Type'),
       dataIndex: 'typeName',
@@ -251,13 +306,13 @@ const Devices = () => {
       title: t('Model'),
       dataIndex: 'model',
       key: 'model',
-      render: (value: string) => value ?? '—',
+      render: (value: string | null | undefined) => value ?? 'N/A',
     },
     {
       title: t('Serial Number'),
       dataIndex: 'serialNumber',
       key: 'serialNumber',
-      render: (value: string) => value ?? '—',
+      render: (value: string | null | undefined) => value ?? 'N/A',
     },
     {
       title: t('Assigned User'),
@@ -273,7 +328,7 @@ const Devices = () => {
       title: t('Status'),
       dataIndex: 'statusLabel',
       key: 'status',
-      render: (_: string, record: any) => {
+      render: (_: string, record) => {
         const color = statusColorMap[record.normalizedStatus] ?? 'blue';
         return <Tag color={color}>{record.statusLabel}</Tag>;
       },
@@ -281,7 +336,7 @@ const Devices = () => {
     {
       title: t('Actions'),
       key: 'actions',
-      render: (_: unknown, record: any) => (
+      render: (_: unknown, record) => (
         <Space size="middle">
           <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             {t('Edit')}
@@ -291,7 +346,7 @@ const Devices = () => {
             onConfirm={() => handleDelete(record.id)}
             okText={t('Delete')}
             cancelText={t('Cancel')}
-            okButtonProps={{ loading: deleteMutation.isLoading }}
+            okButtonProps={{ loading: deleteMutation.isPending }}
           >
             <Button type="link" danger icon={<DeleteOutlined />}>
               {t('Delete')}
@@ -410,7 +465,7 @@ const Devices = () => {
         open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
-        confirmLoading={createMutation.isLoading || updateMutation.isLoading}
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
       >
         <DeviceForm form={form} />

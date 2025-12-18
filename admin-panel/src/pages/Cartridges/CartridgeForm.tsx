@@ -1,9 +1,15 @@
 import { Form, Input, InputNumber } from 'antd';
+import type { FormInstance } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 const { TextArea } = Input;
 
-const CartridgeForm = ({ form, isEditing = false }) => {
+interface CartridgeFormProps {
+  form: FormInstance;
+  isEditing?: boolean;
+}
+
+const CartridgeForm = ({ form, isEditing = false }: CartridgeFormProps) => {
   const { t } = useTranslation();
 
   return (

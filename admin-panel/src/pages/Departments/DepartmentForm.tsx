@@ -1,9 +1,14 @@
 import { Form, Input } from 'antd';
+import type { FormInstance } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 const { TextArea } = Input;
 
-const DepartmentForm = ({ form }) => {
+interface DepartmentFormProps {
+  form: FormInstance;
+}
+
+const DepartmentForm = ({ form }: DepartmentFormProps) => {
   const { t } = useTranslation();
 
   return (

@@ -17,44 +17,84 @@ import {
   Typography,
   Statistic,
 } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import type { AxiosError } from 'axios';
 import { useTranslation } from 'react-i18next';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import EmployeeForm from './EmployeeForm';
 import ExcelExportButton from '../../components/ExcelExportButton';
 
+interface Department {
+  id: number;
+  name: string;
+}
+
+interface Employee {
+  id: number;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  civilNumber?: string | null;
+  role?: string | null;
+  status?: string | null;
+  department?: Department | null;
+}
+
+type EmployeePayload = Omit<Employee, 'id' | 'department'> & {
+  departmentId?: number | null;
+};
+
+type ApiError = AxiosError<{ message?: string }>;
+
+type EmployeeTableRow = Employee & {
+  key: number;
+  departmentName: string;
+  statusLabel: string;
+  statusValue: string;
+};
+
 const Employees = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState(null);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
 
-  const { data, isLoading } = useQuery({ queryKey: ['employees'], queryFn: getEmployees });
-  const { data: departments, isLoading: isLoadingDepartments } = useQuery({
+  const { data = [], isLoading } = useQuery<Employee[]>({ queryKey: ['employees'], queryFn: getEmployees });
+  const { data: departments = [], isLoading: isLoadingDepartments } = useQuery<Department[]>({
     queryKey: ['departments'],
     queryFn: getDepartments,
   });
 
-  const createMutation = useMutation({ mutationFn: createEmployee, onSuccess: () => {
-    queryClient.invalidateQueries(['employees']);
-    setIsModalVisible(false);
-    form.resetFields();
-  } });
+  const createMutation = useMutation<unknown, ApiError, EmployeePayload>({
+    mutationFn: createEmployee,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      setIsModalVisible(false);
+      form.resetFields();
+    },
+  });
 
-  const updateMutation = useMutation({ mutationFn: (variables) => updateEmployee(variables.id, variables.data), onSuccess: () => { 
-    queryClient.invalidateQueries(['employees']);
-    setIsModalVisible(false);
-    setEditingEmployee(null);
-    form.resetFields();
-  } });
+  const updateMutation = useMutation<unknown, ApiError, { id: number; data: EmployeePayload }>({
+    mutationFn: (variables) => updateEmployee(variables.id, variables.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      setIsModalVisible(false);
+      setEditingEmployee(null);
+      form.resetFields();
+    },
+  });
 
-  const deleteMutation = useMutation({ mutationFn: deleteEmployee, onSuccess: () => { 
-    queryClient.invalidateQueries(['employees']);
-  } });
+  const deleteMutation = useMutation<unknown, ApiError, number>({
+    mutationFn: deleteEmployee,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+    },
+  });
 
   const handleAdd = () => {
     setEditingEmployee(null);
@@ -62,7 +102,7 @@ const Employees = () => {
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record: Employee) => {
     setEditingEmployee(record);
     form.setFieldsValue({
       ...record,
@@ -71,12 +111,12 @@ const Employees = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: number) => {
     deleteMutation.mutate(id);
   };
 
   const handleOk = () => {
-    form.validateFields().then(values => {
+    form.validateFields().then((values: EmployeePayload) => {
       if (editingEmployee) {
         updateMutation.mutate({ id: editingEmployee.id, data: values });
       } else {
@@ -114,34 +154,27 @@ const Employees = () => {
 
   const departmentOptions = useMemo(
     () =>
-      departments?.map((department) => ({
+      departments.map((department) => ({
         label: department.name,
         value: String(department.id),
-      })) ?? [],
+      })),
     [departments],
   );
 
   const roleOptions = useMemo(() => {
-    if (!data) {
-      return [] as { label: string; value: string }[];
-    }
     const uniqueRoles = Array.from(
       new Set(
         data
           .map((employee) => employee.role)
           .filter((role): role is string => Boolean(role))
-          .map((role) => role!.trim())
+          .map((role) => role.trim())
           .filter(Boolean),
       ),
     ).sort((a, b) => a.localeCompare(b));
     return uniqueRoles.map((role) => ({ label: role, value: role }));
   }, [data]);
 
-  const filteredEmployees = useMemo(() => {
-    if (!data) {
-      return [];
-    }
-
+  const filteredEmployees: Employee[] = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
     const normalizedStatusFilter = statusFilter.toLowerCase();
     const normalizedRoleFilter = roleFilter.toLowerCase();
@@ -173,13 +206,13 @@ const Employees = () => {
     });
   }, [data, departmentFilter, roleFilter, searchTerm, statusFilter]);
 
-  const columns = useMemo(
+  const columns: ColumnsType<EmployeeTableRow> = useMemo(
     () => [
       {
         title: t('Name'),
         dataIndex: 'name',
         key: 'name',
-        sorter: (a, b) => a.name.localeCompare(b.name),
+        sorter: (a: EmployeeTableRow, b: EmployeeTableRow) => a.name.localeCompare(b.name),
       },
       {
         title: t('Email'),
@@ -200,7 +233,7 @@ const Employees = () => {
         title: t('Role'),
         dataIndex: 'role',
         key: 'role',
-        render: (value: string | null) => value ?? t('Unassigned'),
+        render: (value: string | null | undefined) => value ?? t('Unassigned'),
       },
       {
         title: t('Department'),
@@ -211,7 +244,7 @@ const Employees = () => {
         title: t('Status'),
         dataIndex: 'statusLabel',
         key: 'statusLabel',
-        render: (_: string, record: { statusLabel: string; statusValue: string }) => {
+        render: (_: string, record: EmployeeTableRow) => {
           const status = record.statusValue.toLowerCase();
           const color = status === 'active' ? 'green' : status === 'inactive' ? 'volcano' : 'blue';
           return <Tag color={color}>{record.statusLabel}</Tag>;
@@ -220,7 +253,7 @@ const Employees = () => {
       {
         title: t('Actions'),
         key: 'actions',
-        render: (text: unknown, record: (typeof filteredEmployees)[number]) => (
+        render: (_: unknown, record: EmployeeTableRow) => (
           <Space size="middle">
             <Button type="link" onClick={() => handleEdit(record)}>
               {t('Edit')}
@@ -235,7 +268,7 @@ const Employees = () => {
     [filteredEmployees, t],
   );
 
-  const tableData = useMemo(
+  const tableData: EmployeeTableRow[] = useMemo(
     () =>
       filteredEmployees.map((employee) => ({
         ...employee,
@@ -247,9 +280,9 @@ const Employees = () => {
     [filteredEmployees, t],
   );
 
-  const totalEmployees = data?.length ?? 0;
-  const activeEmployees = data?.filter((employee) => employee.status?.toLowerCase() === 'active').length ?? 0;
-  const inactiveEmployees = data?.filter((employee) => employee.status?.toLowerCase() === 'inactive').length ?? 0;
+  const totalEmployees = data.length;
+  const activeEmployees = data.filter((employee) => employee.status?.toLowerCase() === 'active').length;
+  const inactiveEmployees = data.filter((employee) => employee.status?.toLowerCase() === 'inactive').length;
 
   const { Title, Text } = Typography;
 
@@ -351,7 +384,7 @@ const Employees = () => {
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        confirmLoading={createMutation.isLoading || updateMutation.isLoading}
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
       >
         <EmployeeForm form={form} />

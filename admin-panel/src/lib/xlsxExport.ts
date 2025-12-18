@@ -254,7 +254,9 @@ export const createXlsxFile = (rows: Record<string, unknown>[], columns: ExportC
 };
 
 export const downloadXlsx = (data: Uint8Array, fileName: string) => {
-  const blob = new Blob([data], {
+  // Ensure we hand Blob an ArrayBuffer to satisfy stricter DOM typings
+  const buffer = data.slice().buffer;
+  const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
   const url = URL.createObjectURL(blob);

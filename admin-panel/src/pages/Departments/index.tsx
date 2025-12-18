@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Input, Modal, Select, Space, Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import type { AxiosError } from 'axios';
 import { PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,18 +14,29 @@ import {
 import DepartmentForm from './DepartmentForm';
 import ExcelExportButton from '../../components/ExcelExportButton';
 
+interface Department {
+  id: number;
+  name: string;
+  head?: string | null;
+  description?: string | null;
+  employeesCount?: number | null;
+}
+
+type ApiError = AxiosError<{ message?: string }>;
+
 const Departments = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingDepartment, setEditingDepartment] = useState(null);
+  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null);
   const [form] = Form.useForm();
 
-  const { data, isLoading } = useQuery({ queryKey: ['departments'], queryFn: getDepartments });
-
-  const departments = data ?? [];
+  const { data: departments = [], isLoading } = useQuery<Department[]>({
+    queryKey: ['departments'],
+    queryFn: getDepartments,
+  });
 
   const departmentOptions = useMemo(
     () =>
@@ -40,7 +53,7 @@ const Departments = () => {
     return departments.filter((department) => {
       const matchesSearch = term
         ? [department.name, department.head]
-            .filter(Boolean)
+            .filter((value): value is string => Boolean(value))
             .some((value) => value.toLowerCase().includes(term))
         : true;
       const matchesSelection = selectedDepartmentId ? department.id === selectedDepartmentId : true;
@@ -49,29 +62,29 @@ const Departments = () => {
     });
   }, [departments, searchTerm, selectedDepartmentId]);
 
-  const createMutation = useMutation({
+  const createMutation = useMutation<unknown, ApiError, Omit<Department, 'id'>>({
     mutationFn: createDepartment,
     onSuccess: () => {
-      queryClient.invalidateQueries(['departments']);
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
       setIsModalVisible(false);
       form.resetFields();
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (variables) => updateDepartment(variables.id, variables.data),
+  const updateMutation = useMutation<unknown, ApiError, { id: number; data: Partial<Department> }>({
+    mutationFn: ({ id, data }) => updateDepartment(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['departments']);
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
       setIsModalVisible(false);
       setEditingDepartment(null);
       form.resetFields();
     },
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useMutation<unknown, ApiError, number>({
     mutationFn: deleteDepartment,
     onSuccess: () => {
-      queryClient.invalidateQueries(['departments']);
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
     },
   });
 
@@ -81,7 +94,7 @@ const Departments = () => {
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record: Department) => {
     setEditingDepartment(record);
     form.setFieldsValue({
       name: record.name,
@@ -91,7 +104,7 @@ const Departments = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: number) => {
     deleteMutation.mutate(id);
   };
 
@@ -109,7 +122,7 @@ const Departments = () => {
     setIsModalVisible(false);
   };
 
-  const columns = [
+  const columns: ColumnsType<Department> = [
     {
       title: t('Name'),
       dataIndex: 'name',
@@ -124,7 +137,7 @@ const Departments = () => {
       title: t('Employees'),
       dataIndex: 'employeesCount',
       key: 'employeesCount',
-      render: (count) => count ?? 0,
+      render: (count: number | null | undefined) => count ?? 0,
     },
     {
       title: t('Description'),
@@ -134,7 +147,7 @@ const Departments = () => {
     {
       title: t('Actions'),
       key: 'actions',
-      render: (text, record) => (
+      render: (_: unknown, record) => (
         <Space size="middle">
           <a onClick={() => handleEdit(record)}>{t('Edit')}</a>
           <a onClick={() => handleDelete(record.id)}>{t('Delete')}</a>
@@ -169,7 +182,7 @@ const Departments = () => {
           placeholder={t('Departments')}
           options={departmentOptions}
           value={selectedDepartmentId ?? undefined}
-          onChange={(value) => setSelectedDepartmentId(value === undefined ? null : value)}
+          onChange={(value) => setSelectedDepartmentId(value ?? null)}
           style={{ minWidth: 260 }}
           loading={isLoading}
           optionFilterProp="label"
@@ -182,7 +195,7 @@ const Departments = () => {
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        confirmLoading={createMutation.isLoading || updateMutation.isLoading}
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
       >
         <DepartmentForm form={form} />
       </Modal>
