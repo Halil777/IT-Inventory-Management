@@ -4,15 +4,10 @@ import { AppModule } from "./app.module";
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
-  const defaultOrigins = [
-    "http://80.78.243.22",
-    "http://localhost:5173",
-    "http://localhost:8081",
-    "http://localhost:8082",
-  ];
+  // Allow any origin by default so remote clients (e.g., admin panel) can reach the API.
+  // If FRONTEND_ORIGIN is provided, use the comma-separated list instead.
   const origins =
-    process.env.FRONTEND_ORIGIN?.split(",").map((origin) => origin.trim()) ||
-    defaultOrigins;
+    process.env.FRONTEND_ORIGIN?.split(",").map((origin) => origin.trim()) || true;
 
   app.enableCors({
     origin: origins,
