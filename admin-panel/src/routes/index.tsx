@@ -9,6 +9,7 @@ const Cartridges = lazy(() => import('../pages/Cartridges'));
 const CartridgeHistory = lazy(() => import('../pages/CartridgeHistory'));
 const Departments = lazy(() => import('../pages/Departments'));
 const Devices = lazy(() => import('../pages/Devices'));
+const DeviceTypes = lazy(() => import('../pages/DeviceTypes'));
 const Employees = lazy(() => import('../pages/Employees'));
 const Credentials = lazy(() => import('../pages/Credentials'));
 const Printers = lazy(() => import('../pages/Printers'));
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: 'devices',
         element: <Suspense fallback={<Loader />}><AnimatedPage><Devices /></AnimatedPage></Suspense>,
+      },
+      {
+        path: 'device-types',
+        element: <Suspense fallback={<Loader />}><AnimatedPage><DeviceTypes /></AnimatedPage></Suspense>,
       },
       {
         path: 'employees',

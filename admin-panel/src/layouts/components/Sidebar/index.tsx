@@ -1,11 +1,12 @@
 import { Layout, Menu } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { 
-  DashboardOutlined, 
+import {
+  DashboardOutlined,
   ShoppingCartOutlined,
   ApartmentOutlined,
   DesktopOutlined,
+  AppstoreOutlined,
   UserOutlined,
   PrinterOutlined,
   KeyOutlined,
@@ -33,16 +34,19 @@ const AppSidebar = () => {
         <Menu.Item key="4" icon={<DesktopOutlined />}>
           <Link to="/devices">{t('Devices')}</Link>
         </Menu.Item>
-        <Menu.Item key="5" icon={<UserOutlined />}>
+        <Menu.Item key="5" icon={<AppstoreOutlined />}>
+          <Link to="/device-types">{t('Device Types')}</Link>
+        </Menu.Item>
+        <Menu.Item key="6" icon={<UserOutlined />}>
           <Link to="/employees">{t('Employees')}</Link>
         </Menu.Item>
-        <Menu.Item key="6" icon={<PrinterOutlined />}>
+        <Menu.Item key="7" icon={<PrinterOutlined />}>
           <Link to="/printers">{t('Printers')}</Link>
         </Menu.Item>
-        <Menu.Item key="7" icon={<KeyOutlined />}>
+        <Menu.Item key="8" icon={<KeyOutlined />}>
           <Link to="/credentials">{t('Credentials')}</Link>
         </Menu.Item>
-        <Menu.Item key="8" icon={<BarChartOutlined />}>
+        <Menu.Item key="9" icon={<BarChartOutlined />}>
           <Link to="/reports">{t('Reports')}</Link>
         </Menu.Item>
       </Menu>

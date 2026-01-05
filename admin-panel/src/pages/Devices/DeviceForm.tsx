@@ -2,9 +2,10 @@ import { Form, Input, Select } from 'antd';
 import type { FormInstance } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { getDeviceTypes } from '../../services/device-types';
 import { getDepartments } from '../../services/departments';
-import { getEmployees } from '../../services/employees';
+import { getEmployees, getEmployee } from '../../services/employees';
 
 const { Option } = Select;
 
@@ -21,6 +22,10 @@ interface DepartmentOption {
 interface EmployeeOption {
   id: number;
   name: string;
+  department?: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 interface DeviceFormProps {
@@ -29,6 +34,8 @@ interface DeviceFormProps {
 
 const DeviceForm = ({ form }: DeviceFormProps) => {
   const { t } = useTranslation();
+  const userId = Form.useWatch('userId', form);
+
   const { data: deviceTypes, isLoading: isLoadingDeviceTypes } = useQuery<DeviceTypeOption[]>({
     queryKey: ['device-types'],
     queryFn: getDeviceTypes,
@@ -41,6 +48,23 @@ const DeviceForm = ({ form }: DeviceFormProps) => {
     queryKey: ['employees'],
     queryFn: getEmployees,
   });
+
+  // Fetch employee details when userId changes
+  const { data: selectedEmployee } = useQuery<EmployeeOption>({
+    queryKey: ['employee', userId],
+    queryFn: () => getEmployee(userId as number),
+    enabled: !!userId,
+  });
+
+  // Auto-populate department when user is selected
+  useEffect(() => {
+    if (selectedEmployee?.department) {
+      form.setFieldValue('departmentId', selectedEmployee.department.id);
+    } else if (userId === undefined || userId === null) {
+      // Clear department when user is deselected
+      form.setFieldValue('departmentId', null);
+    }
+  }, [selectedEmployee, userId, form]);
 
   return (
     <Form form={form} layout="vertical">
@@ -92,7 +116,11 @@ const DeviceForm = ({ form }: DeviceFormProps) => {
         name="departmentId"
         label={t('Department')}
       >
-        <Select loading={isLoadingDepartments} allowClear>
+        <Select
+          loading={isLoadingDepartments}
+          allowClear
+          disabled={!!userId}
+        >
           {departments?.map((department) => (
             <Option key={department.id} value={department.id}>{department.name}</Option>
           ))}
